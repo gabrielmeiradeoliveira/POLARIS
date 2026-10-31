@@ -8,15 +8,19 @@ import pytest
 
 from deicide.core.config import DeicideConfig, load_dotenv_file
 from deicide.core.errors import (
+    BudgetExceededError,
     ConfigurationError,
     MissingCredentialsError,
     UnsupportedProviderError,
 )
 from deicide.core.models import (
+    BudgetTracker,
     CandidateFinding,
     Confidence,
+    ExecutionBudget,
     FindingCategory,
     Severity,
+    TokenUsage,
 )
 from deicide.core.validation import (
     compute_finding_id,
@@ -27,11 +31,18 @@ from deicide.git.analyzer import parse_unified_diff
 from deicide.git.models import ContextSnippet, DiffBundle, FileContext
 
 
-def test_config_validation_and_credentials() -> None:
+def test_config_validation_and_credentials(tmp_path: Path) -> None:
     # Fake provider needs no credentials
-    cfg_fake = DeicideConfig.from_env_and_args(provider="fake", environ={})
+    absent_dotenv = tmp_path / "absent.env"
+    cfg_fake = DeicideConfig.from_env_and_args(provider="fake", environ={}, dotenv_path=absent_dotenv)
     cfg_fake.validate_provider_credentials()
     assert cfg_fake.provider == "fake"
+    assert cfg_fake.behavioral_delta_enabled is False
+
+    cfg_delta_enabled = DeicideConfig.from_env_and_args(
+        provider="fake", environ={"DEICIDE_BEHAVIORAL_DELTA_ENABLED": "1"}, dotenv_path=absent_dotenv
+    )
+    assert cfg_delta_enabled.behavioral_delta_enabled is True
 
     # Gemini is unsupported and raises UnsupportedProviderError
     with pytest.raises(UnsupportedProviderError, match="Unsupported provider 'gemini'"):
@@ -330,3 +341,136 @@ def test_finding_deduplication_keeps_highest_severity() -> None:
         deduped[0].line_range,
         "return x / 0",
     )
+
+
+def test_default_execution_budget_is_360_seconds() -> None:
+    """Verify that default ExecutionBudget and DeicideConfig total wall-clock budget is 360 seconds."""
+    budget = ExecutionBudget()
+    assert budget.max_elapsed_seconds == 360.0
+
+    cfg = DeicideConfig.from_env_and_args(environ={})
+    assert cfg.budget.max_elapsed_seconds == 360.0
+
+
+def test_timeout_and_retries_preserve_total_execution_budget() -> None:
+    """Verify that --timeout 45.0 and --max-retries 1 keep total budget at 360s or greater.
+
+    Also verifies that --timeout remains the per-request timeout (45.0s) and does not
+    get overwritten to 360.0s, and that max_retries, max_requests, and max_tokens are preserved.
+    """
+    cfg = DeicideConfig.from_env_and_args(
+        timeout_seconds=45.0,
+        max_retries=1,
+        max_requests=20,
+        max_tokens=50000,
+        environ={},
+    )
+    assert cfg.budget.request_timeout_seconds == 45.0
+    assert cfg.budget.max_retries == 1
+    assert cfg.budget.max_requests == 20
+    assert cfg.budget.max_total_tokens == 50000
+    assert cfg.budget.max_elapsed_seconds >= 360.0
+    assert cfg.budget.max_elapsed_seconds == 360.0
+
+    # Large per-request timeout expands total budget if min_elapsed exceeds 360s
+    cfg_large = DeicideConfig.from_env_and_args(
+        timeout_seconds=200.0,
+        max_retries=1,
+        environ={},
+    )
+    # 200.0 * 2 + 30.0 = 430.0 > 360.0
+    assert cfg_large.budget.request_timeout_seconds == 200.0
+    assert cfg_large.budget.max_elapsed_seconds == 430.0
+
+    # Explicit DEICIDE_MAX_ELAPSED_SECONDS in env is respected
+    cfg_env = DeicideConfig.from_env_and_args(
+        timeout_seconds=45.0,
+        max_retries=1,
+        environ={"DEICIDE_MAX_ELAPSED_SECONDS": "500"},
+    )
+    assert cfg_env.budget.request_timeout_seconds == 45.0
+    assert cfg_env.budget.max_elapsed_seconds == 500.0
+
+
+def test_tracker_stops_execution_when_elapsed_time_limit_exceeded() -> None:
+    """Verify BudgetTracker stops execution when configured max_elapsed_seconds is exceeded."""
+    clock_time = 0.0
+
+    def mock_clock() -> float:
+        return clock_time
+
+    budget = ExecutionBudget(max_elapsed_seconds=360.0)
+    tracker = BudgetTracker(budget, clock_fn=mock_clock)
+
+    # Within 360s budget: no error
+    clock_time = 180.0
+    tracker.check_can_make_request()
+
+    clock_time = 360.0
+    tracker.check_can_make_request()
+
+    # Past 360s budget: raises BudgetExceededError
+    clock_time = 360.05
+    with pytest.raises(BudgetExceededError, match="Execution time budget exceeded") as exc_info:
+        tracker.check_can_make_request()
+    assert "360.05s > 360.00s" in str(exc_info.value)
+
+    # complete_attempt also enforces elapsed time limit
+    clock_time = 0.0
+    tracker2 = BudgetTracker(budget, clock_fn=mock_clock)
+    clock_time = 10.0
+    res_id = tracker2.reserve_attempt()
+    clock_time = 361.0
+    with pytest.raises(BudgetExceededError, match="Execution time budget exceeded"):
+        tracker2.complete_attempt(res_id, TokenUsage(prompt_tokens=10, completion_tokens=10, total_tokens=20))
+
+
+def test_evaluate_corpus_stops_on_elapsed_time_limit_exceeded() -> None:
+    """Verify evaluate_corpus cleanly halts and sets budget_exhausted when time limit is exceeded."""
+    from deicide.evaluation.models import EvaluationFixture
+    from deicide.evaluation.runner import evaluate_corpus
+    from deicide.providers.fake import FakeProvider
+
+    fixture1 = EvaluationFixture(
+        case_id="case-1",
+        description="First case",
+        diff_text="diff --git a/a.py b/a.py\n--- a/a.py\n+++ b/a.py\n@@ -1,1 +1,1 @@\n-old\n+new\n",
+        file_contents={"a.py": "new\n"},
+        expected_findings=[],
+    )
+    fixture2 = EvaluationFixture(
+        case_id="case-2",
+        description="Second case",
+        diff_text="diff --git a/b.py b/b.py\n--- a/b.py\n+++ b/b.py\n@@ -1,1 +1,1 @@\n-old\n+new\n",
+        file_contents={"b.py": "new\n"},
+        expected_findings=[],
+    )
+
+    budget = ExecutionBudget(max_elapsed_seconds=360.0)
+    provider = FakeProvider(scripted_responses=['{"findings": []}', '{"findings": []}'])
+
+    clock_calls = 0
+
+    def phased_clock() -> float:
+        nonlocal clock_calls
+        clock_calls += 1
+        # Return 0.0s during case 1 (init, pre-check, reserve, complete), then advance to 370.0s for case 2
+        if clock_calls >= 5:
+            return 370.0
+        return 0.0
+
+    tracker = BudgetTracker(budget, clock_fn=phased_clock)
+
+    summary = evaluate_corpus(
+        [fixture1, fixture2],
+        provider=provider,
+        budget=budget,
+        shared_tracker=tracker,
+        force_end_to_end=True,
+    )
+
+    assert summary.budget_exhausted is True
+    assert summary.dataset_size == 2
+    assert summary.case_results[0].status == "completed"
+    assert summary.case_results[1].status == "budget_exhausted"
+    assert "execution time budget exceeded" in (summary.case_results[1].error or "").lower()

@@ -7,6 +7,7 @@ from deicide.context.context_models import (
     OmissionReason,
     OmittedCandidate,
     SelectedSnippet,
+    relationship_precedence,
 )
 from deicide.core.models import estimate_token_count
 
@@ -31,7 +32,10 @@ def serialize_snippet_block(snippet: SelectedSnippet) -> str:
 def serialize_context_bundle(snippets: list[SelectedSnippet]) -> str:
     """Deterministically format all selected snippets into unified context text."""
     # Deterministic sorting for output formatting
-    sorted_snippets = sorted(snippets, key=lambda s: (s.file_path, s.start_line, s.snippet_id))
+    sorted_snippets = sorted(
+        snippets,
+        key=lambda s: (s.priority, relationship_precedence(s.relationship), s.file_path, s.start_line, s.snippet_id),
+    )
     blocks = [serialize_snippet_block(s) for s in sorted_snippets]
     return "\n\n".join(blocks)
 
@@ -58,17 +62,23 @@ def enforce_context_budget(
                 symbol_name=s.symbol_name,
                 reason=OmissionReason.TOKEN_BUDGET_EXCEEDED,
                 detail="Context token budget is zero or negative",
+                priority=s.priority,
                 estimated_tokens=s.estimated_tokens,
             )
             for s in snippets
         ]
         return [], omitted, "", 0, bool(snippets)
 
+    sorted_snippets = sorted(
+        snippets,
+        key=lambda s: (s.priority, relationship_precedence(s.relationship), s.file_path, s.start_line, s.snippet_id),
+    )
+
     selected: list[SelectedSnippet] = []
     omitted: list[OmittedCandidate] = []
     selected_files: set[str] = set()
 
-    for snippet in snippets:
+    for snippet in sorted_snippets:
         # 1. Enforce snippet count limit
         if len(selected) >= limits.max_snippets:
             omitted.append(
@@ -78,6 +88,7 @@ def enforce_context_budget(
                     symbol_name=snippet.symbol_name,
                     reason=OmissionReason.SNIPPET_LIMIT_EXCEEDED,
                     detail=f"Exceeded max snippet limit ({limits.max_snippets})",
+                    priority=snippet.priority,
                     estimated_tokens=snippet.estimated_tokens,
                 )
             )
@@ -93,6 +104,7 @@ def enforce_context_budget(
                     symbol_name=snippet.symbol_name,
                     reason=OmissionReason.FILE_LIMIT_EXCEEDED,
                     detail=f"Exceeded max context files limit ({limits.max_context_files})",
+                    priority=snippet.priority,
                     estimated_tokens=snippet.estimated_tokens,
                 )
             )
@@ -111,6 +123,7 @@ def enforce_context_budget(
                     symbol_name=snippet.symbol_name,
                     reason=OmissionReason.TOKEN_BUDGET_EXCEEDED,
                     detail=f"Exceeds remaining context token budget ({tentative_tokens} > {limits.max_context_tokens})",
+                    priority=snippet.priority,
                     estimated_tokens=snippet.estimated_tokens,
                 )
             )
@@ -135,6 +148,7 @@ def enforce_context_budget(
                 symbol_name=dropped.symbol_name,
                 reason=OmissionReason.TOKEN_BUDGET_EXCEEDED,
                 detail="Dropped during final serialization budget verification",
+                priority=dropped.priority,
                 estimated_tokens=dropped.estimated_tokens,
             )
         )

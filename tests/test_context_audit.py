@@ -21,10 +21,13 @@ from deicide.context.context_models import (
     OmissionReason,
     SelectedSnippet,
 )
+from deicide.context.context_ranker import ContextRanker
 from deicide.context.dependency_graph import build_dependency_graph
+from deicide.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
 from deicide.context.pipeline import prepare_review_context
 from deicide.context.project_index import IndexLimits, build_project_index
 from deicide.context.python_ast import PythonAstAnalyzer
+from deicide.context.snippet_selector import select_context
 from deicide.core.config import DeicideConfig
 from deicide.core.errors import BudgetExceededError
 from deicide.core.models import (
@@ -503,6 +506,37 @@ def test_audit_4_cyclic_import_graph_and_ranking_terminates(tmp_path: Path) -> N
     cycles = graph.find_cycles()
     assert len(cycles) >= 1
 
+    changed_a = ChangedSymbol(
+        symbol_id="module_a.py::func_a#function@3:4",
+        symbol_name="func_a",
+        qualified_name="func_a",
+        kind=SymbolKind.FUNCTION,
+        location=SourceLocation(file_path="module_a.py", start_line=3, end_line=4),
+        overlapping_lines=[4],
+        classification=OverlapClassification.BODY,
+        is_innermost=True,
+    )
+
+    ranker = ContextRanker(graph, index, ContextSelectionLimits(max_graph_depth=2))
+    candidates = ranker.discover_candidates([changed_a])
+
+    cands_by_name = {c.qualified_name: c for c in candidates}
+    # func_a retains CHANGED_SYMBOL (priority 0) and is not overwritten by TRANSITIVE_CALLER
+    assert cands_by_name["func_a"].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert cands_by_name["func_a"].priority == 0
+    # func_b retains DIRECT_CALLER (priority 1) and is not overwritten by TRANSITIVE_CALLER
+    assert cands_by_name["func_b"].relationship == ContextRelationshipCategory.DIRECT_CALLER
+    assert cands_by_name["func_b"].priority == 1
+
+    # End-to-end select_context also completes deterministically
+    res = select_context(repo, [changed_a], graph, index, limits=ContextSelectionLimits(max_graph_depth=2))
+    assert res.selected_snippets_count >= 2
+    snips_by_name = {s.symbol_name: s for s in res.selected_snippets}
+    assert snips_by_name["func_a"].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert snips_by_name["func_a"].priority == 0
+    assert snips_by_name["func_b"].relationship == ContextRelationshipCategory.DIRECT_CALLER
+    assert snips_by_name["func_b"].priority == 1
+
 
 def test_audit_4_context_budget_enforcement_and_omission_accounting() -> None:
     """Audit 4: Context budget strictly enforces token limits and records omitted candidates."""
@@ -538,6 +572,41 @@ def test_audit_4_context_budget_enforcement_and_omission_accounting() -> None:
     assert omitted[0].reason == OmissionReason.TOKEN_BUDGET_EXCEEDED
     assert final_tokens <= 70
     assert is_truncated is True
+
+    # Reverse alphabetical test: z_caller.py (DIRECT_CALLER, priority 1) vs a_callee.py (DIRECT_CALLEE, priority 2)
+    # Even though "a_callee.py" < "z_caller.py" alphabetically, z_caller.py MUST be selected first
+    reverse_alpha_snippets = [
+        SelectedSnippet(
+            snippet_id="snip_callee",
+            file_path="a_callee.py",
+            start_line=1,
+            end_line=10,
+            content="def helper_callee():\n    return 2\n",
+            relationship=ContextRelationshipCategory.DIRECT_CALLEE,
+            estimated_tokens=50,
+        ),
+        SelectedSnippet(
+            snippet_id="snip_caller",
+            file_path="z_caller.py",
+            start_line=1,
+            end_line=10,
+            content="def workflow_caller():\n    return 1\n",
+            relationship=ContextRelationshipCategory.DIRECT_CALLER,
+            estimated_tokens=50,
+        ),
+    ]
+
+    sel_rev, omit_rev, _, _, _ = enforce_context_budget(
+        reverse_alpha_snippets,
+        ContextSelectionLimits(max_context_tokens=70, max_snippets=1),
+    )
+    assert len(sel_rev) == 1
+    assert sel_rev[0].file_path == "z_caller.py"
+    assert sel_rev[0].relationship == ContextRelationshipCategory.DIRECT_CALLER
+    assert sel_rev[0].priority == 1
+    assert len(omit_rev) == 1
+    assert omit_rev[0].file_path == "a_callee.py"
+    assert omit_rev[0].priority == 2
 
 
 def test_audit_4_performance_moderately_sized_repository(tmp_path: Path) -> None:

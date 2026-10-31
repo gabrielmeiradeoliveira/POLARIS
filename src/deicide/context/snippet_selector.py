@@ -15,6 +15,7 @@ from deicide.context.context_models import (
     OmissionReason,
     OmittedCandidate,
     SelectedSnippet,
+    relationship_precedence,
 )
 from deicide.context.context_ranker import ContextRanker
 from deicide.context.dependency_graph import DependencyGraph
@@ -135,6 +136,7 @@ class SnippetExtractor:
             qualified_name=candidate.qualified_name,
             content=content_str,
             relationship=candidate.relationship,
+            priority=candidate.priority,
             provenance=candidate.provenance,
             estimated_tokens=0,  # Computed below
             is_truncated=is_truncated,
@@ -145,6 +147,10 @@ class SnippetExtractor:
         tokens = estimate_snippet_tokens(snippet)
         snippet = snippet.model_copy(update={"estimated_tokens": tokens})
         return snippet, None
+
+
+def _snippet_rank_key(s: SelectedSnippet) -> tuple[int, int]:
+    return (s.priority, relationship_precedence(s.relationship))
 
 
 def _deduplicate_and_merge_snippets(
@@ -176,13 +182,17 @@ def _deduplicate_and_merge_snippets(
                         combined_prov.append(p)
 
                 combined_calls = sorted(set(current.relevant_call_lines + nxt.relevant_call_lines))
-                # Prioritize higher-priority relationship
-                rel = current.relationship if current.relationship.value <= nxt.relationship.value else nxt.relationship
+                dominant = current if _snippet_rank_key(current) <= _snippet_rank_key(nxt) else nxt
                 current = current.model_copy(
                     update={
+                        "priority": dominant.priority,
+                        "relationship": dominant.relationship,
+                        "symbol_name": dominant.symbol_name,
+                        "qualified_name": dominant.qualified_name,
                         "provenance": combined_prov,
                         "relevant_call_lines": combined_calls,
-                        "relationship": rel,
+                        "is_truncated": current.is_truncated or nxt.is_truncated,
+                        "truncated_original_lines": current.truncated_original_lines or nxt.truncated_original_lines,
                     }
                 )
                 continue
@@ -197,6 +207,8 @@ def _deduplicate_and_merge_snippets(
                         combined_prov.append(p)
 
                 combined_calls = sorted(set(current.relevant_call_lines + nxt.relevant_call_lines))
+                dominant = current if _snippet_rank_key(current) <= _snippet_rank_key(nxt) else nxt
+
                 # Re-slice lines
                 m_start = min(current.start_line, nxt.start_line)
                 m_end = max(current.end_line, nxt.end_line)
@@ -217,14 +229,15 @@ def _deduplicate_and_merge_snippets(
                     file_path=file_path,
                     start_line=m_start,
                     end_line=m_end,
-                    symbol_name=current.symbol_name,
-                    qualified_name=current.qualified_name,
+                    symbol_name=dominant.symbol_name,
+                    qualified_name=dominant.qualified_name,
                     content=new_content,
-                    relationship=current.relationship,
+                    relationship=dominant.relationship,
+                    priority=dominant.priority,
                     provenance=combined_prov,
                     estimated_tokens=0,
                     is_truncated=current.is_truncated or nxt.is_truncated,
-                    truncated_original_lines=current.truncated_original_lines,
+                    truncated_original_lines=current.truncated_original_lines or nxt.truncated_original_lines,
                     relevant_call_lines=combined_calls,
                 )
                 current = current.model_copy(update={"estimated_tokens": estimate_snippet_tokens(current)})
@@ -234,6 +247,9 @@ def _deduplicate_and_merge_snippets(
 
         merged_snippets.append(current)
 
+    merged_snippets.sort(
+        key=lambda s: (s.priority, relationship_precedence(s.relationship), s.file_path, s.start_line, s.snippet_id)
+    )
     return merged_snippets
 
 

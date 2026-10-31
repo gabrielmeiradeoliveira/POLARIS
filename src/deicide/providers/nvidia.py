@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import email.utils
+import hashlib
 import json
 import time
 import urllib.error
@@ -25,6 +26,7 @@ from deicide.core.models import BudgetTracker, ExecutionBudget, TokenUsage
 from deicide.providers.base import (
     ProviderRequest,
     ProviderResponse,
+    ProviderAttempt,
     estimate_token_count,
 )
 from deicide.quota.store import RequestStatus, UsageStore
@@ -100,6 +102,7 @@ class NvidiaProvider:
         self.usage_store = usage_store
         self.quota_scope = quota_scope
         self._bound_tracker: BudgetTracker | None = None
+        self.last_attempts: list[ProviderAttempt] = []
 
     @property
     def provider_name(self) -> str:
@@ -167,6 +170,10 @@ class NvidiaProvider:
         payload_bytes = self._build_payload(request)
         estimated_in = request.estimated_prompt_tokens
         active_tracker = self._resolve_active_tracker()
+        prompt_hash = hashlib.sha256(
+            f"{request.system_prompt}\x00{request.user_prompt}".encode("utf-8")
+        ).hexdigest()
+        self.last_attempts = []
 
         headers = {
             "Content-Type": "application/json",
@@ -182,6 +189,12 @@ class NvidiaProvider:
                 raise ProviderError("NVIDIA API URL must use https:// scheme.")
 
             reservation_id: str | None = None
+            attempt_started = time.perf_counter_ns()
+            response_hash: str | None = None
+            attempt_usage: TokenUsage | None = None
+            retry_reason: str | None = None
+            error_category: str | None = None
+            http_status: int | None = None
             if active_tracker is not None:
                 reservation_id = active_tracker.reserve_attempt(
                     estimated_in,
@@ -201,6 +214,9 @@ class NvidiaProvider:
                 retry_after_val = _extract_header_case_insensitive(resp_headers, "Retry-After")
 
                 if status == 429:
+                    http_status = status
+                    error_category = "rate_limit"
+                    retry_reason = "HTTP 429" if self._can_attempt_retry(attempt, active_tracker) else None
                     if active_tracker is not None:
                         active_tracker.fail_attempt(
                             reservation_id,
@@ -215,6 +231,9 @@ class NvidiaProvider:
                     raise RateLimitError(f"NVIDIA API rate limit exceeded (HTTP 429) after {retries} retries.")
 
                 if status in {502, 503, 504}:
+                    http_status = status
+                    error_category = "server_error"
+                    retry_reason = f"HTTP {status}" if self._can_attempt_retry(attempt, active_tracker) else None
                     if active_tracker is not None:
                         active_tracker.fail_attempt(
                             reservation_id,
@@ -230,6 +249,8 @@ class NvidiaProvider:
                     raise ProviderError(f"NVIDIA API server error (HTTP {status}) after {retries} retries: {safe_msg}")
 
                 if status >= 400:
+                    http_status = status
+                    error_category = "client_error"
                     if active_tracker is not None:
                         active_tracker.fail_attempt(
                             reservation_id,
@@ -252,10 +273,14 @@ class NvidiaProvider:
 
                 if active_tracker is not None:
                     active_tracker.complete_attempt(reservation_id, parsed_resp.usage)
+                response_hash = hashlib.sha256(parsed_resp.content.encode("utf-8")).hexdigest()
+                attempt_usage = parsed_resp.usage
                 return parsed_resp
 
             except urllib.error.HTTPError as exc:
                 code = exc.code
+                http_status = code
+                error_category = "rate_limit" if code == 429 else ("server_error" if code >= 500 else "client_error")
                 retry_after_header = _extract_header_case_insensitive(exc.headers, "Retry-After")
                 rec_status = RequestStatus.RATE_LIMITED if code == 429 else RequestStatus.FAILED
                 if active_tracker is not None:
@@ -266,6 +291,7 @@ class NvidiaProvider:
                     )
 
                 if code in {429, 502, 503, 504} and self._can_attempt_retry(attempt, active_tracker):
+                    retry_reason = f"HTTP {code}"
                     delay = self._compute_backoff(attempt, retry_after_header)
                     retries += 1
                     self._sleep(delay)
@@ -285,6 +311,7 @@ class NvidiaProvider:
                 raise ProviderError(f"NVIDIA API request failed with HTTP {code}: {safe_detail}") from exc
 
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                error_category = "timeout" if isinstance(exc, TimeoutError) or "timed out" in str(exc).lower() else "connection_error"
                 if active_tracker is not None:
                     active_tracker.fail_attempt(
                         reservation_id,
@@ -292,6 +319,7 @@ class NvidiaProvider:
                         estimated_prompt_tokens=estimated_in,
                     )
                 if self._can_attempt_retry(attempt, active_tracker):
+                    retry_reason = error_category
                     delay = self._compute_backoff(attempt, None)
                     retries += 1
                     self._sleep(delay)
@@ -302,6 +330,7 @@ class NvidiaProvider:
             except (ProviderError, QuotaExhaustedError, BudgetExceededError):
                 raise
             except Exception as exc:
+                error_category = "provider_error"
                 if active_tracker is not None:
                     active_tracker.fail_attempt(
                         reservation_id,
@@ -310,6 +339,19 @@ class NvidiaProvider:
                     )
                 safe_msg = _redact_secret(str(exc), secret)
                 raise ProviderError(f"Unexpected NVIDIA provider failure: {safe_msg}") from exc
+            finally:
+                self.last_attempts.append(
+                    ProviderAttempt(
+                        attempt_number=attempt + 1,
+                        latency_ms=max(0, int((time.perf_counter_ns() - attempt_started) / 1_000_000)),
+                        prompt_hash=prompt_hash,
+                        response_hash=response_hash,
+                        retry_reason=retry_reason,
+                        error_category=error_category,
+                        http_status=http_status,
+                        usage=attempt_usage,
+                    )
+                )
 
         safe_last = _redact_secret(str(last_error), secret)
         raise ProviderError(f"NVIDIA API request failed after {retries} retries: {safe_last}")

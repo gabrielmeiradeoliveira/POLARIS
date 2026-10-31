@@ -141,7 +141,7 @@ def test_bug_introduction_benchmark_end_to_end_reports_honest_misses() -> None:
     assert e2e_summary.true_positives == 0
     assert e2e_summary.false_positives == 0
     assert e2e_summary.false_negatives == 5
-    assert e2e_summary.precision == 0.0
+    assert e2e_summary.precision is None  # Undefined denominator (TP+FP=0), represented as None/unavailable
     assert e2e_summary.recall == 0.0
     assert e2e_summary.false_positive_rate == 0.0
 

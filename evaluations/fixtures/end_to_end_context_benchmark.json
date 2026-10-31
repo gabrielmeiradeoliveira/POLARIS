@@ -1,0 +1,572 @@
+[
+    {
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "description": "A token decoder returns a string while two callers require a claims mapping.",
+        "diff_text": "diff --git a/auth/token.py b/auth/token.py\n@@ -1 +1 @@\n-def decode(x): return {'sub': x}\n+def decode(x): return x\n",
+        "file_contents": {
+            "auth/token.py": "def decode(x): return x\n",
+            "api/login.py": "from auth.token import decode\ndef login(x): return decode(x)['sub']\n",
+            "jobs/audit.py": "from auth.token import decode\ndef audit(x): return decode(x)['sub']\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "auth/token.py",
+                "line_range": {
+                    "start_line": 1,
+                    "end_line": 1
+                },
+                "category": "type_mismatch",
+                "allowed_categories": [
+                    "type_mismatch",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "decode now returns x while login and audit index the result as a mapping."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled multi-caller contract regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Both callers are required to establish the broken contract.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-02-shared-session-state",
+        "description": "A request-local session cache is replaced with a shared mutable default.",
+        "diff_text": "diff --git a/cache/session.py b/cache/session.py\n@@ -1 +1 @@\n-def build(values=None): return dict(values or {})\n+def build(values={}): return values\n",
+        "file_contents": {
+            "cache/session.py": "def build(values={}): return values\n",
+            "web/request.py": "from cache.session import build\ndef request(k,v): c=build(); c[k]=v; return c\n",
+            "web/admin.py": "from cache.session import build\ndef read(k): return build().get(k)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "cache/session.py",
+                "line_range": {
+                    "start_line": 1,
+                    "end_line": 1
+                },
+                "category": "state_mutation",
+                "allowed_categories": [
+                    "state_mutation",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "The default dictionary survives calls and is mutated by request before admin reads it."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled cross-request state isolation regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Two independent consumers demonstrate state propagation.",
+    "context_requirement": "context_assisted"
+    },
+    {
+        "case_id": "e2e-ctx-03-retry-leaks-resource",
+        "description": "Retry path returns before closing an acquired connection.",
+        "diff_text": "diff --git a/db/retry.py b/db/retry.py\n@@ -1,6 +1,3 @@\n def run(conn, query, retry):\n     conn.open()\n-    try:\n-        return retry(query)\n-    finally:\n-        conn.close()\n+    return retry(query)\n",
+        "file_contents": {
+            "db/retry.py": "def run(conn, query, retry):\n    conn.open()\n    return retry(query)\n",
+            "db/pool.py": "class Pool:\n def release(self,c): c.close()\n",
+            "service/orders.py": "from db.retry import run\ndef place(c,q,r): return run(c,q,r)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "db/retry.py",
+                "line_range": {
+                    "start_line": 3,
+                    "end_line": 3
+                },
+                "category": "resource_management",
+                "allowed_categories": [
+                    "resource_management",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "run opens conn and returns retry result without close."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled retry lifecycle regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Ownership is split across retry, pool, and service.",
+    "context_requirement": "diff_only"
+    },
+    {
+        "case_id": "e2e-ctx-04-callback-exception-swallowed",
+        "description": "Dispatcher suppresses callback failures and reports success.",
+        "diff_text": "diff --git a/events/dispatch.py b/events/dispatch.py\n@@ -1,3 +1,3 @@\n def emit(cb, event):\n     try:\n         return cb(event)\n-    except ValueError: raise\n+    except ValueError: return None\n",
+        "file_contents": {
+            "events/dispatch.py": "def emit(cb, event):\n    try:\n        return cb(event)\n    except ValueError: return None\n",
+            "payments/charge.py": "def charge(event):\n    raise ValueError('declined')\n",
+            "api/submit.py": "from events.dispatch import emit\nfrom payments.charge import charge\ndef submit(event):\n    return emit(charge, event)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "events/dispatch.py",
+                "line_range": {
+                    "start_line": 4,
+                    "end_line": 4
+                },
+                "category": "error_handling",
+                "allowed_categories": [
+                    "error_handling",
+                    "logic_error"
+                ],
+                "severity": "high",
+                "evidence": "A declined charge is converted to success-like None for submit."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled callback error propagation regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The callback and API consumer establish that ValueError is meaningful.",
+    "context_requirement": "context_assisted"
+    },
+    {
+        "case_id": "e2e-ctx-05-null-plugin-result",
+        "description": "Override may return None but base handler dereferences it.",
+        "diff_text": "diff --git a/plugins/custom.py b/plugins/custom.py\n@@ -1,4 +1,4 @@\n from plugins.base import BasePlugin\n \n class CustomPlugin(BasePlugin):\n-    def resolve(self, x): return {'id': x}\n+    def resolve(self, x): return None\n",
+        "file_contents": {
+            "plugins/base.py": "class BasePlugin:\n    def resolve(self, x):\n        return {'id': x}\n\ndef handle(plugin, x):\n    return plugin.resolve(x)['id']\n",
+            "plugins/custom.py": "from plugins.base import BasePlugin\n\nclass CustomPlugin(BasePlugin):\n    def resolve(self, x): return None\n",
+            "api/view.py": "from plugins.base import handle\nfrom plugins.custom import CustomPlugin\ndef view(x):\n    return handle(CustomPlugin(), x)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "plugins/custom.py",
+                "line_range": {
+                    "start_line": 4,
+                    "end_line": 4
+                },
+                "category": "null_handling",
+                "allowed_categories": [
+                    "null_handling",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "base.handle indexes resolve result without a None guard."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled nullable override contract regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The base implementation and API caller are needed.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-06-page-boundary-callback",
+        "description": "Pagination sends an empty final page to a callback that rejects it.",
+        "diff_text": "diff --git a/paging/core.py b/paging/core.py\n@@ -1,4 +1,4 @@\n def pages(items, size, cb):\n     start = 0\n-    while start < len(items):\n+    while start <= len(items):\n         cb(items[start:start + size]); start += size\n",
+        "file_contents": {
+            "paging/core.py": "def pages(items, size, cb):\n    start = 0\n    while start <= len(items):\n        cb(items[start:start + size]); start += size\n",
+            "export/csv.py": "def write(rows):\n    if not rows:\n        raise ValueError('empty')\n    return len(rows)\n",
+            "jobs/export.py": "from paging.core import pages\nfrom export.csv import write\ndef run(items):\n    return pages(items, 2, write)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "paging/core.py",
+                "line_range": {
+                    "start_line": 3,
+                    "end_line": 3
+                },
+                "category": "boundary_condition",
+                "allowed_categories": [
+                    "boundary_condition",
+                    "correctness"
+                ],
+                "severity": "medium",
+                "evidence": "The <= loop invokes write with an empty slice after the final page."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled callback boundary regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Callback semantics make the extra iteration observable.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-07-async-shared-callback",
+        "description": "Concurrent workers share a mutable default pending list.",
+        "diff_text": "diff --git a/asyncq/worker.py b/asyncq/worker.py\n@@ -1,5 +1,4 @@\n-def worker(pending=None, barrier=None):\n-    pending = [] if pending is None else pending\n+def worker(pending=[], barrier=None):\n     if barrier is not None:\n         barrier.wait()\n     pending.append('ready')\n",
+        "file_contents": {
+            "asyncq/worker.py": "def worker(pending=[], barrier=None):\n    if barrier is not None:\n        barrier.wait()\n    pending.append('ready')\n    return pending\n",
+            "asyncq/schedule.py": "from asyncq.worker import worker\ndef schedule(barrier): return worker(barrier=barrier)\n",
+            "asyncq/report.py": "def pending_count(pending): return len(pending)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "asyncq/worker.py",
+                "line_range": {
+                    "start_line": 1,
+                    "end_line": 1
+                },
+                "category": "concurrency",
+                "allowed_categories": [
+                    "concurrency",
+                    "state_mutation",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "Two barrier-synchronized workers receive the same default pending list."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled task state contamination.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Barrier-synchronized scheduling and reporting establish cross-worker list identity.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-08-override-skips-validation",
+        "description": "Subclass override bypasses base authorization validation.",
+        "diff_text": "diff --git a/auth/internal.py b/auth/internal.py\n@@ -1,4 +1,4 @@\n from auth.base import BasePolicy\n \n class InternalPolicy(BasePolicy):\n-    def authorize(self, user): return super().authorize(user)\n+    def authorize(self, user): return True\n",
+        "file_contents": {
+            "auth/base.py": "class BasePolicy:\n    def authorize(self, user):\n        return user.active\n",
+            "auth/internal.py": "from auth.base import BasePolicy\n\nclass InternalPolicy(BasePolicy):\n    def authorize(self, user): return True\n",
+            "api/admin.py": "from auth.internal import InternalPolicy\ndef access(user): return InternalPolicy().authorize(user)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "auth/internal.py",
+                "line_range": {
+                    "start_line": 4,
+                    "end_line": 4
+                },
+                "category": "logic_error",
+                "allowed_categories": [
+                    "logic_error",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "Internal policy approves inactive users despite Base contract."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled inheritance authorization bypass.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Base contract, override, and consumer are required.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-09-indirect-serializer-contract",
+        "description": "Adapter changes serialized identifier shape consumed through an indirect mapper.",
+        "diff_text": "diff --git a/adapters/id.py b/adapters/id.py\n@@ -1 +1 @@\n-def encode(x): return {'value':x}\n+def encode(x): return x\n",
+        "file_contents": {
+            "adapters/id.py": "def encode(x): return x\n",
+            "mapping/user.py": "from adapters.id import encode\ndef map_user(x): return encode(x)\n",
+            "messaging/publish.py": "from mapping.user import map_user\ndef publish(x): return map_user(x)['value']\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "adapters/id.py",
+                "line_range": {
+                    "start_line": 1,
+                    "end_line": 1
+                },
+                "category": "type_mismatch",
+                "allowed_categories": [
+                    "type_mismatch",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "publish indexes the indirect mapper output as a mapping."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled indirect serialization contract regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The dependency chain spans adapter, mapper, and publisher.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+        "description": "Cleanup unregisters a new lambda rather than the subscribed callback.",
+        "diff_text": "diff --git a/ui/controller.py b/ui/controller.py\n@@ -8 +8 @@\n-        self.bus.off(self.callback)\n+        self.bus.off(lambda event: self.on_event(event))\n",
+        "file_contents": {
+            "ui/controller.py": "class Controller:\n    def __init__(self, bus):\n        self.bus = bus\n        self.events = []\n        self.callback = self.on_event\n        bus.on(self.callback)\n    def close(self):\n        self.bus.off(lambda event: self.on_event(event))\n    def on_event(self, event):\n        self.events.append(event)\n",
+            "ui/bus.py": "class Bus:\n    def __init__(self): self.callbacks = []\n    def on(self, callback): self.callbacks.append(callback)\n    def off(self, callback):\n        self.callbacks = [registered for registered in self.callbacks if registered is not callback]\n    def emit(self, event):\n        for callback in list(self.callbacks): callback(event)\n",
+            "ui/app.py": "def shutdown(controller): controller.close()\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "ui/controller.py",
+                "line_range": {
+                    "start_line": 8,
+                    "end_line": 8
+                },
+                "category": "resource_management",
+                "allowed_categories": [
+                    "resource_management",
+                    "logic_error"
+                ],
+                "severity": "medium",
+                "evidence": "The lambda identity differs from the callback originally subscribed."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled callback lifecycle regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Subscription identity is an indirect callback contract.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+        "description": "Permission default changes from deny to allow for omitted role.",
+        "diff_text": "diff --git a/auth/roles.py b/auth/roles.py\n@@ -1 +1 @@\n-def allowed(role=None): return role == 'admin'\n+def allowed(role=None): return role is None or role == 'admin'\n",
+        "file_contents": {
+            "auth/roles.py": "def allowed(role=None): return role is None or role == 'admin'\n",
+            "api/delete.py": "from auth.roles import allowed\ndef delete(role=None): return allowed(role)\n",
+            "api/export.py": "from auth.roles import allowed\ndef export(role=None): return allowed(role)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "auth/roles.py",
+                "line_range": {
+                    "start_line": 1,
+                    "end_line": 1
+                },
+                "category": "logic_error",
+                "allowed_categories": [
+                    "logic_error",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "Two privileged callers pass omitted role and now receive allow."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled authorization default regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Both privileged callers expose the default contract.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+        "description": "Generator cleanup is removed, leaking a stream when iteration stops early.",
+        "diff_text": "diff --git a/streams/stream.py b/streams/stream.py\n@@ -1,5 +1,2 @@\n def chunks(source):\n-    try:\n-        yield source.read()\n-    finally:\n-        source.close()\n+    yield source.read()\n",
+        "file_contents": {
+            "streams/stream.py": "def chunks(source):\n    yield source.read()\n",
+            "service/download.py": "from streams.stream import chunks\ndef first(source):\n    stream = chunks(source)\n    return next(stream), stream\n",
+            "api/file.py": "from service.download import first\ndef fetch(source): return first(source)\n"
+        },
+        "expected_findings": [
+            {
+                "file_path": "streams/stream.py",
+                "line_range": {
+                    "start_line": 2,
+                    "end_line": 2
+                },
+                "category": "resource_management",
+                "allowed_categories": [
+                    "resource_management",
+                    "correctness"
+                ],
+                "severity": "high",
+                "evidence": "first stops iteration after one yield and no finally closes source."
+            }
+        ],
+        "candidate_findings": [],
+        "is_clean": false,
+        "fix_reference": "Modeled generator lifecycle regression.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "defect_introduction",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The retained generator is stopped after its first yield, so the consumer establishes the cleanup contract.",
+    "context_requirement": "context_required"
+    },
+    {
+        "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+        "description": "Signature migration preserves the default key representation for every caller.",
+        "diff_text": "diff --git a/core/key.py b/core/key.py\n@@ -1 +1 @@\n-def key(x): return f'v1:{x}'\n+def key(x, version=1): return f'v{version}:{x}'\n",
+        "file_contents": {
+            "core/key.py": "def key(x, version=1): return f'v{version}:{x}'\n",
+            "api/a.py": "from core.key import key\ndef a(x): return key(x)\n",
+            "api/b.py": "from core.key import key\ndef b(x): return key(x)\n",
+            "jobs/audit.py": "from core.key import key\ndef audit(x): return key(x)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe multi-caller API migration.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_unrelated",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "All callers demonstrate compatibility.",
+    "context_requirement": "context_required",
+    "negative_change_type": "behavior_preserving"
+    },
+    {
+        "case_id": "e2e-ctx-14-copy-on-write-session",
+        "description": "Session update copies shared defaults before mutation.",
+        "diff_text": "diff --git a/cache/session.py b/cache/session.py\n@@ -1 +1 @@\n-def update(base,k,v): base[k]=v; return base\n+def update(base,k,v): next=dict(base); next[k]=v; return next\n",
+        "file_contents": {
+            "cache/session.py": "def update(base,k,v): next=dict(base); next[k]=v; return next\n",
+            "web/request.py": "from cache.session import update\ndef request(base): return update(base,'x',1)\n",
+            "web/read.py": "def read(base): return base\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe copy-on-write state refactor.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Caller and reader show the original state remains isolated.",
+    "context_requirement": "context_assisted",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-15-context-manager-retry",
+        "description": "Context manager preserves connection cleanup on retry failures.",
+        "diff_text": "diff --git a/db/run.py b/db/run.py\n@@ -1 +1 @@\n-def run(c,q): c.open(); return q()\n+def run(c,q):\n+    with c: return q()\n",
+        "file_contents": {
+            "db/run.py": "def run(c,q):\n    with c: return q()\n",
+            "db/conn.py": "class Conn:\n    def __init__(self): self.closed = False\n    def open(self): pass\n    def close(self): self.closed = True\n    def __enter__(self): return self\n    def __exit__(self, *unused): self.close()\n",
+            "service/job.py": "from db.run import run\ndef job(c,q): return run(c,q)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe resource lifecycle refactor.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Connection protocol establishes cleanup on both outcomes.",
+    "context_requirement": "context_assisted",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+        "description": "Narrowing a catch preserves transport fallback while propagating programming errors.",
+        "diff_text": "diff --git a/net/client.py b/net/client.py\n@@ -1 +1 @@\n-except Exception: return fallback\n+except (TimeoutError,ConnectionError): return fallback\n",
+        "file_contents": {
+            "net/client.py": "def call(f,fallback):\n try: return f()\n except (TimeoutError,ConnectionError): return fallback\n",
+            "service/sync.py": "from net.client import call\ndef sync(f): return call(f,'cached')\n",
+            "api/read.py": "from service.sync import sync\ndef read(f): return sync(f)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe exception narrowing.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The caller requires fallback only for transport failures and must see programming errors.",
+    "context_requirement": "context_required",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-17-null-guard-callback",
+        "description": "Callback is invoked only when optional handler exists.",
+        "diff_text": "diff --git a/hooks/run.py b/hooks/run.py\n@@ -1 +1 @@\n-def run(cb,x): return cb(x)\n+def run(cb,x): return cb(x) if cb is not None else None\n",
+        "file_contents": {
+            "hooks/run.py": "def run(cb,x): return cb(x) if cb is not None else None\n",
+            "jobs/task.py": "from hooks.run import run\ndef task(cb): return run(cb,1)\n",
+            "api/start.py": "from jobs.task import task\ndef start(cb): return task(cb)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe optional callback guard.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Optional callback is propagated through task and API.",
+    "context_requirement": "diff_only",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+        "description": "Pagination clamps the final bound exposed to its export consumer.",
+        "diff_text": "diff --git a/paging/core.py b/paging/core.py\n@@ -1,2 +1,2 @@\n def bounds(start, size, items):\n-    return start, start + size\n+    return start, min(start + size, len(items))\n",
+        "file_contents": {
+            "paging/core.py": "def bounds(start, size, items):\n    return start, min(start + size, len(items))\n",
+            "export/csv.py": "def write(rows): return ','.join(str(row) for row in rows)\n",
+            "jobs/export.py": "from export.csv import write\nfrom paging.core import bounds\ndef run(start, size, items):\n    first, last = bounds(start, size, items)\n    return last, write(items[first:last])\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe pagination boundary correction.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "The export consumer exposes the end bound as part of its pagination contract.",
+    "context_requirement": "context_assisted",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-19-locked-task-state",
+        "description": "Concurrent task updates synchronize the read-modify-write state transition.",
+        "diff_text": "diff --git a/asyncq/state.py b/asyncq/state.py\n@@ -8,2 +8,5 @@\n-        snapshot.append(value)\n-        self.pending = snapshot\n+        with self.lock:\n+            snapshot = list(self.pending)\n+            snapshot.append(value)\n+            self.pending = snapshot\n",
+        "file_contents": {
+            "asyncq/state.py": "from threading import Lock\n\nclass TaskState:\n    def __init__(self, after_read):\n        self.pending = []\n        self.lock = Lock()\n        self.after_read = after_read\n    def add(self, value):\n        snapshot = list(self.pending)\n        self.after_read.wait()\n        with self.lock:\n            snapshot = list(self.pending)\n            snapshot.append(value)\n            self.pending = snapshot\n",
+            "asyncq/work.py": "def work(state, value): state.add(value)\n",
+            "asyncq/report.py": "def report(state): return list(state.pending)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe synchronized state update.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Two workers synchronize after reading state, so the reporter exposes a lost update without the lock.",
+    "context_requirement": "context_required",
+    "negative_change_type": "clean_bug_fix"
+    },
+    {
+        "case_id": "e2e-ctx-20-override-calls-super",
+        "description": "Subclass preserves base validation before applying its specialization.",
+        "diff_text": "diff --git a/auth/internal.py b/auth/internal.py\n@@ -1,7 +1,7 @@\n from auth.base import BasePolicy\n \n class InternalPolicy(BasePolicy):\n     def internal(self, user):\n         return user.internal\n-    def authorize(self, user): return True\n+    def authorize(self, user): return super().authorize(user) and self.internal(user)\n",
+        "file_contents": {
+            "auth/base.py": "class BasePolicy:\n    def authorize(self, user):\n        return user.active\n",
+            "auth/internal.py": "from auth.base import BasePolicy\n\nclass InternalPolicy(BasePolicy):\n    def internal(self, user):\n        return user.internal\n    def authorize(self, user): return super().authorize(user) and self.internal(user)\n",
+            "api/admin.py": "from auth.internal import InternalPolicy\ndef access(user): return InternalPolicy().authorize(user)\n"
+        },
+        "expected_findings": [],
+        "candidate_findings": [],
+        "is_clean": true,
+        "fix_reference": "Safe override validation refactor.",
+        "provenance": "synthetic_benchmark",
+        "change_type": "clean_bug_fix",
+        "suitable_for_live_benchmark": true,
+    "context_rationale": "Base contract and API consumer show validation is retained.",
+    "context_requirement": "context_required",
+    "negative_change_type": "clean_bug_fix"
+    }
+]

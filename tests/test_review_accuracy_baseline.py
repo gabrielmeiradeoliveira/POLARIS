@@ -147,7 +147,7 @@ def test_zero_findings_do_not_receive_artificial_100_percent_precision() -> None
     assert summary.true_positives == 0
     assert summary.false_positives == 0
     assert summary.false_negatives == 1
-    assert summary.precision == 0.0  # Must be 0.0, never 1.0!
+    assert summary.precision is None  # Undefined denominator (TP+FP=0); must be None/unavailable, never 1.0 or 0.0!
     assert summary.recall == 0.0
 
 
@@ -655,7 +655,8 @@ def test_skipped_cases_are_excluded_from_detection_metrics() -> None:
     assert summary.true_positives == 0
     assert summary.false_positives == 0
     assert summary.false_negatives == 0
-    assert summary.recall == 1.0
+    assert summary.precision is None  # TP+FP == 0 -> undefined denominator
+    assert summary.recall is None  # No positive cases (TP+FN == 0) -> undefined denominator
     assert summary.false_positive_rate == 0.0
 
 

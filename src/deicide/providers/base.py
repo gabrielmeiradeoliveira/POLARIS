@@ -25,6 +25,21 @@ class ProviderRequest(BaseModel):
         return estimate_token_count(self.system_prompt) + estimate_token_count(self.user_prompt)
 
 
+class ProviderAttempt(BaseModel):
+    """Privacy-preserving metadata for one provider request attempt."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    attempt_number: int = Field(..., ge=1)
+    latency_ms: int = Field(..., ge=0)
+    prompt_hash: str = Field(..., min_length=64, max_length=64)
+    response_hash: str | None = Field(default=None, min_length=64, max_length=64)
+    retry_reason: str | None = None
+    error_category: str | None = None
+    http_status: int | None = Field(default=None, ge=100, le=599)
+    usage: TokenUsage | None = None
+
+
 class ProviderResponse(BaseModel):
     """Provider-neutral response payload with token usage and retry metadata."""
 

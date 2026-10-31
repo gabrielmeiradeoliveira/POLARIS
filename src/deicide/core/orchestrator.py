@@ -110,6 +110,7 @@ class AnalysisOrchestrator:
             budget=self.config.budget,
             limits=self.config.context_limits,
             context_enabled=self.config.context_enabled,
+            behavioral_delta_enabled=self.config.behavioral_delta_enabled,
             baseline_prompt_tokens=baseline_prompt_tokens,
         )
         context_result = context_outcome.result

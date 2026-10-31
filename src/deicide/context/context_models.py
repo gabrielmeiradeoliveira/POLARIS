@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from deicide.context.behavioral_delta import BehavioralDelta, BehavioralDeltaResult, BehavioralDeltaType
 from deicide.context.dependency_graph import EdgeResolutionStatus
 from deicide.context.models import SourceLocation
 
@@ -22,6 +24,29 @@ class ContextRelationshipCategory(StrEnum):
     TRANSITIVE_CALLER = "transitive_caller"
     TRANSITIVE_CALLEE = "transitive_callee"
     SUPPORTING_REFERENCE = "supporting_reference"
+
+
+_RELATIONSHIP_PRECEDENCE: dict[ContextRelationshipCategory, int] = {
+    ContextRelationshipCategory.CHANGED_SYMBOL: 0,
+    ContextRelationshipCategory.DIRECT_CALLER: 1,
+    ContextRelationshipCategory.DIRECT_CALLEE: 2,
+    ContextRelationshipCategory.IMPORTED_DEFINITION: 3,
+    ContextRelationshipCategory.RELATED_CLASS_METHOD: 4,
+    ContextRelationshipCategory.MODULE_LEVEL_CONTEXT: 4,
+    ContextRelationshipCategory.TRANSITIVE_CALLER: 5,
+    ContextRelationshipCategory.TRANSITIVE_CALLEE: 6,
+    ContextRelationshipCategory.SUPPORTING_REFERENCE: 6,
+}
+
+
+def relationship_precedence(relationship: ContextRelationshipCategory | str) -> int:
+    """Return deterministic semantic precedence for a context relationship category (lower is higher priority)."""
+    if isinstance(relationship, str) and not isinstance(relationship, ContextRelationshipCategory):
+        try:
+            relationship = ContextRelationshipCategory(relationship)
+        except ValueError:
+            return 99
+    return _RELATIONSHIP_PRECEDENCE.get(relationship, 99)
 
 
 class OmissionReason(StrEnum):
@@ -74,6 +99,18 @@ class ContextCandidate(BaseModel):
     estimated_tokens: int = Field(default=0, ge=0)
     focus_lines: list[int] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _default_priority_from_relationship(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("priority") is None and "relationship" in data:
+            data = dict(data)
+            try:
+                rel = ContextRelationshipCategory(data["relationship"])
+                data["priority"] = relationship_precedence(rel)
+            except (ValueError, KeyError):
+                pass
+        return data
+
 
 class SelectedSnippet(BaseModel):
     """Bounded, numbered slice of exact repository source text selected for AI review."""
@@ -88,11 +125,24 @@ class SelectedSnippet(BaseModel):
     qualified_name: str | None = None
     content: str
     relationship: ContextRelationshipCategory
+    priority: int = Field(default=0, ge=0)
     provenance: list[ProvenanceRecord] = Field(default_factory=list)
     estimated_tokens: int = Field(default=0, ge=0)
     is_truncated: bool = False
     truncated_original_lines: int | None = None
     relevant_call_lines: list[int] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _default_priority_from_relationship(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("priority") is None and "relationship" in data:
+            data = dict(data)
+            try:
+                rel = ContextRelationshipCategory(data["relationship"])
+                data["priority"] = relationship_precedence(rel)
+            except (ValueError, KeyError):
+                pass
+        return data
 
 
 class OmittedCandidate(BaseModel):
@@ -120,6 +170,7 @@ class ContextSelectionLimits(BaseModel):
     max_graph_depth: int = Field(default=2, ge=0)
     max_visited_nodes: int = Field(default=100, ge=1)
     max_context_tokens: int = Field(default=2000, ge=0)
+    behavioral_delta_reserved_tokens: int = Field(default=0, ge=0)
 
 
 class ContextSelectionResult(BaseModel):
@@ -136,5 +187,23 @@ class ContextSelectionResult(BaseModel):
     omitted_snippets_count: int = Field(default=0, ge=0)
     is_truncated: bool = False
     serialized_text: str = ""
+    behavioral_deltas: list[BehavioralDelta] = Field(default_factory=list)
+    serialized_behavioral_deltas: str = ""
     diagnostics: list[str] = Field(default_factory=list)
     limits: ContextSelectionLimits = Field(default_factory=ContextSelectionLimits)
+
+
+__all__ = [
+    "BehavioralDelta",
+    "BehavioralDeltaResult",
+    "BehavioralDeltaType",
+    "ContextCandidate",
+    "ContextRelationshipCategory",
+    "ContextSelectionLimits",
+    "ContextSelectionResult",
+    "OmissionReason",
+    "OmittedCandidate",
+    "ProvenanceRecord",
+    "SelectedSnippet",
+    "relationship_precedence",
+]

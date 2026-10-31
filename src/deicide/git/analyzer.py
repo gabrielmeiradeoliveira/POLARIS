@@ -480,3 +480,20 @@ class GitAnalyzer:
             )
 
         return contexts
+
+
+def retrieve_changed_file_context(
+    repo_root: Path,
+    diff_bundle: DiffBundle,
+    budget: ExecutionBudget,
+    tracker: BudgetTracker | None = None,
+) -> dict[str, FileContext]:
+    """Reuse production changed-file retrieval for synthetic evaluation workspaces.
+
+    The retrieval algorithm intentionally remains owned by ``GitAnalyzer``; this adapter
+    supplies a trusted, already-materialized repository root without invoking Git.
+    """
+    analyzer = object.__new__(GitAnalyzer)
+    analyzer.repo_root = repo_root.resolve()
+    analyzer.budget = budget
+    return GitAnalyzer.retrieve_context(analyzer, diff_bundle, tracker=tracker)

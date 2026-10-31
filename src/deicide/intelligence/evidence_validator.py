@@ -251,6 +251,32 @@ def _is_in_supplementary_only(
     return False
 
 
+def _find_matching_delta_ids(
+    file_diff: FileDiff,
+    line_range: LineRange,
+    context_result: Any | None,
+) -> list[str]:
+    """Return behavioral delta IDs from `context_result` that overlap `file_diff` and `line_range`."""
+    if context_result is None:
+        return []
+    deltas = getattr(context_result, "behavioral_deltas", None)
+    if not deltas:
+        return []
+    matched: list[str] = []
+    for delta in deltas:
+        d_file = getattr(delta, "file_path", None)
+        d_range = getattr(delta, "line_range", None)
+        d_id = getattr(delta, "delta_id", None)
+        if (
+            d_file == file_diff.new_path
+            and d_range is not None
+            and d_id
+            and d_range.overlaps_or_adjacent(line_range, tolerance=2)
+        ):
+            matched.append(str(d_id))
+    return matched
+
+
 def assess_evidence(
     evidence: str,
     line_range: LineRange,
@@ -260,6 +286,7 @@ def assess_evidence(
 ) -> EvidenceAssessment:
     """Evaluate whether `evidence` is grounded in the diff/context and classify its quality."""
     relevance = classify_change_relevance(file_diff, line_range)
+    matched_deltas = _find_matching_delta_ids(file_diff, line_range, context_result)
     evidence_lines = strip_evidence_line_prefixes(evidence)
     if not evidence_lines:
         return EvidenceAssessment(
@@ -380,6 +407,7 @@ def assess_evidence(
             quality=EvidenceQuality.EXACT,
             change_relevance=relevance,
             matched_lines=matched_line_numbers,
+            matched_delta_ids=matched_deltas,
         )
 
     if matched_ev_lines_all == len(evidence_lines) or flat_in_all:
@@ -397,12 +425,14 @@ def assess_evidence(
                     quality=EvidenceQuality.STRONG,
                     change_relevance=relevance,
                     matched_lines=matched_line_numbers,
+                    matched_delta_ids=matched_deltas,
                 )
             return EvidenceAssessment(
                 is_valid=True,
                 quality=EvidenceQuality.PARTIAL,
                 change_relevance=relevance,
                 matched_lines=matched_line_numbers,
+                matched_delta_ids=matched_deltas,
                 downgrade_reason=(
                     f"Evidence matches lines {matched_line_numbers} outside reported range "
                     f"{line_range.start_line}-{line_range.end_line}."
@@ -413,6 +443,7 @@ def assess_evidence(
             quality=EvidenceQuality.STRONG,
             change_relevance=relevance,
             matched_lines=matched_line_numbers,
+            matched_delta_ids=matched_deltas,
         )
 
     # Partial line match (e.g., subset of multi-line evidence matched)
@@ -421,6 +452,7 @@ def assess_evidence(
         quality=EvidenceQuality.PARTIAL,
         change_relevance=relevance,
         matched_lines=matched_line_numbers,
+        matched_delta_ids=matched_deltas,
         downgrade_reason=(
             f"Only {matched_ev_lines_all} of {len(evidence_lines)} evidence lines matched the diff context."
         ),

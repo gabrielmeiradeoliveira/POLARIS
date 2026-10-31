@@ -2,6 +2,13 @@
 
 from __future__ import annotations
 
+from deicide.context.behavioral_delta import (
+    BehavioralDelta,
+    BehavioralDeltaResult,
+    BehavioralDeltaType,
+    analyze_behavioral_deltas,
+    serialize_behavioral_deltas,
+)
 from deicide.context.changed_symbols import identify_changed_symbols
 from deicide.context.context_budget import (
     enforce_context_budget,
@@ -64,6 +71,9 @@ from deicide.context.snippet_selector import (
 )
 
 __all__ = [
+    "BehavioralDelta",
+    "BehavioralDeltaResult",
+    "BehavioralDeltaType",
     "CallReference",
     "CallerEvidence",
     "ChangedSymbol",
@@ -100,6 +110,7 @@ __all__ = [
     "SourceLocation",
     "Symbol",
     "SymbolKind",
+    "analyze_behavioral_deltas",
     "build_dependency_graph",
     "build_project_index",
     "enforce_context_budget",
@@ -108,6 +119,7 @@ __all__ = [
     "identify_changed_symbols",
     "resolve_relative_module",
     "select_context",
+    "serialize_behavioral_deltas",
     "serialize_context_bundle",
     "serialize_snippet_block",
 ]

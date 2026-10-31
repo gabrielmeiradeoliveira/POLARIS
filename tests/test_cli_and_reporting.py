@@ -172,3 +172,116 @@ def test_cli_review_context_options(temp_git_repo: Path) -> None:
         ],
     )
     assert res.exit_code == int(ExitCode.SUCCESS)
+
+
+def test_cli_evaluate_help_exposes_max_elapsed_seconds() -> None:
+    res = runner.invoke(app, ["evaluate", "--help"], env={"COLUMNS": "160"})
+    assert res.exit_code == 0
+    assert "--max-elapsed-seconds" in res.stdout
+    assert "Maximum total execution time budget in seconds" in res.stdout
+
+
+def test_cli_evaluate_max_elapsed_seconds_propagation_and_default(monkeypatch) -> None:
+    captured_budgets = []
+
+    import deicide.cli
+
+    orig_evaluate_corpus = deicide.cli.evaluate_corpus
+
+    def mock_evaluate_corpus(*args, **kwargs):
+        captured_budgets.append(kwargs.get("budget"))
+        return orig_evaluate_corpus(*args, **kwargs)
+
+    monkeypatch.setattr(deicide.cli, "evaluate_corpus", mock_evaluate_corpus)
+
+    # 1. Omitting the option preserves default (eval_budget is None, evaluate_corpus uses default 360.0)
+    res_default = runner.invoke(app, ["evaluate", "--provider", "fake"])
+    assert res_default.exit_code == int(ExitCode.SUCCESS)
+    assert len(captured_budgets) == 1
+    assert captured_budgets[0] is None
+
+    # 2. Explicit --max-elapsed-seconds propagates to eval_budget and shared BudgetTracker
+    res_override = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "720"])
+    assert res_override.exit_code == int(ExitCode.SUCCESS)
+    assert len(captured_budgets) == 2
+    assert captured_budgets[1] is not None
+    assert captured_budgets[1].max_elapsed_seconds == 720.0
+
+    # 3. Combined budget options propagate consistently without clamping max_elapsed_seconds
+    res_combined = runner.invoke(
+        app,
+        [
+            "evaluate",
+            "--provider",
+            "fake",
+            "--timeout",
+            "45.0",
+            "--max-retries",
+            "1",
+            "--max-requests",
+            "20",
+            "--max-tokens",
+            "50000",
+            "--max-elapsed-seconds",
+            "600.0",
+        ],
+    )
+    assert res_combined.exit_code == int(ExitCode.SUCCESS)
+    assert len(captured_budgets) == 3
+    assert captured_budgets[2] is not None
+    assert captured_budgets[2].request_timeout_seconds == 45.0
+    assert captured_budgets[2].max_retries == 1
+    assert captured_budgets[2].max_requests == 20
+    assert captured_budgets[2].max_total_tokens == 50000
+    assert captured_budgets[2].max_elapsed_seconds == 600.0
+
+
+def test_cli_evaluate_max_elapsed_seconds_validation() -> None:
+    # Negative value rejected
+    res_neg = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "-10"])
+    assert res_neg.exit_code == int(ExitCode.CONFIGURATION_ERROR)
+    assert "greater than zero" in res_neg.output
+
+    # Zero rejected
+    res_zero = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "0"])
+    assert res_zero.exit_code == int(ExitCode.CONFIGURATION_ERROR)
+    assert "greater than zero" in res_zero.output
+
+    # Non-numeric string rejected
+    res_str = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "not-a-number"])
+    assert res_str.exit_code == int(ExitCode.CONFIGURATION_ERROR)
+    assert "Invalid value for '--max-elapsed-seconds'" in res_str.output
+    assert "not a valid" in res_str.output
+
+    # Exceeding 1800s ceiling rejected
+    res_ceil = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "2000"])
+    assert res_ceil.exit_code == int(ExitCode.CONFIGURATION_ERROR)
+    assert "less than or equal to 1800" in res_ceil.output
+
+
+def test_cli_evaluate_tracker_receives_configured_max_elapsed(monkeypatch) -> None:
+    """End-to-end verification that the active BudgetTracker receives the configured max_elapsed_seconds."""
+    tracker_budgets = []
+
+    import deicide.evaluation.runner
+
+    orig_init = deicide.evaluation.runner.BudgetTracker.__init__
+
+    def spy_init(self, budget, *args, **kwargs):
+        tracker_budgets.append(budget)
+        return orig_init(self, budget, *args, **kwargs)
+
+    monkeypatch.setattr(deicide.evaluation.runner.BudgetTracker, "__init__", spy_init)
+
+    # When explicit --max-elapsed-seconds is provided
+    res = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "540"])
+    assert res.exit_code == int(ExitCode.SUCCESS)
+    assert len(tracker_budgets) >= 1
+    assert tracker_budgets[0].max_elapsed_seconds == 540.0
+
+    # When omitted, tracker receives default 360.0
+    tracker_budgets.clear()
+    res_default = runner.invoke(app, ["evaluate", "--provider", "fake"])
+    assert res_default.exit_code == int(ExitCode.SUCCESS)
+    assert len(tracker_budgets) >= 1
+    assert tracker_budgets[0].max_elapsed_seconds == 360.0

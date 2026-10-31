@@ -4,25 +4,37 @@ from __future__ import annotations
 
 import json
 import re
+import tempfile
 import time
 from pathlib import Path
 
+from deicide.context.behavioral_delta import analyze_behavioral_deltas
 from deicide.context.context_models import (
     ContextRelationshipCategory,
+    ContextSelectionLimits,
     ContextSelectionResult,
     SelectedSnippet,
 )
+from deicide.context.pipeline import calculate_context_token_allowance, prepare_review_context
 from deicide.core.errors import BudgetExceededError, QuotaExhaustedError
-from deicide.core.models import BudgetTracker, CandidateFinding, ExecutionBudget, LineRange
+from deicide.core.models import BudgetTracker, CandidateFinding, ExecutionBudget, LineRange, TokenUsage, estimate_token_count
 from deicide.core.registry import AnalysisModule
 from deicide.evaluation.baseline import baseline_process_candidates
 from deicide.evaluation.models import (
+    CaseDiagnostics,
     CaseEvaluationResult,
+    CaseObservability,
+    CategoryMismatchDiagnostic,
     ChangeType,
     EvaluationFixture,
     EvaluationSummary,
+    ContextSelectionDiagnostic,
+    FindingMatchDiagnostic,
+    RejectedCandidateDiagnostic,
+    UnmatchedExpectedDiagnostic,
+    UnmatchedFindingDiagnostic,
 )
-from deicide.git.analyzer import parse_unified_diff
+from deicide.git.analyzer import parse_unified_diff, retrieve_changed_file_context
 from deicide.git.models import ContextSnippet, DiffBundle, FileContext
 from deicide.intelligence.pipeline import FindingIntelligenceEngine
 from deicide.modules.code_review import CodeReviewModule
@@ -108,6 +120,78 @@ def _build_fixture_contexts(
     return contexts
 
 
+def _usage_delta(current: TokenUsage, previous: TokenUsage) -> TokenUsage:
+    """Return usage attributable to one case when a tracker is shared by a corpus."""
+    return TokenUsage(
+        prompt_tokens=max(0, current.prompt_tokens - previous.prompt_tokens),
+        completion_tokens=max(0, current.completion_tokens - previous.completion_tokens),
+        total_tokens=max(0, current.total_tokens - previous.total_tokens),
+        is_estimated=current.is_estimated,
+        estimated_cost_usd=(
+            max(0.0, (current.estimated_cost_usd or 0.0) - (previous.estimated_cost_usd or 0.0))
+            if current.estimated_cost_usd is not None or previous.estimated_cost_usd is not None
+            else None
+        ),
+    )
+
+
+def _observability_snapshot(
+    provider: LLMProvider,
+    context_result: ContextSelectionResult | None,
+    enabled: bool,
+) -> CaseObservability | None:
+    """Create hash-only telemetry without retaining source or model response bodies."""
+    if not enabled:
+        return None
+    context = None
+    if context_result is not None:
+        context = ContextSelectionDiagnostic(
+            selected_files=context_result.selected_files_count,
+            selected_snippets=context_result.selected_snippets_count,
+            omitted_snippets=context_result.omitted_snippets_count,
+            estimated_tokens=context_result.total_estimated_tokens,
+            max_allowed_tokens=context_result.max_allowed_tokens,
+            behavioral_deltas=len(context_result.behavioral_deltas),
+            truncated=context_result.is_truncated,
+            diagnostics=list(context_result.diagnostics),
+        )
+    return CaseObservability(
+        provider=provider.provider_name,
+        model=provider.model_name,
+        attempts=list(getattr(provider, "last_attempts", [])),
+        context=context,
+    )
+
+
+def _prepare_production_parity_context(
+    fixture: EvaluationFixture,
+    diff_bundle: DiffBundle,
+    budget: ExecutionBudget,
+    module: AnalysisModule,
+    behavioral_delta_enabled: bool,
+    limits: ContextSelectionLimits,
+) -> tuple[dict[str, FileContext], ContextSelectionResult | None]:
+    """Materialize fixture AFTER sources and invoke the production context pipeline."""
+    with tempfile.TemporaryDirectory(prefix="deicide-eval-") as directory:
+        root = Path(directory)
+        for relative_path, source in fixture.file_contents.items():
+            destination = root / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(source, encoding="utf-8")
+        contexts = retrieve_changed_file_context(root, diff_bundle, budget)
+        estimate = getattr(module, "estimate_baseline_tokens", None)
+        baseline_tokens = estimate(diff_bundle, contexts) if callable(estimate) else 0
+        outcome = prepare_review_context(
+            repo_root=root,
+            diff_bundle=diff_bundle,
+            budget=budget,
+            limits=limits,
+            behavioral_delta_enabled=behavioral_delta_enabled,
+            baseline_prompt_tokens=baseline_tokens,
+        )
+        return contexts, outcome.result
+
+
 def evaluate_case(
     fixture: EvaluationFixture,
     provider: LLMProvider,
@@ -118,6 +202,10 @@ def evaluate_case(
     strict_severity: bool = False,
     tracker: BudgetTracker | None = None,
     skip_unsuitable: bool = False,
+    behavioral_delta_enabled: bool = True,
+    production_parity: bool = False,
+    context_limits: ContextSelectionLimits | None = None,
+    observability: bool = False,
 ) -> CaseEvaluationResult:
     """Run a single EvaluationFixture and compute TP, FP, FN, latency, and token consumption."""
     active_module = module or CodeReviewModule()
@@ -127,6 +215,7 @@ def evaluate_case(
         provider_name=provider.provider_name,
         model_name=provider.model_name,
     )
+    usage_before = active_tracker.usage
 
     if skip_unsuitable and not fixture.is_suitable_for_live_benchmark:
         return CaseEvaluationResult(
@@ -138,12 +227,13 @@ def evaluate_case(
             legitimate_rejected=0,
             severity_mismatches=0,
             latency_ms=0,
-            usage=active_tracker.usage,
+            usage=_usage_delta(active_tracker.usage, usage_before),
             actual_findings=[],
             status="skipped",
             error="Skipped fixture unsuitable for live benchmark",
             provenance=fixture.resolved_provenance,
             change_type=fixture.resolved_change_type,
+            observability=_observability_snapshot(provider, None, observability),
         )
 
     start_ns = time.perf_counter_ns()
@@ -158,9 +248,9 @@ def evaluate_case(
     contexts = _build_fixture_contexts(fixture)
 
     context_result: ContextSelectionResult | None = None
+    selected_snippets: list[SelectedSnippet] = []
+    serialized_sections: list[str] = []
     if fixture.supplementary_snippets:
-        selected_snippets = []
-        serialized_sections = []
         for snip in fixture.supplementary_snippets:
             snippet_obj = SelectedSnippet(
                 snippet_id=str(snip.get("snippet_id", "supp-1")),
@@ -173,10 +263,51 @@ def evaluate_case(
             selected_snippets.append(snippet_obj)
             serialized_sections.append(f"=== CONTEXT SNIPPET: {snippet_obj.file_path} ===\n{snippet_obj.content}")
 
+    baseline_prompt_tokens = 0
+    estimate_baseline = getattr(active_module, "estimate_baseline_tokens", None)
+    if callable(estimate_baseline):
+        baseline_prompt_tokens = estimate_baseline(diff_bundle, contexts)
+
+    context_limits = context_limits or ContextSelectionLimits()
+    context_token_allowance = calculate_context_token_allowance(
+        active_budget,
+        baseline_prompt_tokens=baseline_prompt_tokens,
+        requested_context_tokens=context_limits.max_context_tokens,
+    )
+    supplementary_context = "\n\n".join(serialized_sections)
+    supplementary_tokens = estimate_token_count(supplementary_context)
+
+    delta_result = analyze_behavioral_deltas(
+        diff_bundle=diff_bundle,
+        contexts=contexts,
+        enabled=behavioral_delta_enabled,
+    )
+    available_delta_tokens = max(0, context_token_allowance - supplementary_tokens)
+    include_serialized_deltas = (
+        bool(delta_result.serialized_summary) and delta_result.estimated_tokens <= available_delta_tokens
+    )
+    delta_token_cost = delta_result.estimated_tokens if include_serialized_deltas else 0
+
+    if selected_snippets or delta_result.deltas:
         context_result = ContextSelectionResult(
             selected_snippets=selected_snippets,
-            serialized_text="\n\n".join(serialized_sections),
+            serialized_text=supplementary_context,
             selected_snippets_count=len(selected_snippets),
+            total_estimated_tokens=supplementary_tokens + delta_token_cost,
+            max_allowed_tokens=context_token_allowance,
+            behavioral_deltas=delta_result.deltas,
+            serialized_behavioral_deltas=delta_result.serialized_summary if include_serialized_deltas else "",
+            limits=context_limits.model_copy(update={"max_context_tokens": context_token_allowance}),
+        )
+
+    if production_parity:
+        contexts, context_result = _prepare_production_parity_context(
+            fixture,
+            diff_bundle,
+            active_budget,
+            active_module,
+            behavioral_delta_enabled,
+            context_limits,
         )
 
     candidates: list[CandidateFinding] = []
@@ -226,7 +357,7 @@ def evaluate_case(
             legitimate_rejected=0,
             severity_mismatches=0,
             latency_ms=elapsed_ms,
-            usage=active_tracker.usage,
+            usage=_usage_delta(active_tracker.usage, usage_before),
             actual_findings=[],
             status=case_status,
             error=case_error,
@@ -235,10 +366,12 @@ def evaluate_case(
             retries_attempted=retries_attempted,
             provenance=fixture.resolved_provenance,
             change_type=fixture.resolved_change_type,
+            observability=_observability_snapshot(provider, context_result, observability),
         )
 
+    warnings = []
     if use_baseline:
-        actual_findings, rejected_count, deduped_count, _warnings = baseline_process_candidates(
+        actual_findings, rejected_count, deduped_count, warnings = baseline_process_candidates(
             module_id=active_module.module_id,
             candidates=candidates,
             diff_bundle=diff_bundle,
@@ -256,14 +389,64 @@ def evaluate_case(
         )
         actual_findings = intel_result.findings
         deduped_count = intel_result.deduplicated_count
+        warnings = intel_result.warnings
 
     elapsed_ms = max(0, int((time.perf_counter_ns() - start_ns) / 1_000_000))
+
+    # Reconstruct rejected candidate findings and rejection reasons
+    rejection_warnings = [w for w in warnings if w.code.startswith("FINDING_REJECTED_")]
+    rejected_diagnostics: list[RejectedCandidateDiagnostic] = []
+    rej_warn_idx = 0
+    for cand in candidates:
+        cand_end_line = cand.end_line if cand.end_line is not None else cand.start_line
+        cand_range = LineRange(start_line=cand.start_line, end_line=cand_end_line)
+        is_validated = any(
+            f.file_path == cand.file_path
+            and f.line_range == cand_range
+            and f.category == cand.category
+            and f.title == cand.title
+            for f in actual_findings
+        )
+        if not is_validated:
+            matched_warn = None
+            if rej_warn_idx < len(rejection_warnings):
+                w = rejection_warnings[rej_warn_idx]
+                if w.file_path == cand.file_path or cand.title in w.message or not w.file_path:
+                    matched_warn = w
+                    rej_warn_idx += 1
+                else:
+                    for idx_w in range(rej_warn_idx, len(rejection_warnings)):
+                        candidate_w = rejection_warnings[idx_w]
+                        if candidate_w.file_path == cand.file_path or cand.title in candidate_w.message:
+                            matched_warn = candidate_w
+                            break
+            reason_msg = (
+                matched_warn.message
+                if matched_warn
+                else "Candidate finding was rejected during evidence and policy validation."
+            )
+            rej_code = matched_warn.code if matched_warn else "FINDING_REJECTED"
+            rejected_diagnostics.append(
+                RejectedCandidateDiagnostic(
+                    file_path=cand.file_path,
+                    line_range=cand_range,
+                    category=cand.category,
+                    severity=cand.severity,
+                    title=cand.title,
+                    reason=reason_msg,
+                    rejection_code=rej_code,
+                )
+            )
 
     effective_expected = fixture.expected_findings
     if force_end_to_end and fixture.resolved_change_type == ChangeType.CLEAN_BUG_FIX:
         effective_expected = []
 
     matched_expected_indices: set[int] = set()
+    matched_actual_ids: set[str] = set()
+    expected_claimed_by: dict[int, str] = {}
+    matched_findings: list[FindingMatchDiagnostic] = []
+    unmatched_findings: list[UnmatchedFindingDiagnostic] = []
     tp = 0
     fp = 0
     severity_mismatches = 0
@@ -273,16 +456,164 @@ def evaluate_case(
         for idx, expected in enumerate(effective_expected):
             if idx not in matched_expected_indices and expected.matches(actual, strict_severity=strict_severity):
                 matched_expected_indices.add(idx)
+                matched_actual_ids.add(actual.id)
+                expected_claimed_by[idx] = actual.id
                 matched = True
-                if not expected.severity_matches(actual):
+                sev_match = expected.severity_matches(actual)
+                if not sev_match:
                     severity_mismatches += 1
+
+                allowed_cats = list(expected.acceptable_categories or [])
+                matched_findings.append(
+                    FindingMatchDiagnostic(
+                        finding_id=actual.id,
+                        file_path=actual.file_path,
+                        line_range=actual.line_range,
+                        category=actual.category,
+                        severity=actual.severity,
+                        title=actual.title,
+                        expected_file_path=expected.file_path,
+                        expected_line_range=expected.line_range,
+                        expected_category=expected.category,
+                        expected_allowed_categories=allowed_cats,
+                        severity_match=sev_match,
+                    )
+                )
                 break
         if matched:
             tp += 1
         else:
             fp += 1
+            reasons: list[str] = []
+            if not effective_expected:
+                reasons.append("Fixture has no expected defects (clean change / false positive finding)")
+            else:
+                for idx, expected in enumerate(effective_expected):
+                    exp_desc = (
+                        f"expected defect #{idx + 1} "
+                        f"({expected.file_path}:{expected.line_range.start_line}-{expected.line_range.end_line})"
+                    )
+                    if idx in matched_expected_indices and expected.matches(actual, strict_severity=strict_severity):
+                        reasons.append(
+                            f"Expected defect #{idx + 1} "
+                            f"({expected.file_path}:{expected.line_range.start_line}-{expected.line_range.end_line}) "
+                            f"already claimed by earlier finding '{expected_claimed_by.get(idx)}' (one-to-one constraint)"
+                        )
+                        continue
+
+                    crit: list[str] = []
+                    if actual.file_path != expected.file_path:
+                        crit.append(f"file mismatch ('{actual.file_path}' != '{expected.file_path}')")
+                    if not actual.line_range.overlaps_or_adjacent(expected.line_range, tolerance=2):
+                        crit.append(
+                            f"line range mismatch ({actual.line_range.start_line}-{actual.line_range.end_line} "
+                            f"not overlapping or adjacent to {expected.line_range.start_line}-{expected.line_range.end_line} ± 2)"
+                        )
+                    if not expected.category_matches(actual.category):
+                        exp_cats = sorted(c.value for c in (expected.acceptable_categories or set()))
+                        crit.append(f"category mismatch ('{actual.category.value}' not in {exp_cats})")
+                    if strict_severity and not expected.severity_matches(actual):
+                        crit.append(
+                            f"severity mismatch ('{actual.severity.value}' != '{expected.severity.value if expected.severity else 'any'}')"
+                        )
+
+                    if crit:
+                        reasons.append(f"Against {exp_desc}: {'; '.join(crit)}")
+
+            unmatched_findings.append(
+                UnmatchedFindingDiagnostic(
+                    finding_id=actual.id,
+                    file_path=actual.file_path,
+                    line_range=actual.line_range,
+                    category=actual.category,
+                    severity=actual.severity,
+                    title=actual.title,
+                    reasons=reasons,
+                    reason=" | ".join(reasons),
+                )
+            )
+
+    category_mismatches: list[CategoryMismatchDiagnostic] = []
+    category_mismatch_expected_indices: set[int] = set()
+    for actual in actual_findings:
+        if actual.id in matched_actual_ids:
+            continue
+        for idx, expected in enumerate(effective_expected):
+            if idx in matched_expected_indices or idx in category_mismatch_expected_indices:
+                continue
+            if expected.location_matches(actual) and not expected.category_matches(actual.category):
+                category_mismatch_expected_indices.add(idx)
+                category_mismatches.append(
+                    CategoryMismatchDiagnostic(
+                        finding_id=actual.id,
+                        file_path=actual.file_path,
+                        line_range=actual.line_range,
+                        category=actual.category,
+                        title=actual.title,
+                        expected_file_path=expected.file_path,
+                        expected_line_range=expected.line_range,
+                        expected_category=expected.category,
+                        expected_allowed_categories=list(expected.acceptable_categories or []),
+                    )
+                )
+                break
 
     fn = len(effective_expected) - len(matched_expected_indices)
+    undetected_expected_defects = len(effective_expected) - len(matched_expected_indices) - len(
+        category_mismatch_expected_indices
+    )
+
+    unmatched_expected: list[UnmatchedExpectedDiagnostic] = []
+    for idx, expected in enumerate(effective_expected):
+        if idx not in matched_expected_indices:
+            allowed_cats = list(expected.acceptable_categories or [])
+            if not candidates:
+                exp_reason = "No candidate findings generated by provider/module for this case."
+            else:
+                matching_rejected = [
+                    r
+                    for r in rejected_diagnostics
+                    if r.file_path == expected.file_path
+                    and r.line_range.overlaps_or_adjacent(expected.line_range, tolerance=2)
+                    and expected.category_matches(r.category)
+                ]
+                if matching_rejected:
+                    exp_reason = (
+                        f"Candidate finding '{matching_rejected[0].title}' matched expected location and category, "
+                        f"but was rejected during validation: {matching_rejected[0].reason}"
+                    )
+                elif not actual_findings:
+                    exp_reason = (
+                        f"All {len(candidates)} candidate findings were rejected during validation; "
+                        "no validated findings available."
+                    )
+                else:
+                    mismatches = []
+                    for act in actual_findings:
+                        crit = []
+                        if act.file_path != expected.file_path:
+                            crit.append(f"file '{act.file_path}' != '{expected.file_path}'")
+                        if not act.line_range.overlaps_or_adjacent(expected.line_range, tolerance=2):
+                            crit.append(
+                                f"lines {act.line_range.start_line}-{act.line_range.end_line} not overlapping "
+                                f"{expected.line_range.start_line}-{expected.line_range.end_line}"
+                            )
+                        if not expected.category_matches(act.category):
+                            exp_cats = sorted(c.value for c in (expected.acceptable_categories or set()))
+                            crit.append(f"category '{act.category.value}' not in {exp_cats}")
+                        mismatches.append(f"finding '{act.id}' ({'; '.join(crit)})")
+                    exp_reason = f"No validated finding matched this defect. Checked: {'; '.join(mismatches)}."
+
+            unmatched_expected.append(
+                UnmatchedExpectedDiagnostic(
+                    file_path=expected.file_path,
+                    line_range=expected.line_range,
+                    category=expected.category,
+                    allowed_categories=allowed_cats,
+                    severity=expected.severity,
+                    reason=exp_reason,
+                )
+            )
 
     # Calculate legitimate findings incorrectly rejected (ground truth in candidates but missing from actual)
     legitimate_rejected = 0
@@ -293,27 +624,41 @@ def evaluate_case(
                 and LineRange(start_line=c.start_line, end_line=c.end_line or c.start_line).overlaps_or_adjacent(
                     expected.line_range, tolerance=2
                 )
-                and (expected.category is None or c.category == expected.category)
+                and expected.category_matches(c.category)
                 for c in candidates
             )
             if candidate_present:
                 legitimate_rejected += 1
+
+    case_diagnostics = CaseDiagnostics(
+        candidate_findings=list(candidates),
+        validated_findings=actual_findings,
+        rejected_candidates=rejected_diagnostics,
+        matched_findings=matched_findings,
+        category_mismatches=category_mismatches,
+        unmatched_findings=unmatched_findings,
+        unmatched_expected=unmatched_expected,
+    )
 
     return CaseEvaluationResult(
         case_id=fixture.case_id,
         true_positives=tp,
         false_positives=fp,
         false_negatives=fn,
+        category_mismatch_detections=len(category_mismatches),
+        undetected_expected_defects=undetected_expected_defects,
         duplicates_reduced=deduped_count,
         legitimate_rejected=legitimate_rejected,
         severity_mismatches=severity_mismatches,
         latency_ms=elapsed_ms,
-        usage=active_tracker.usage,
+        usage=_usage_delta(active_tracker.usage, usage_before),
         actual_findings=actual_findings,
         status="completed",
         error=None,
         provenance=fixture.resolved_provenance,
         change_type=fixture.resolved_change_type,
+        diagnostics=case_diagnostics,
+        observability=_observability_snapshot(provider, context_result, observability),
     )
 
 
@@ -328,9 +673,22 @@ def evaluate_corpus(
     max_cases: int | None = None,
     shared_tracker: BudgetTracker | None = None,
     skip_unsuitable: bool = False,
+    behavioral_delta_enabled: bool = True,
+    production_parity: bool = False,
+    context_limits: ContextSelectionLimits | None = None,
+    case_ids: list[str] | None = None,
+    observability: bool = False,
 ) -> EvaluationSummary:
     """Evaluate a corpus of fixtures and aggregate precision, recall, latency, and tokens."""
     evaluated_fixtures = fixtures
+    if case_ids is not None:
+        if len(case_ids) != len(set(case_ids)):
+            raise ValueError("Evaluation case IDs must be unique.")
+        by_id = {fixture.case_id: fixture for fixture in fixtures}
+        missing = [case_id for case_id in case_ids if case_id not in by_id]
+        if missing:
+            raise ValueError(f"Unknown evaluation case IDs: {', '.join(missing)}")
+        evaluated_fixtures = [by_id[case_id] for case_id in case_ids]
     max_cases_applied: int | None = None
     if max_cases is not None and max_cases > 0:
         max_cases_applied = max_cases
@@ -350,6 +708,8 @@ def evaluate_corpus(
     total_tp = 0
     total_fp = 0
     total_fn = 0
+    total_category_mismatch_detections = 0
+    total_undetected_expected_defects = 0
     total_duplicates_reduced = 0
     total_legitimate_rejected = 0
     total_severity_mismatches = 0
@@ -360,6 +720,7 @@ def evaluate_corpus(
     negative_cases_with_fp = 0
     verified_cases = 0
     reference_modeled_cases = 0
+    documented_verified_cases = 0
     unverified_cases = 0
     successful_cases = 0
     api_failed_cases = 0
@@ -371,6 +732,8 @@ def evaluate_corpus(
         prov = fixture.resolved_provenance
         if prov == "fully_verified":
             verified_cases += 1
+        elif prov == "documented_verified":
+            documented_verified_cases += 1
         elif prov == "reference_modeled":
             reference_modeled_cases += 1
         else:
@@ -395,6 +758,10 @@ def evaluate_corpus(
             strict_severity=strict_severity,
             tracker=active_tracker,
             skip_unsuitable=skip_unsuitable,
+            behavioral_delta_enabled=behavioral_delta_enabled,
+            production_parity=production_parity,
+            context_limits=context_limits,
+            observability=observability,
         )
         case_results.append(res)
 
@@ -403,6 +770,8 @@ def evaluate_corpus(
             total_tp += res.true_positives
             total_fp += res.false_positives
             total_fn += res.false_negatives
+            total_category_mismatch_detections += res.category_mismatch_detections
+            total_undetected_expected_defects += res.undetected_expected_defects
             total_duplicates_reduced += res.duplicates_reduced
             total_legitimate_rejected += res.legitimate_rejected
             total_severity_mismatches += res.severity_mismatches
@@ -428,10 +797,26 @@ def evaluate_corpus(
         precision = None
         recall = None
         fp_rate = None
+        detection_precision = None
+        detection_recall = None
     else:
-        precision = round(total_tp / (total_tp + total_fp), 4) if (total_tp + total_fp) > 0 else 0.0
-        recall = round(total_tp / (total_tp + total_fn), 4) if (total_tp + total_fn) > 0 else 1.0
-        fp_rate = round(negative_cases_with_fp / successful_negative_cases, 4) if successful_negative_cases > 0 else 0.0
+        precision = round(total_tp / (total_tp + total_fp), 4) if (total_tp + total_fp) > 0 else None
+        recall = round(total_tp / (total_tp + total_fn), 4) if (total_tp + total_fn) > 0 else None
+        fp_rate = (
+            round(negative_cases_with_fp / successful_negative_cases, 4) if successful_negative_cases > 0 else None
+        )
+        detected_expected_defects = total_tp + total_category_mismatch_detections
+        detection_precision = (
+            round(detected_expected_defects / (total_tp + total_fp), 4) if (total_tp + total_fp) > 0 else None
+        )
+        detection_recall = (
+            round(
+                detected_expected_defects / (detected_expected_defects + total_undetected_expected_defects),
+                4,
+            )
+            if (detected_expected_defects + total_undetected_expected_defects) > 0
+            else None
+        )
 
     avg_latency = (
         round(total_latency_ms / successful_cases, 2)
@@ -451,6 +836,10 @@ def evaluate_corpus(
         true_positives=total_tp,
         false_positives=total_fp,
         false_negatives=total_fn,
+        category_mismatch_detections=total_category_mismatch_detections,
+        undetected_expected_defects=total_undetected_expected_defects,
+        detection_precision=detection_precision,
+        detection_recall=detection_recall,
         precision=precision,
         recall=recall,
         false_positive_rate=fp_rate,
@@ -462,6 +851,7 @@ def evaluate_corpus(
         average_latency_ms=round(avg_latency, 2),
         usage=active_tracker.usage,
         verified_cases=verified_cases,
+        documented_verified_cases=documented_verified_cases,
         reference_modeled_cases=reference_modeled_cases,
         unverified_cases=unverified_cases,
         budget_exhausted=budget_exhausted,

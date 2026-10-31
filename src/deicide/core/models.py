@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from enum import StrEnum
 from typing import TYPE_CHECKING, Literal
 
@@ -195,7 +196,7 @@ class ExecutionBudget(BaseModel):
     max_requests: int = Field(default=3, ge=1)
     max_total_tokens: int = Field(default=8_000, ge=1)
     request_timeout_seconds: float = Field(default=60.0, gt=0.0, le=600.0)
-    max_elapsed_seconds: float = Field(default=180.0, gt=0.0, le=1800.0)
+    max_elapsed_seconds: float = Field(default=360.0, gt=0.0, le=1800.0)
     max_retries: int = Field(default=0, ge=0, le=10)
     quota_enabled: bool = Field(default=True)
     rate_limit_rpm: int | None = Field(default=5, ge=1)
@@ -225,6 +226,7 @@ class ContextSummary(BaseModel):
     related_files: int = Field(default=0, ge=0)
     estimated_tokens: int = Field(default=0, ge=0)
     omitted_candidates: int = Field(default=0, ge=0)
+    behavioral_deltas: int = Field(default=0, ge=0)
     fallback: bool = False
     fallback_reason: str | None = None
 
@@ -274,13 +276,15 @@ class BudgetTracker:
         provider_name: str = "fake",
         model_name: str = "fake-deterministic-v1",
         quota_scope: str = "default",
+        clock_fn: Callable[[], float] = time.monotonic,
     ) -> None:
         self.budget = budget
         self.usage_store = usage_store
         self.provider_name = provider_name
         self.model_name = model_name
         self.quota_scope = quota_scope
-        self._start_monotonic = time.monotonic()
+        self._clock = clock_fn
+        self._start_monotonic = self._clock()
         self.files_processed: int = 0
         self.context_bytes_used: int = 0
         self.requests_made: int = 0
@@ -290,7 +294,7 @@ class BudgetTracker:
 
     @property
     def elapsed_seconds(self) -> float:
-        return time.monotonic() - self._start_monotonic
+        return self._clock() - self._start_monotonic
 
     def check_elapsed_time(self) -> None:
         if self.elapsed_seconds > self.budget.max_elapsed_seconds:
