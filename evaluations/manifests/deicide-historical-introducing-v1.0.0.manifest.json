@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "release_id": "deicide-historical-introducing-v1.0.0",
+  "status": "payload_frozen_pending_release_tag",
+  "source_tree": {
+    "base_commit": "bdaf572e7cce621a02dee76b825fdc5d64e7021d",
+    "evaluated_payload_commit": "52618449b4db2c07860f711330d3cf510daf463d",
+    "release_tag": "deicide-historical-introducing-v1.0.0",
+    "requirements_lock": "requirements-lock.txt",
+    "requirements_lock_sha256": "f50cfb9f45af0c638928a6454bbb33533cf53ee1579ece33bf3c3be4418f729f"
+  },
+  "runtime": {
+    "python_version": "3.12.10",
+    "platform": "win32",
+    "package_installed_from": "checked-out release tag"
+  },
+  "corpus": {
+    "path": "evaluations/fixtures/real_world_verified_benchmark.json",
+    "sha256": "17019e5f994b1bfc4ba4afe62992cf69bd829f509db3e075cf68ba9615759096",
+    "classification": "documented_verified_minimized_historical_excerpts",
+    "case_ids": [
+      "rw-requests-2023-proxy-authorization",
+      "rw-requests-jsondecodeerror-pickle",
+      "rw-requests-super-len-unicode",
+      "rw-urllib3-cookie-cross-origin",
+      "rw-urllib3-proxy-redirect-origin",
+      "rw-urllib3-port-zero",
+      "rw-urllib3-invalid-timeout-error",
+      "rw-werkzeug-debugger-trusted-host"
+    ],
+    "structural_integrity": "independent BEFORE/AFTER round-trip required for all eight fixtures",
+    "limitation": "Fixtures are minimized historical excerpts, not complete executable upstream checkouts."
+  },
+  "evaluator_components": {
+    "src/deicide/evaluation/fixture_integrity.py": "6a19e0e7a1484274c748259496bcc47b632392845e0327e64328c4ce0e7fecbc",
+    "src/deicide/evaluation/runner.py": "895b5bcf0e128c083c07a601417fc79edd05b7dad05e0aadb2aaf2571ebc524c",
+    "src/deicide/evaluation/models.py": "2a6e10744c8bef6ad5ffda7b68a34c60b8c9472b008b4d950620a517a64d3761",
+    "src/deicide/intelligence/evidence_validator.py": "b3e157850f6a65f7b66449f60a4913ee349cd2f789083574e830aa9c9fc2dd5d",
+    "src/deicide/modules/code_review.py": "a5118398f3d755c28bf2d3a3595354e13bfc628e105e009c48f346d711760472"
+  },
+  "planned_experiment": {
+    "provider": "nvidia",
+    "model": "minimaxai/minimax-m3.1-flash",
+    "end_to_end": true,
+    "production_parity": true,
+    "behavioral_delta": false,
+    "strict_severity": false,
+    "context_tokens": 2000,
+    "max_requests": 16,
+    "max_tokens": 100000,
+    "timeout_seconds": 40,
+    "max_retries": 1,
+    "max_elapsed_seconds": 720
+  },
+  "matching": {
+    "file_path": "exact",
+    "line_range": "overlap",
+    "category": "primary_or_allowed_alternative",
+    "severity": "diagnostic_only_when_strict_severity_is_false",
+    "one_true_positive_per_expected_defect": true
+  },
+  "failure_policy": {
+    "provider_failures": "recorded_separately",
+    "timeouts": "not_counted_as_false_negatives",
+    "retries": "recorded_as_provider_attempts"
+  },
+  "result_policy": {
+    "directory": "evaluations/results/<unique-run-id>",
+    "overwrite_existing": false,
+    "observability": "explicit_opt_in_hashes_only",
+    "prohibited_data": [
+      "credentials",
+      "prompts",
+      "raw_model_responses",
+      "authorization_headers"
+    ]
+  }
+}
