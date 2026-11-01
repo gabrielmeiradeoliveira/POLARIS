@@ -89,3 +89,6 @@ $RECYCLE.BIN/
 
 # Logs and runtime artifacts
 *.log
+
+# DEICIDE evaluation history: compact manifests/reports are reviewable; raw artifacts are local only.
+/evaluations/history/artifacts/

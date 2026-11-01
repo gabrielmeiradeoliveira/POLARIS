@@ -13,6 +13,7 @@ from deicide.core.errors import DeicideError, ExitCode
 from deicide.core.models import ExecutionBudget
 from deicide.core.orchestrator import AnalysisOrchestrator
 from deicide.core.registry import ModuleRegistry
+from deicide.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
 from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
 from deicide.modules.code_review import CodeReviewModule
 from deicide.providers.factory import create_provider
@@ -485,6 +486,25 @@ def evaluate_command(
             help="Write opt-in hash-only experimental telemetry to a local JSON file; prompts and responses are never stored.",
         ),
     ] = None,
+    history_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--history-dir",
+            help="Append a sanitized immutable validation-history manifest and run-scoped trend reports here.",
+        ),
+    ] = None,
+    history_run_id: Annotated[
+        str | None,
+        typer.Option("--history-run-id", help="Stable unique ID required when --history-dir is used."),
+    ] = None,
+    history_configuration: Annotated[
+        str,
+        typer.Option("--history-configuration", help="Declared benchmark configuration label, such as A, B, or C."),
+    ] = "default",
+    history_corpus_kind: Annotated[
+        CorpusKind,
+        typer.Option("--history-corpus-kind", help="Corpus provenance; real and synthetic histories remain separate."),
+    ] = CorpusKind.SYNTHETIC,
     output_format: Annotated[
         str,
         typer.Option(
@@ -568,6 +588,26 @@ def evaluate_command(
                 summary.model_dump_json(indent=2),
                 encoding="utf-8",
             )
+
+        if history_dir is not None:
+            if history_run_id is None:
+                raise typer.BadParameter("--history-run-id is required when --history-dir is used.")
+            history_budget = eval_budget or config.budget
+            manifest = build_manifest(
+                run_id=history_run_id,
+                summary=summary,
+                corpus_path=fixtures_file,
+                corpus_kind=history_corpus_kind,
+                provider=llm_provider.provider_name,
+                model=llm_provider.model_name,
+                configuration=history_configuration,
+                operational_limits=history_budget.model_dump(),
+                repo_root=Path.cwd(),
+            )
+            manifest_path = append_manifest(history_dir, manifest)
+            trend_json, trend_markdown = write_trend_reports(history_dir, run_id=history_run_id)
+            typer.echo(f"History Manifest    : {manifest_path}", err=config.output_format == OutputFormat.JSON)
+            typer.echo(f"History Trends      : {trend_json}, {trend_markdown}", err=config.output_format == OutputFormat.JSON)
 
         if config.output_format == OutputFormat.JSON:
             typer.echo(summary.model_dump_json(indent=2))

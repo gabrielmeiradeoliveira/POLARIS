@@ -303,6 +303,11 @@ The evaluation framework explicitly distinguishes three measurement tiers:
 - `deicide evaluate --max-tokens <int>`: Enforces a cumulative token ceiling across the benchmark run.
 - `deicide evaluate --fixtures <path>`: Specifies a custom fixtures JSON file.
 - `deicide evaluate --format json`: Outputs structured machine-readable evaluation metrics.
+- `deicide evaluate --history-dir <path> --history-run-id <id>`: Appends a sanitized, integrity-checked validation manifest and run-scoped trend reports.
+
+### Validation History
+
+History manifests preserve aggregate metrics and sanitized finding decisions while separating real and synthetic corpora. Qualitative confidence remains a label; Brier scores and reliability curves require explicitly numeric probabilities and enough assessed samples. See [evaluation history](evaluations/history/README.md) for retention and artifact policy.
 
 ---
 
