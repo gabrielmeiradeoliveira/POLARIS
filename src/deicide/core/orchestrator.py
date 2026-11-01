@@ -50,6 +50,11 @@ class AnalysisOrchestrator:
     def run(self, module_ids: list[str] | None = None) -> AnalysisReport:
         """Run the full analysis workflow and return a validated AnalysisReport."""
         start_time = time.monotonic()
+        stage_timings_ms: dict[str, int] = {}
+
+        def record_timing(stage: str, started_at: float) -> None:
+            stage_timings_ms[stage] = max(0, int((time.monotonic() - started_at) * 1000))
+
         self.config.validate_provider_credentials()
         active_store = self._resolve_usage_store()
 
@@ -62,10 +67,12 @@ class AnalysisOrchestrator:
         )
 
         git_analyzer = GitAnalyzer(self.config.repo_path, budget=self.config.budget)
+        diff_started = time.monotonic()
         diff_bundle = git_analyzer.extract_diff(
             base_revision=self.config.base_revision,
             tracker=tracker,
         )
+        record_timing("diff_read", diff_started)
 
         selected_modules = (
             [self.registry.get(mid) for mid in module_ids] if module_ids is not None else self.registry.list_modules()
@@ -88,6 +95,7 @@ class AnalysisOrchestrator:
                 ),
                 usage=tracker.usage,
                 duration_ms=duration_ms,
+                stage_timings_ms=stage_timings_ms,
                 files_analyzed=[f.new_path for f in diff_bundle.files],
                 findings=[],
                 rejected_findings_count=0,
@@ -96,7 +104,9 @@ class AnalysisOrchestrator:
                 status="empty_diff",
             )
 
+        context_read_started = time.monotonic()
         contexts = git_analyzer.retrieve_context(diff_bundle, tracker=tracker)
+        record_timing("diff_context_read", context_read_started)
 
         # Estimate baseline prompt tokens (system prompt + reviewable diff + diff context)
         baseline_prompt_tokens = 0
@@ -104,6 +114,7 @@ class AnalysisOrchestrator:
         if review_module is not None:
             baseline_prompt_tokens = review_module.estimate_baseline_tokens(diff_bundle, contexts)
 
+        context_prepare_started = time.monotonic()
         context_outcome = prepare_review_context(
             repo_root=git_analyzer.repo_root,
             diff_bundle=diff_bundle,
@@ -113,6 +124,9 @@ class AnalysisOrchestrator:
             behavioral_delta_enabled=self.config.behavioral_delta_enabled,
             baseline_prompt_tokens=baseline_prompt_tokens,
         )
+        record_timing("context_preparation", context_prepare_started)
+        for stage, elapsed_ms in context_outcome.summary.stage_timings_ms.items():
+            stage_timings_ms[f"context.{stage}"] = elapsed_ms
         context_result = context_outcome.result
         context_summary = context_outcome.summary
 
@@ -126,6 +140,7 @@ class AnalysisOrchestrator:
 
         for module in selected_modules:
             tracker.check_elapsed_time()
+            module_started = time.monotonic()
             try:
                 candidates: list[CandidateFinding] = module.analyze(
                     diff_bundle=diff_bundle,
@@ -142,8 +157,10 @@ class AnalysisOrchestrator:
                     tracker=tracker,
                 )
             candidates_by_module.append((module.module_id, candidates))
+            record_timing(f"module_analysis.{module.module_id}", module_started)
 
         intelligence_engine = FindingIntelligenceEngine()
+        validation_started = time.monotonic()
         intelligence_result = intelligence_engine.process_multi_module_candidates(
             candidates_by_module=candidates_by_module,
             diff_bundle=diff_bundle,
@@ -151,6 +168,7 @@ class AnalysisOrchestrator:
             repo_root=git_analyzer.repo_root,
             context_result=context_result,
         )
+        record_timing("finding_validation", validation_started)
         tracker.warnings.extend(intelligence_result.warnings)
         deduped_findings = intelligence_result.findings
         total_rejected = intelligence_result.rejected_count
@@ -184,6 +202,7 @@ class AnalysisOrchestrator:
             ),
             usage=tracker.usage,
             duration_ms=duration_ms,
+            stage_timings_ms=stage_timings_ms,
             files_analyzed=[f.new_path for f in reviewable],
             findings=deduped_findings,
             rejected_findings_count=total_rejected,

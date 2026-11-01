@@ -596,9 +596,11 @@ def evaluate_command(
             )
             prec_str = f"{summary.precision:.2%}" if summary.precision is not None else "N/A"
             rec_str = f"{summary.recall:.2%}" if summary.recall is not None else "N/A"
+            f1_str = f"{summary.f1_score:.2%}" if summary.f1_score is not None else "N/A"
             fpr_str = f"{summary.false_positive_rate:.2%}" if summary.false_positive_rate is not None else "N/A"
             typer.echo(f"Precision           : {prec_str}")
             typer.echo(f"Recall              : {rec_str}")
+            typer.echo(f"F1                  : {f1_str}")
             typer.echo(f"False Positive Rate : {fpr_str}")
             typer.echo(f"Duplicates Reduced  : {summary.duplicates_reduced}")
             typer.echo(f"Legitimate Rejected : {summary.legitimate_rejected}")
@@ -608,6 +610,12 @@ def evaluate_command(
                 typer.echo(f"Successful Cases    : {summary.successful_cases}")
             if summary.api_failed_cases > 0:
                 typer.echo(f"API Failed Cases    : {summary.api_failed_cases}")
+            if summary.timeout_cases > 0:
+                typer.echo(f"Timeout Cases       : {summary.timeout_cases}")
+            if summary.error_cases > 0:
+                typer.echo(f"Error Cases         : {summary.error_cases}")
+            if summary.unassessed_cases > 0:
+                typer.echo(f"Unassessed Cases    : {summary.unassessed_cases}")
             if summary.budget_exhausted_cases > 0:
                 typer.echo(f"Budget Exhausted    : {summary.budget_exhausted_cases}")
             if summary.skipped_cases > 0:

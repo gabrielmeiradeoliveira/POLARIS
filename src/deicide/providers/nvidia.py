@@ -25,10 +25,10 @@ from deicide.core.errors import (
 )
 from deicide.core.models import BudgetTracker, ExecutionBudget, TokenUsage
 from deicide.providers.base import (
-    ProviderRequest,
-    ProviderResponse,
     ProviderAttempt,
     ProviderFailureCategory,
+    ProviderRequest,
+    ProviderResponse,
     estimate_token_count,
 )
 from deicide.quota.store import RequestStatus, UsageStore
@@ -177,9 +177,9 @@ class NvidiaProvider:
 
     @staticmethod
     def _annotate_failure(exc: Exception, category: ProviderFailureCategory, status: int | None, retries: int) -> Exception:
-        setattr(exc, "failure_category", category.value)
-        setattr(exc, "http_status", status)
-        setattr(exc, "retries_attempted", retries)
+        exc.failure_category = category.value
+        exc.http_status = status
+        exc.retries_attempted = retries
         return exc
 
     def generate(self, request: ProviderRequest) -> ProviderResponse:
@@ -189,7 +189,7 @@ class NvidiaProvider:
         estimated_in = request.estimated_prompt_tokens
         active_tracker = self._resolve_active_tracker()
         prompt_hash = hashlib.sha256(
-            f"{request.system_prompt}\x00{request.user_prompt}".encode("utf-8")
+            f"{request.system_prompt}\x00{request.user_prompt}".encode()
         ).hexdigest()
         self.last_attempts = []
 
@@ -200,8 +200,6 @@ class NvidiaProvider:
         }
 
         retries = 0
-        last_error: Exception | None = None
-
         for attempt in range(self.max_retries + 1):
             if not url.startswith("https://"):
                 raise ProviderError("NVIDIA API URL must use https:// scheme.")
@@ -345,7 +343,6 @@ class NvidiaProvider:
                     self._record_boundary(active_tracker)
                     self._sleep(delay)
                     self._record_boundary(active_tracker)
-                    last_error = exc
                     continue
 
                 if code == 429:
@@ -373,7 +370,6 @@ class NvidiaProvider:
                     self._record_boundary(active_tracker)
                     self._sleep(delay)
                     self._record_boundary(active_tracker)
-                    last_error = exc
                     continue
                 raise self._annotate_failure(
                     ProviderError(f"NVIDIA API network/timeout error after {retries} retries."),

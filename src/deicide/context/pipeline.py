@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import NamedTuple
 
@@ -59,10 +60,23 @@ def prepare_review_context(
     baseline_prompt_tokens: int = 0,
 ) -> ContextPreparationOutcome:
     """Safely prepare budgeted supplementary cross-file context for code review."""
+    pipeline_started = time.perf_counter_ns()
+    stage_timings_ms: dict[str, int] = {}
+
+    def record_timing(stage: str, started_ns: int) -> None:
+        stage_timings_ms[stage] = stage_timings_ms.get(stage, 0) + max(
+            0, int((time.perf_counter_ns() - started_ns) / 1_000_000)
+        )
+
+    def complete_timings() -> dict[str, int]:
+        result = dict(stage_timings_ms)
+        result["context_preparation_total"] = max(0, int((time.perf_counter_ns() - pipeline_started) / 1_000_000))
+        return result
+
     if not context_enabled:
         return ContextPreparationOutcome(
             result=None,
-            summary=ContextSummary(status="disabled", fallback=False),
+            summary=ContextSummary(status="disabled", fallback=False, stage_timings_ms=complete_timings()),
         )
 
     python_files = [
@@ -71,7 +85,7 @@ def prepare_review_context(
     if not python_files:
         return ContextPreparationOutcome(
             result=None,
-            summary=ContextSummary(status="no_python_changes", fallback=False),
+            summary=ContextSummary(status="no_python_changes", fallback=False, stage_timings_ms=complete_timings()),
         )
 
     active_limits = limits or ContextSelectionLimits()
@@ -82,15 +96,19 @@ def prepare_review_context(
 
     for fdiff in python_files:
         try:
+            ast_started = time.perf_counter_ns()
             analysis = ast_analyzer.analyze_file(repo_root, fdiff.new_path)
+            record_timing("ast_parse", ast_started)
             if analysis.status == FileAnalysisStatus.PARSED:
                 changed_res = identify_changed_symbols(fdiff, analysis)
                 all_changed_symbols.extend(changed_res.changed_symbols)
                 if active_limits.static_relevance_selection_enabled:
                     source_path = ensure_safe_repo_file(repo_root, fdiff.new_path)
+                    static_started = time.perf_counter_ns()
                     static_analyses[fdiff.new_path] = static_analyzer.analyze_source(
                         source_path.read_text(encoding="utf-8"), fdiff.new_path
                     )
+                    record_timing("cfg_data_flow", static_started)
         except SecurityViolationError:
             raise
         except Exception:  # noqa: S112
@@ -99,7 +117,7 @@ def prepare_review_context(
     if not all_changed_symbols:
         return ContextPreparationOutcome(
             result=None,
-            summary=ContextSummary(status="no_changed_symbols", fallback=False),
+            summary=ContextSummary(status="no_changed_symbols", fallback=False, stage_timings_ms=complete_timings()),
         )
 
     try:
@@ -108,8 +126,12 @@ def prepare_review_context(
             max_file_size_bytes=budget.max_file_bytes,
             max_total_bytes=budget.max_total_context_bytes,
         )
+        index_started = time.perf_counter_ns()
         index = build_project_index(repo_root, limits=index_limits, analyzer=ast_analyzer)
+        record_timing("project_index", index_started)
+        graph_started = time.perf_counter_ns()
         graph = build_dependency_graph(index)
+        record_timing("dependency_graph", graph_started)
 
         context_token_allowance = calculate_context_token_allowance(
             budget,
@@ -117,6 +139,7 @@ def prepare_review_context(
             requested_context_tokens=active_limits.max_context_tokens,
         )
 
+        delta_started = time.perf_counter_ns()
         delta_result = (
             analyze_behavioral_deltas(
                 diff_bundle=diff_bundle,
@@ -128,6 +151,7 @@ def prepare_review_context(
             if behavioral_delta_enabled
             else BehavioralDeltaResult()
         )
+        record_timing("behavioral_delta", delta_started)
         delta_allowance = (
             min(active_limits.behavioral_delta_reserved_tokens, context_token_allowance)
             if active_limits.behavioral_delta_reserved_tokens
@@ -141,6 +165,7 @@ def prepare_review_context(
             else max(0, context_token_allowance - delta_token_cost)
         )
 
+        selection_started = time.perf_counter_ns()
         context_result = select_context(
             repo_root=repo_root,
             changed_symbols=all_changed_symbols,
@@ -150,6 +175,7 @@ def prepare_review_context(
             max_context_tokens=snippet_token_allowance,
             static_analyses=static_analyses if active_limits.static_relevance_selection_enabled else None,
         )
+        record_timing("context_selection", selection_started)
         context_result = context_result.model_copy(
             update={
                 "behavioral_deltas": delta_result.deltas,
@@ -168,6 +194,7 @@ def prepare_review_context(
             omitted_candidates=context_result.omitted_snippets_count,
             behavioral_deltas=len(delta_result.deltas),
             fallback=False,
+            stage_timings_ms=complete_timings(),
         )
         return ContextPreparationOutcome(result=context_result, summary=summary)
 
@@ -178,5 +205,6 @@ def prepare_review_context(
             status="fallback",
             fallback=True,
             fallback_reason=f"Recoverable context failure: {exc}",
+            stage_timings_ms=complete_timings(),
         )
         return ContextPreparationOutcome(result=None, summary=summary)

@@ -789,7 +789,7 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
     # Provider exception text is persisted into evaluation diagnostics, so raw
     # transport bodies/messages must not become a telemetry data channel.
     assert "The read operation timed out" not in str(timeout_exc.value)
-    assert getattr(timeout_exc.value, "failure_category") == "timeout"
+    assert timeout_exc.value.failure_category == "timeout"
 
     # Exactly 1 attempt was made and recorded as uncertain
     assert attempts_zero == 1

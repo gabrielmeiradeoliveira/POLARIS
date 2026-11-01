@@ -9,7 +9,7 @@ import pytest
 from pydantic import SecretStr
 
 import deicide.providers.nvidia as nvidia_module
-from deicide.core.errors import ProviderError, RateLimitError
+from deicide.core.errors import ProviderError
 from deicide.core.models import ExecutionBudget, FindingCategory, LineRange, Severity
 from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
 from deicide.evaluation.runner import evaluate_case, evaluate_corpus
@@ -187,7 +187,7 @@ def test_retry_is_limited_to_retryable_failures_and_invalid_json_is_classified()
     with pytest.raises(ProviderError, match=r"HTTP 400") as client_exc:
         client_error.generate(_request())
     assert forbidden_calls == 1
-    assert getattr(client_exc.value, "failure_category") == "client_error"
+    assert client_exc.value.failure_category == "client_error"
     assert "sensitive failure body" not in str(client_exc.value)
 
     invalid = NvidiaProvider(
@@ -196,7 +196,7 @@ def test_retry_is_limited_to_retryable_failures_and_invalid_json_is_classified()
     )
     with pytest.raises(ProviderError, match="invalid JSON") as invalid_exc:
         invalid.generate(_request())
-    assert getattr(invalid_exc.value, "failure_category") == "invalid_response"
+    assert invalid_exc.value.failure_category == "invalid_response"
     assert invalid.last_attempts[0].termination_reason == "invalid_response"
 
 
@@ -213,7 +213,7 @@ def test_timeout_and_connection_error_are_distinct_and_budgeted_attempts_are_vis
         )
         with pytest.raises(ProviderError) as exc_info:
             provider.generate(_request())
-        assert getattr(exc_info.value, "failure_category") == category
+        assert exc_info.value.failure_category == category
         assert provider.last_attempts[0].error_category.value == category
         assert provider.last_attempts[0].usage is None
 

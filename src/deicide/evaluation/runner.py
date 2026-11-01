@@ -736,7 +736,7 @@ def evaluate_corpus(
     max_cases_applied: int | None = None
     if max_cases is not None and max_cases > 0:
         max_cases_applied = max_cases
-        evaluated_fixtures = fixtures[:max_cases]
+        evaluated_fixtures = evaluated_fixtures[:max_cases]
 
     active_budget = budget or ExecutionBudget(
         max_requests=max(len(fixtures) * 2, 100),
@@ -767,6 +767,8 @@ def evaluate_corpus(
     documented_verified_cases = 0
     unverified_cases = 0
     successful_cases = 0
+    timeout_cases = 0
+    error_cases = 0
     api_failed_cases = 0
     budget_exhausted_cases = 0
     skipped_cases = 0
@@ -836,6 +838,10 @@ def evaluate_corpus(
         else:
             total_latency_ms += res.latency_ms
             api_failed_cases += 1
+            if res.error_category == "timeout":
+                timeout_cases += 1
+            else:
+                error_cases += 1
 
     failed_cases = api_failed_cases + budget_exhausted_cases
 
@@ -845,6 +851,7 @@ def evaluate_corpus(
         fp_rate = None
         detection_precision = None
         detection_recall = None
+        f1_score = None
     else:
         precision = round(total_tp / (total_tp + total_fp), 4) if (total_tp + total_fp) > 0 else None
         recall = round(total_tp / (total_tp + total_fn), 4) if (total_tp + total_fn) > 0 else None
@@ -863,6 +870,12 @@ def evaluate_corpus(
             if (detected_expected_defects + total_undetected_expected_defects) > 0
             else None
         )
+        if precision is None or recall is None:
+            f1_score = None
+        elif precision + recall == 0:
+            f1_score = 0.0
+        else:
+            f1_score = round(2 * precision * recall / (precision + recall), 4)
 
     avg_latency = (
         round(total_latency_ms / successful_cases, 2)
@@ -875,6 +888,9 @@ def evaluate_corpus(
         positive_cases=positive_cases,
         negative_cases=negative_cases,
         successful_cases=successful_cases,
+        timeout_cases=timeout_cases,
+        error_cases=error_cases,
+        unassessed_cases=len(case_results) - successful_cases,
         failed_cases=failed_cases,
         api_failed_cases=api_failed_cases,
         budget_exhausted_cases=budget_exhausted_cases,
@@ -888,6 +904,7 @@ def evaluate_corpus(
         detection_recall=detection_recall,
         precision=precision,
         recall=recall,
+        f1_score=f1_score,
         false_positive_rate=fp_rate,
         duplicates_reduced=total_duplicates_reduced,
         legitimate_rejected=total_legitimate_rejected,
