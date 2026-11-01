@@ -23,7 +23,7 @@ from deicide.core.errors import (
     QuotaExhaustedError,
     RateLimitError,
 )
-from deicide.core.models import BudgetTracker, ExecutionBudget, TokenUsage
+from deicide.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, ExecutionBudget, TokenUsage
 from deicide.providers.base import (
     ProviderAttempt,
     ProviderFailureCategory,
@@ -185,7 +185,6 @@ class NvidiaProvider:
     def generate(self, request: ProviderRequest) -> ProviderResponse:
         secret = self._api_key.get_secret_value()
         url = self._build_url()
-        payload_bytes = self._build_payload(request)
         estimated_in = request.estimated_prompt_tokens
         active_tracker = self._resolve_active_tracker()
         prompt_hash = hashlib.sha256(
@@ -213,13 +212,24 @@ class NvidiaProvider:
             retry_reason: str | None = None
             error_category: str | None = None
             http_status: int | None = None
+            active_request = request
             if active_tracker is not None:
+                permitted_output = active_tracker.available_output_tokens(
+                    estimated_in,
+                    request.max_output_tokens,
+                    safety_margin_tokens=TOKEN_ESTIMATION_SAFETY_MARGIN,
+                )
+                active_request = request.model_copy(update={"max_output_tokens": permitted_output})
                 reservation_id = active_tracker.reserve_attempt(
                     estimated_in,
+                    reserved_output_tokens=permitted_output,
+                    safety_margin_tokens=TOKEN_ESTIMATION_SAFETY_MARGIN,
                     provider_name="nvidia",
                     model_name=self._model_name,
                     is_retry=(attempt > 0),
                 )
+
+            payload_bytes = self._build_payload(active_request)
 
             http_req = urllib.request.Request(  # noqa: S310
                 url=url,
@@ -306,7 +316,7 @@ class NvidiaProvider:
                     )
 
                 try:
-                    parsed_resp = self._parse_response(resp_body, request, retries)
+                    parsed_resp = self._parse_response(resp_body, active_request, retries)
                 except Exception:
                     error_category = ProviderFailureCategory.INVALID_RESPONSE
                     if active_tracker is not None:

@@ -154,7 +154,7 @@ class BenchmarkHistoryManifest(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = "1.1"
+    schema_version: str = "1.2"
     run_id: str = Field(min_length=8, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
     timestamp_utc: datetime = Field(default_factory=_utc_now)
     git_commit: str
@@ -179,7 +179,7 @@ class BenchmarkHistoryManifest(BaseModel):
         expected_findings_hash = canonical_sha256([record.model_dump(mode="json") for record in self.findings])
         if self.findings_sha256 != expected_findings_hash:
             raise ValueError("findings_sha256 does not match finding records.")
-        if self.manifest_sha256 is not None and self.manifest_sha256 != manifest_payload_hash(self):
+        if self.manifest_sha256 is not None and self.manifest_sha256 not in _accepted_manifest_hashes(self):
             raise ValueError("manifest_sha256 does not match manifest payload.")
         return self
 
@@ -197,6 +197,42 @@ def manifest_payload_hash(manifest: BenchmarkHistoryManifest) -> str:
         payload.pop("validation_metrics", None)
         payload.pop("calibration_metrics", None)
     return canonical_sha256(payload)
+
+
+def _accepted_manifest_hashes(manifest: BenchmarkHistoryManifest) -> set[str]:
+    """Accept sealed legacy payloads without weakening new-manifest integrity.
+
+    Schema 1.0 and 1.1 records predate the GOAL 17 summary fields. Pydantic
+    supplies new defaults when old records are read, so a legacy compatibility
+    candidate removes only those post-1.1 fields. New schema-1.2 manifests
+    accept only their normal self-hash.
+    """
+    hashes = {manifest_payload_hash(manifest)}
+    if manifest.schema_version in {"1.0", "1.1"}:
+        payload = manifest.model_dump(mode="json", exclude={"manifest_sha256"})
+        summary = payload.get("summary")
+        if isinstance(summary, dict):
+            for key in (
+                "detection_precision_ci_lower",
+                "detection_precision_ci_upper",
+                "detection_recall_ci_lower",
+                "detection_recall_ci_upper",
+                "precision_ci_lower",
+                "precision_ci_upper",
+                "recall_ci_lower",
+                "recall_ci_upper",
+                "completion_rate",
+            ):
+                summary.pop(key, None)
+        hashes.add(canonical_sha256(payload))
+        # Some schema-1.0 records were produced after derived validation
+        # metrics were introduced, while earlier records predate them.
+        # Preserve both historical payload shapes as independently sealed.
+        if manifest.schema_version == "1.0":
+            payload.pop("validation_metrics", None)
+            payload.pop("calibration_metrics", None)
+            hashes.add(canonical_sha256(payload))
+    return hashes
 
 
 def validation_metrics(records: list[FindingValidationRecord]) -> ValidationMetrics:

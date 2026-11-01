@@ -46,6 +46,23 @@ def test_fake_provider_detects_bugs_and_ignores_clean_code(temp_git_repo: Path) 
     assert "correctness" in categories
 
 
+def test_fake_provider_uses_the_same_dynamic_output_reservation(temp_git_repo: Path) -> None:
+    calc_file = temp_git_repo / "src" / "calc.py"
+    calc_file.write_text("def add(a, b):\n    return a / 0\n", encoding="utf-8")
+    config = DeicideConfig.from_env_and_args(
+        repo_path=temp_git_repo,
+        provider="fake",
+        max_tokens=1_500,
+        environ={},
+    )
+    provider = FakeProvider()
+    report = AnalysisOrchestrator(config, provider, build_default_registry()).run()
+
+    assert report.status == "completed"
+    assert provider.requests
+    assert 64 <= provider.requests[0].max_output_tokens < 4096
+
+
 def test_malformed_model_responses_handled_gracefully(temp_git_repo: Path) -> None:
     calc_file = temp_git_repo / "src" / "calc.py"
     calc_file.write_text("def add(a: int, b: int) -> int:\n    return a - b\n", encoding="utf-8")

@@ -1,0 +1,301 @@
+{
+  "real": {
+    "corpus_kind": "real",
+    "run_count": 0,
+    "runs": []
+  },
+  "synthetic": {
+    "corpus_kind": "synthetic",
+    "run_count": 9,
+    "runs": [
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "A",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal16-1-offline-20261101-v2",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T03:15:26.080113+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "A",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal16-1-offline-20261101-v3",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T03:15:52.908233+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "A",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal16-1-offline-20261101",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T03:14:33.934542+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "A",
+        "deicide_version": "0.1.0",
+        "f1_score": null,
+        "false_positive_rate": null,
+        "model": "fake-deterministic-v1",
+        "precision": null,
+        "provider": "fake",
+        "recall": 0.0,
+        "run_id": "goal16-offline-a-20261101",
+        "sample_size": 8,
+        "timestamp_utc": "2026-11-01T03:47:08.329255+00:00",
+        "validation": {
+          "assessed_findings": 0,
+          "confirmation_rate": null,
+          "confirmed_findings": 0,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 0,
+          "uncertain_findings": 0,
+          "validation_coverage": null
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "B",
+        "deicide_version": "0.1.0",
+        "f1_score": null,
+        "false_positive_rate": null,
+        "model": "fake-deterministic-v1",
+        "precision": null,
+        "provider": "fake",
+        "recall": 0.0,
+        "run_id": "goal16-offline-b-20261101",
+        "sample_size": 8,
+        "timestamp_utc": "2026-11-01T03:47:13.387211+00:00",
+        "validation": {
+          "assessed_findings": 0,
+          "confirmation_rate": null,
+          "confirmed_findings": 0,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 0,
+          "uncertain_findings": 0,
+          "validation_coverage": null
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "C",
+        "deicide_version": "0.1.0",
+        "f1_score": null,
+        "false_positive_rate": null,
+        "model": "fake-deterministic-v1",
+        "precision": null,
+        "provider": "fake",
+        "recall": 0.0,
+        "run_id": "goal16-offline-c-20261101",
+        "sample_size": 8,
+        "timestamp_utc": "2026-11-01T03:47:18.015261+00:00",
+        "validation": {
+          "assessed_findings": 0,
+          "confirmation_rate": null,
+          "confirmed_findings": 0,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 0,
+          "uncertain_findings": 0,
+          "validation_coverage": null
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "A",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal17-offline-a-20261101",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T16:16:54.572027+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "B",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal17-offline-b-20261101",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T16:18:49.249881+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      },
+      {
+        "calibration": {
+          "available": false,
+          "bins": [],
+          "brier_score": null,
+          "minimum_sample_size": 20,
+          "reason": "Insufficient assessed findings with explicitly numeric probabilities.",
+          "sample_size": 0
+        },
+        "completion_rate": 1.0,
+        "configuration": "C",
+        "deicide_version": "0.1.0",
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "model": "fake-deterministic-v1",
+        "precision": 1.0,
+        "provider": "fake",
+        "recall": 1.0,
+        "run_id": "goal17-offline-c-20261101",
+        "sample_size": 6,
+        "timestamp_utc": "2026-11-01T16:18:53.926114+00:00",
+        "validation": {
+          "assessed_findings": 4,
+          "confirmation_rate": 1.0,
+          "confirmed_findings": 4,
+          "not_assessed_findings": 0,
+          "rejected_findings": 0,
+          "total_findings": 4,
+          "uncertain_findings": 0,
+          "validation_coverage": 1.0
+        }
+      }
+    ]
+  }
+}

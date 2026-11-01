@@ -9,8 +9,8 @@ import pytest
 from pydantic import SecretStr
 
 import deicide.providers.nvidia as nvidia_module
-from deicide.core.errors import ProviderError
-from deicide.core.models import ExecutionBudget, FindingCategory, LineRange, Severity
+from deicide.core.errors import BudgetExceededError, ProviderError
+from deicide.core.models import BudgetTracker, ExecutionBudget, FindingCategory, LineRange, Severity
 from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
 from deicide.evaluation.runner import evaluate_case, evaluate_corpus
 from deicide.providers.base import ProviderRequest
@@ -230,7 +230,7 @@ def test_case_deadline_after_provider_response_is_explicit_operational_failure(m
         _fixture(),
         provider,
         force_end_to_end=True,
-        budget=ExecutionBudget(case_deadline_seconds=1.0, max_total_tokens=1000),
+        budget=ExecutionBudget(case_deadline_seconds=1.0, max_total_tokens=10_000),
         observability=True,
     )
 
@@ -267,6 +267,168 @@ def test_observable_failure_never_persists_secret_or_provider_body() -> None:
     assert result.observability is not None
     assert result.observability.attempts is not None
     assert result.observability.attempts[0].response_hash is None
+
+
+def test_token_reservation_rejects_insufficient_prompt_and_minimum_response() -> None:
+    prompt_too_large = BudgetTracker(ExecutionBudget(max_total_tokens=700))
+    with pytest.raises(BudgetExceededError, match="insufficient reservation"):
+        prompt_too_large.available_output_tokens(estimated_prompt_tokens=400, requested_output_tokens=4096)
+
+    no_minimum_response = BudgetTracker(ExecutionBudget(max_total_tokens=320))
+    with pytest.raises(BudgetExceededError, match="minimum output"):
+        no_minimum_response.available_output_tokens(estimated_prompt_tokens=1, requested_output_tokens=4096)
+
+
+def test_nvidia_provider_dynamically_caps_output_before_transport() -> None:
+    payloads: list[dict[str, object]] = []
+
+    def transport(req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        payloads.append(json.loads(req.data.decode("utf-8")))  # type: ignore[attr-defined]
+        return 200, {}, _response()
+
+    budget = ExecutionBudget(max_total_tokens=1_000, max_requests=1)
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        budget=budget,
+        transport_fn=transport,
+    )
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    provider.generate(_request())
+    provider.bind_tracker(None)
+
+    # Prompt estimate is three tokens; 256 safety tokens leave 741 for output.
+    assert payloads[0]["max_tokens"] == 741
+    assert tracker.requests_made == 1
+
+
+def test_successive_attempts_and_retries_recompute_reserved_output() -> None:
+    payloads: list[dict[str, object]] = []
+    calls = 0
+
+    def transport(req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        nonlocal calls
+        calls += 1
+        payloads.append(json.loads(req.data.decode("utf-8")))  # type: ignore[attr-defined]
+        if calls == 1:
+            return 429, {}, "rate limited"
+        return 200, {}, _response()
+
+    budget = ExecutionBudget(max_total_tokens=1_000, max_requests=2, max_retries=1)
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        budget=budget,
+        sleep_fn=lambda _: None,
+        transport_fn=transport,
+    )
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    provider.generate(_request())
+    provider.bind_tracker(None)
+
+    assert tracker.requests_made == 2
+    assert tracker.retries_performed == 1
+    assert payloads[0]["max_tokens"] == 741
+    # The failed attempt conservatively consumed its estimated two prompt tokens.
+    assert payloads[1]["max_tokens"] == 738
+
+
+def test_successive_completed_calls_recompute_output_from_actual_usage() -> None:
+    payloads: list[dict[str, object]] = []
+
+    def transport(req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        payloads.append(json.loads(req.data.decode("utf-8")))  # type: ignore[attr-defined]
+        return 200, {}, json.dumps(
+            {
+                "choices": [{"message": {"content": '{"findings": []}'}}],
+                "usage": {"prompt_tokens": 100, "completion_tokens": 100, "total_tokens": 200},
+            }
+        )
+
+    budget = ExecutionBudget(max_total_tokens=1_000, max_requests=2)
+    provider = NvidiaProvider(api_key=SecretStr("nvapi-testing-key"), budget=budget, transport_fn=transport)
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    provider.generate(_request())
+    provider.generate(_request())
+    provider.bind_tracker(None)
+
+    assert tracker.usage.total_tokens == 400
+    assert payloads[0]["max_tokens"] == 741
+    assert payloads[1]["max_tokens"] == 541
+
+
+def test_retry_is_blocked_when_first_attempt_consumes_minimum_reservation() -> None:
+    calls = 0
+
+    def transport(_req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        nonlocal calls
+        calls += 1
+        return 429, {}, "rate limited"
+
+    # Three estimated prompt tokens + 256 margin + 64 minimum output permits
+    # exactly one attempt. Its conservative failed-attempt prompt charge then
+    # leaves too little for a retry.
+    budget = ExecutionBudget(max_total_tokens=323, max_requests=2, max_retries=1)
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        budget=budget,
+        sleep_fn=lambda _: None,
+        transport_fn=transport,
+    )
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    with pytest.raises(BudgetExceededError, match="insufficient reservation"):
+        provider.generate(_request())
+    provider.bind_tracker(None)
+
+    assert calls == 1
+    assert tracker.requests_made == 1
+    assert tracker.retries_performed == 0
+
+
+def test_reported_usage_over_reservation_is_accounted_and_stops_budget() -> None:
+    def transport(_req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        return (
+            200,
+            {},
+            json.dumps(
+                {
+                    "choices": [{"message": {"content": '{"findings": []}'}}],
+                    "usage": {"prompt_tokens": 900, "completion_tokens": 200, "total_tokens": 1_100},
+                }
+            ),
+        )
+
+    budget = ExecutionBudget(max_total_tokens=1_000, max_requests=2)
+    provider = NvidiaProvider(api_key=SecretStr("nvapi-testing-key"), budget=budget, transport_fn=transport)
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    with pytest.raises(BudgetExceededError, match="used 1100 tokens"):
+        provider.generate(_request())
+    provider.bind_tracker(None)
+    assert tracker.usage.total_tokens == 1_100
+    with pytest.raises(BudgetExceededError):
+        tracker.available_output_tokens(estimated_prompt_tokens=1, requested_output_tokens=64)
+
+
+def test_missing_usage_uses_estimate_with_reserved_nvidia_cap_and_fake_provider_stays_compatible() -> None:
+    payloads: list[dict[str, object]] = []
+
+    def transport(req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        payloads.append(json.loads(req.data.decode("utf-8")))  # type: ignore[attr-defined]
+        return 200, {}, json.dumps({"choices": [{"message": {"content": '{"findings": []}'}}]})
+
+    budget = ExecutionBudget(max_total_tokens=1_000, max_requests=1)
+    provider = NvidiaProvider(api_key=SecretStr("nvapi-testing-key"), budget=budget, transport_fn=transport)
+    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider.bind_tracker(tracker)
+    response = provider.generate(_request())
+    provider.bind_tracker(None)
+
+    assert payloads[0]["max_tokens"] == 741
+    assert response.usage.is_estimated is True
+    assert response.usage.total_tokens <= budget.max_total_tokens
 
 
 def test_local_transport_baseline_and_reliability_controls_preserve_outcomes() -> None:
@@ -312,7 +474,7 @@ def test_local_transport_baseline_and_reliability_controls_preserve_outcomes() -
     controlled = NvidiaProvider(
         api_key=SecretStr("nvapi-testing-key"),
         timeout_seconds=30.0,
-        budget=ExecutionBudget(attempt_deadline_seconds=4.5, max_total_tokens=1000),
+        budget=ExecutionBudget(attempt_deadline_seconds=4.5, max_total_tokens=10_000),
         transport_fn=lambda _request, timeout: (controlled_timeouts.append(timeout) or (200, {}, finding_response)),
     )
 
@@ -321,7 +483,7 @@ def test_local_transport_baseline_and_reliability_controls_preserve_outcomes() -
         fixture,
         controlled,
         force_end_to_end=True,
-        budget=ExecutionBudget(attempt_deadline_seconds=4.5, max_total_tokens=1000),
+        budget=ExecutionBudget(attempt_deadline_seconds=4.5, max_total_tokens=10_000),
     )
 
     assert (controlled_result.status, controlled_result.true_positives, controlled_result.false_positives) == (
