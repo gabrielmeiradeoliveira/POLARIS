@@ -1,0 +1,438 @@
+[
+  {
+    "case_id": "beh-regress-01-cross-file-return-contract",
+    "description": "Cross-file return contract regression: decode_auth_token returns string instead of dict payload breaking authenticate_request caller",
+    "diff_text": "diff --git a/auth/token_service.py b/auth/token_service.py\n--- a/auth/token_service.py\n+++ b/auth/token_service.py\n@@ -1,5 +1,5 @@\n-def decode_auth_token(token: str) -> dict[str, str]:\n+def decode_auth_token(token: str) -> str:\n     if not token.startswith(\"tok_\"):\n         raise ValueError(\"Invalid token prefix\")\n     parts = token.split(\".\")\n-    return {\"sub\": parts[1], \"tenant_id\": parts[2] if len(parts) > 2 else \"default\"}\n+    return parts[1]\n",
+    "file_contents": {
+      "auth/token_service.py": "def decode_auth_token(token: str) -> str:\n    if not token.startswith(\"tok_\"):\n        raise ValueError(\"Invalid token prefix\")\n    parts = token.split(\".\")\n    return parts[1]\n",
+      "api/middleware.py": "from auth.token_service import decode_auth_token\n\n\ndef authenticate_request(headers: dict[str, str]) -> str:\n    token = headers.get(\"Authorization\", \"\")\n    payload = decode_auth_token(token)\n    return payload[\"sub\"]\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "auth/token_service.py",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 5
+        },
+        "category": "correctness",
+        "allowed_categories": [
+          "correctness",
+          "type_mismatch"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "correctness",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "auth/token_service.py",
+        "start_line": 5,
+        "end_line": 5,
+        "title": "Breaking return contract in decode_auth_token breaks authenticate_request caller",
+        "description": "Returning str instead of dict from decode_auth_token breaks caller authenticate_request in api/middleware.py with TypeError.",
+        "evidence": "return parts[1]",
+        "suggested_remediation": "Return a dict containing 'sub' or update caller authenticate_request to handle str return value."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling cross-file return contract regression",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-02-removed-parameter-default",
+    "description": "Removed parameter default: removing default version=1 from build_cache_key breaks get_user_cache_key caller",
+    "diff_text": "diff --git a/storage/cache_client.py b/storage/cache_client.py\n--- a/storage/cache_client.py\n+++ b/storage/cache_client.py\n@@ -1,2 +1,2 @@\n-def build_cache_key(namespace: str, item_id: str, version: int = 1) -> str:\n+def build_cache_key(namespace: str, item_id: str, version: int) -> str:\n     return f\"{namespace}:v{version}:{item_id}\"\n",
+    "file_contents": {
+      "storage/cache_client.py": "def build_cache_key(namespace: str, item_id: str, version: int) -> str:\n    return f\"{namespace}:v{version}:{item_id}\"\n",
+      "services/user_service.py": "from storage.cache_client import build_cache_key\n\n\ndef get_user_cache_key(user_id: str) -> str:\n    return build_cache_key(\"users\", user_id)\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "storage/cache_client.py",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 1
+        },
+        "category": "correctness",
+        "allowed_categories": [
+          "correctness",
+          "type_mismatch"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "correctness",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "storage/cache_client.py",
+        "start_line": 1,
+        "end_line": 1,
+        "title": "Removed default parameter breaks existing caller get_user_cache_key",
+        "description": "Removing default parameter value version: int = 1 breaks caller get_user_cache_key in services/user_service.py with TypeError.",
+        "evidence": "def build_cache_key(namespace: str, item_id: str, version: int) -> str:",
+        "suggested_remediation": "Preserve default argument version: int = 1 or update all call sites."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling removed parameter default breaking caller",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-03-incorrect-boundary-condition",
+    "description": "Incorrect boundary condition: removed upper bound clamping in chunk index computation causing last chunk end to exceed total length",
+    "diff_text": "diff --git a/data/chunk_reader.py b/data/chunk_reader.py\n--- a/data/chunk_reader.py\n+++ b/data/chunk_reader.py\n@@ -5,3 +5,3 @@ def compute_chunk_indices(total_length: int, chunk_size: int) -> list[tuple[int,\n     for start in range(0, total_length, chunk_size):\n-        end = min(start + chunk_size, total_length)\n+        end = start + chunk_size\n         chunks.append((start, end))\n",
+    "file_contents": {
+      "data/chunk_reader.py": "def compute_chunk_indices(total_length: int, chunk_size: int) -> list[tuple[int, int]]:\n    if chunk_size <= 0 or total_length <= 0:\n        return []\n    chunks = []\n    for start in range(0, total_length, chunk_size):\n        end = start + chunk_size\n        chunks.append((start, end))\n    return chunks\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "data/chunk_reader.py",
+        "line_range": {
+          "start_line": 5,
+          "end_line": 7
+        },
+        "category": "boundary_condition",
+        "allowed_categories": [
+          "boundary_condition",
+          "correctness"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "boundary_condition",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "data/chunk_reader.py",
+        "start_line": 6,
+        "end_line": 6,
+        "title": "Unclamped chunk end index exceeds total sequence length",
+        "description": "Removing min(start + chunk_size, total_length) clamp causes the final chunk end index to exceed total_length.",
+        "evidence": "end = start + chunk_size",
+        "suggested_remediation": "Clamp chunk end index using min(start + chunk_size, total_length)."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling boundary condition overflow",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-04-shared-mutable-state",
+    "description": "Shared mutable state contamination: mutable default list argument in register_pipeline_step accumulates state across calls",
+    "diff_text": "diff --git a/pipeline/task_collector.py b/pipeline/task_collector.py\n--- a/pipeline/task_collector.py\n+++ b/pipeline/task_collector.py\n@@ -1,4 +1,3 @@\n-def register_pipeline_step(step_name: str, options: list[str] | None = None) -> list[str]:\n-    applied = list(options) if options is not None else []\n-    applied.append(f\"step:{step_name}\")\n-    return applied\n+def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:\n+    options.append(f\"step:{step_name}\")\n+    return options\n",
+    "file_contents": {
+      "pipeline/task_collector.py": "def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:\n    options.append(f\"step:{step_name}\")\n    return options\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "pipeline/task_collector.py",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 2
+        },
+        "category": "state_mutation",
+        "allowed_categories": [
+          "state_mutation",
+          "correctness"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "state_mutation",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "pipeline/task_collector.py",
+        "start_line": 1,
+        "end_line": 2,
+        "title": "Mutable default list argument causes cross-invocation state contamination",
+        "description": "Defining options: list[str] = [] reuses and mutates the same list instance across successive calls to register_pipeline_step.",
+        "evidence": "def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:",
+        "suggested_remediation": "Use options: list[str] | None = None and construct a new list instance inside the function body."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling mutable default argument contamination",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-05-exception-handling-regression",
+    "description": "Exception handling regression: removed UnicodeDecodeError handler from parse_json_payload causing unhandled crash on invalid UTF-8 bytes",
+    "diff_text": "diff --git a/network/payload_parser.py b/network/payload_parser.py\n--- a/network/payload_parser.py\n+++ b/network/payload_parser.py\n@@ -8,3 +8,3 @@ def parse_json_payload(raw_bytes: bytes) -> dict[str, Any] | None:\n         return json.loads(decoded)\n-    except (UnicodeDecodeError, json.JSONDecodeError):\n+    except json.JSONDecodeError:\n         return None\n",
+    "file_contents": {
+      "network/payload_parser.py": "import json\nfrom typing import Any\n\n\ndef parse_json_payload(raw_bytes: bytes) -> dict[str, Any] | None:\n    try:\n        decoded = raw_bytes.decode(\"utf-8\")\n        return json.loads(decoded)\n    except json.JSONDecodeError:\n        return None\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "network/payload_parser.py",
+        "line_range": {
+          "start_line": 8,
+          "end_line": 10
+        },
+        "category": "error_handling",
+        "allowed_categories": [
+          "error_handling",
+          "correctness"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "error_handling",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "network/payload_parser.py",
+        "start_line": 9,
+        "end_line": 9,
+        "title": "Unhandled UnicodeDecodeError in parse_json_payload",
+        "description": "Catching only json.JSONDecodeError allows UnicodeDecodeError to crash the process when invalid UTF-8 bytes are supplied.",
+        "evidence": "except json.JSONDecodeError:",
+        "suggested_remediation": "Catch (UnicodeDecodeError, json.JSONDecodeError) to gracefully handle decoding errors."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling unhandled exception regression",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-06-resource-lifecycle-regression",
+    "description": "Resource lifecycle regression: removed try...finally cleanup in execute_transaction leaks open connection on query failure",
+    "diff_text": "diff --git a/storage/connection_manager.py b/storage/connection_manager.py\n--- a/storage/connection_manager.py\n+++ b/storage/connection_manager.py\n@@ -12,7 +12,6 @@ class Connection:\n def execute_transaction(conn: Connection, query: str) -> str:\n     conn.open()\n-    try:\n-        if \"FAIL\" in query:\n-            raise RuntimeError(\"Query execution failed\")\n-        return f\"RECORD:{query}\"\n-    finally:\n-        conn.close()\n+    if \"FAIL\" in query:\n+        raise RuntimeError(\"Query execution failed\")\n+    result = f\"RECORD:{query}\"\n+    conn.close()\n+    return result\n",
+    "file_contents": {
+      "storage/connection_manager.py": "class Connection:\n    def __init__(self) -> None:\n        self.is_open: bool = False\n\n    def open(self) -> None:\n        self.is_open = True\n\n    def close(self) -> None:\n        self.is_open = False\n\n\ndef execute_transaction(conn: Connection, query: str) -> str:\n    conn.open()\n    if \"FAIL\" in query:\n        raise RuntimeError(\"Query execution failed\")\n    result = f\"RECORD:{query}\"\n    conn.close()\n    return result\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "storage/connection_manager.py",
+        "line_range": {
+          "start_line": 13,
+          "end_line": 18
+        },
+        "category": "resource_management",
+        "allowed_categories": [
+          "resource_management",
+          "correctness",
+          "error_handling"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "resource_management",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "storage/connection_manager.py",
+        "start_line": 14,
+        "end_line": 18,
+        "title": "Connection leaked on query failure due to missing finally cleanup block",
+        "description": "Removing finally conn.close() leaves the connection open if query execution raises an exception.",
+        "evidence": "result = f\"RECORD:{query}\"\n    conn.close()\n    return result",
+        "suggested_remediation": "Restore try...finally conn.close() or use a context manager to guarantee connection release."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling resource lifecycle leak on error",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-07-auth-validation-bypass",
+    "description": "Authorization bypass: condition changed from 'and' to 'or' permitting any non-owner user to perform edit and delete operations",
+    "diff_text": "diff --git a/auth/access_policy.py b/auth/access_policy.py\n--- a/auth/access_policy.py\n+++ b/auth/access_policy.py\n@@ -5,2 +5,2 @@ def check_resource_access(role: str, action: str, is_owner: bool) -> bool:\n     if action == \"view\":\n         return True\n-    return is_owner and action in (\"edit\", \"delete\")\n+    return is_owner or action in (\"edit\", \"delete\")\n",
+    "file_contents": {
+      "auth/access_policy.py": "def check_resource_access(role: str, action: str, is_owner: bool) -> bool:\n    if role == \"admin\":\n        return True\n    if action == \"view\":\n        return True\n    return is_owner or action in (\"edit\", \"delete\")\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "auth/access_policy.py",
+        "line_range": {
+          "start_line": 5,
+          "end_line": 6
+        },
+        "category": "logic_error",
+        "allowed_categories": [
+          "logic_error",
+          "correctness"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "logic_error",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "auth/access_policy.py",
+        "start_line": 6,
+        "end_line": 6,
+        "title": "Authorization check logic error allows unauthorized users to mutate resources",
+        "description": "Changing condition from 'and' to 'or' permits non-owner users to execute edit and delete actions.",
+        "evidence": "return is_owner or action in (\"edit\", \"delete\")",
+        "suggested_remediation": "Use 'return is_owner and action in (\"edit\", \"delete\")' to enforce ownership."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling authorization logic bypass",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-08-lru-recency-logic-flaw",
+    "description": "Subtle algorithmic regression: LRU cache get misses recency refresh causing accessed items to be prematurely evicted",
+    "diff_text": "diff --git a/cache/lru_store.py b/cache/lru_store.py\n--- a/cache/lru_store.py\n+++ b/cache/lru_store.py\n@@ -8,4 +8,2 @@ class LRUCache:\n     def get(self, key: str) -> str | None:\n         if key not in self.store:\n             return None\n-        self.order.remove(key)\n-        self.order.append(key)\n         return self.store[key]\n",
+    "file_contents": {
+      "cache/lru_store.py": "class LRUCache:\n    def __init__(self, capacity: int) -> None:\n        self.capacity = capacity\n        self.store: dict[str, str] = {}\n        self.order: list[str] = []\n\n    def get(self, key: str) -> str | None:\n        if key not in self.store:\n            return None\n        return self.store[key]\n\n    def put(self, key: str, value: str) -> None:\n        if key in self.store:\n            self.order.remove(key)\n        elif len(self.store) >= self.capacity:\n            oldest = self.order.pop(0)\n            del self.store[oldest]\n        self.store[key] = value\n        self.order.append(key)\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "cache/lru_store.py",
+        "line_range": {
+          "start_line": 8,
+          "end_line": 10
+        },
+        "category": "correctness",
+        "allowed_categories": [
+          "correctness",
+          "logic_error"
+        ],
+        "severity": "high"
+      }
+    ],
+    "candidate_findings": [
+      {
+        "category": "correctness",
+        "severity": "high",
+        "confidence": "high",
+        "file_path": "cache/lru_store.py",
+        "start_line": 8,
+        "end_line": 10,
+        "title": "LRU cache get omits recency update breaking eviction policy",
+        "description": "Removing self.order update on cache hit leaves accessed key at eviction head, leading to premature eviction.",
+        "evidence": "def get(self, key: str) -> str | None:\n        if key not in self.store:\n            return None\n        return self.store[key]",
+        "suggested_remediation": "Re-append accessed key to self.order on cache hit to mark it as most recently used."
+      }
+    ],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": false,
+    "fix_reference": "Synthetic benchmark case modeling subtle algorithmic recency regression",
+    "provenance": "synthetic_benchmark",
+    "change_type": "defect_introduction",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-09-defensive-query-guard",
+    "description": "Legitimate defensive guard addition: adds check for empty string and missing delimiter in parse_query_param",
+    "diff_text": "diff --git a/utils/query_parser.py b/utils/query_parser.py\n--- a/utils/query_parser.py\n+++ b/utils/query_parser.py\n@@ -1,5 +1,8 @@\n def parse_query_param(query_string: str, param_name: str) -> str | None:\n+    if not query_string or \"=\" not in query_string:\n+        return None\n     pairs = query_string.split(\"&\")\n     for pair in pairs:\n-        key, val = pair.split(\"=\", 1)\n-        if key == param_name:\n-            return val\n+        if \"=\" in pair:\n+            key, val = pair.split(\"=\", 1)\n+            if key == param_name:\n+                return val\n     return None\n",
+    "file_contents": {
+      "utils/query_parser.py": "def parse_query_param(query_string: str, param_name: str) -> str | None:\n    if not query_string or \"=\" not in query_string:\n        return None\n    pairs = query_string.split(\"&\")\n    for pair in pairs:\n        if \"=\" in pair:\n            key, val = pair.split(\"=\", 1)\n            if key == param_name:\n                return val\n    return None\n"
+    },
+    "expected_findings": [],
+    "candidate_findings": [],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": true,
+    "fix_reference": "Synthetic benchmark case modeling defensive input guard addition",
+    "provenance": "synthetic_benchmark",
+    "change_type": "clean_bug_fix",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-10-safe-signature-migration",
+    "description": "Safe function signature migration: adds optional currency parameter with default and updates callers synchronously",
+    "diff_text": "diff --git a/services/billing.py b/services/billing.py\n--- a/services/billing.py\n+++ b/services/billing.py\n@@ -1,2 +1,2 @@\n-def generate_invoice(customer_id: str, amount_due: float) -> dict[str, str | float]:\n-    return {\"customer\": customer_id, \"amount\": amount_due, \"status\": \"unpaid\"}\n+def generate_invoice(customer_id: str, amount_due: float, currency: str = \"USD\") -> dict[str, str | float]:\n+    return {\"customer\": customer_id, \"amount\": amount_due, \"currency\": currency, \"status\": \"unpaid\"}\ndiff --git a/handlers/invoice.py b/handlers/invoice.py\n--- a/handlers/invoice.py\n+++ b/handlers/invoice.py\n@@ -3,2 +3,2 @@ from services.billing import generate_invoice\n-def create_customer_invoice(cid: str, total: float) -> dict[str, str | float]:\n-    return generate_invoice(cid, total)\n+def create_customer_invoice(cid: str, total: float, currency: str = \"USD\") -> dict[str, str | float]:\n+    return generate_invoice(cid, total, currency=currency)\n",
+    "file_contents": {
+      "services/billing.py": "def generate_invoice(customer_id: str, amount_due: float, currency: str = \"USD\") -> dict[str, str | float]:\n    return {\"customer\": customer_id, \"amount\": amount_due, \"currency\": currency, \"status\": \"unpaid\"}\n",
+      "handlers/invoice.py": "from services.billing import generate_invoice\n\n\ndef create_customer_invoice(cid: str, total: float, currency: str = \"USD\") -> dict[str, str | float]:\n    return generate_invoice(cid, total, currency=currency)\n"
+    },
+    "expected_findings": [],
+    "candidate_findings": [],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": true,
+    "fix_reference": "Synthetic benchmark case modeling safe multi-file signature evolution",
+    "provenance": "synthetic_benchmark",
+    "change_type": "clean_unrelated",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-11-resource-cleanup-context-manager",
+    "description": "Correct resource cleanup refactoring: refactors manual try...finally cleanup into context manager protocol",
+    "diff_text": "diff --git a/storage/buffer_handle.py b/storage/buffer_handle.py\n--- a/storage/buffer_handle.py\n+++ b/storage/buffer_handle.py\n@@ -1,7 +1,15 @@\n+from typing import Self\n+\n class BufferHandle:\n     def __init__(self, data: bytes) -> None:\n         self.data: bytes = data\n         self.is_closed: bool = False\n+\n+    def __enter__(self) -> Self:\n+        return self\n+\n+    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:\n+        self.close()\n \n     def close(self) -> None:\n         self.is_closed = True\n@@ -9,5 +17,3 @@ class BufferHandle:\n def write_buffer_payload(handle: BufferHandle, extra: bytes) -> int:\n-    try:\n+    with handle:\n         handle.data = handle.data + extra\n         return len(handle.data)\n-    finally:\n-        handle.close()\n",
+    "file_contents": {
+      "storage/buffer_handle.py": "from typing import Self\n\n\nclass BufferHandle:\n    def __init__(self, data: bytes) -> None:\n        self.data: bytes = data\n        self.is_closed: bool = False\n\n    def __enter__(self) -> Self:\n        return self\n\n    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:\n        self.close()\n\n    def close(self) -> None:\n        self.is_closed = True\n\n\ndef write_buffer_payload(handle: BufferHandle, extra: bytes) -> int:\n    with handle:\n        handle.data = handle.data + extra\n        return len(handle.data)\n"
+    },
+    "expected_findings": [],
+    "candidate_findings": [],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": true,
+    "fix_reference": "Synthetic benchmark case modeling resource context manager refactoring",
+    "provenance": "synthetic_benchmark",
+    "change_type": "clean_unrelated",
+    "suitable_for_live_benchmark": true
+  },
+  {
+    "case_id": "beh-regress-12-specific-exception-narrowing",
+    "description": "Legitimate exception handling improvement: narrows catch-all except Exception to specific network error types",
+    "diff_text": "diff --git a/network/service_client.py b/network/service_client.py\n--- a/network/service_client.py\n+++ b/network/service_client.py\n@@ -7,3 +7,3 @@ def query_remote_service(endpoint: str, timeout: float = 5.0) -> str:\n         return f\"RESPONSE:{endpoint}\"\n-    except Exception:\n+    except (TimeoutError, ConnectionError):\n         return \"FALLBACK\"\n",
+    "file_contents": {
+      "network/service_client.py": "def query_remote_service(endpoint: str, timeout: float = 5.0) -> str:\n    try:\n        if not endpoint:\n            raise ValueError(\"Endpoint must not be empty\")\n        if \"timeout\" in endpoint:\n            raise TimeoutError(\"Network connection timed out\")\n        return f\"RESPONSE:{endpoint}\"\n    except (TimeoutError, ConnectionError):\n        return \"FALLBACK\"\n"
+    },
+    "expected_findings": [],
+    "candidate_findings": [],
+    "supplementary_snippets": [],
+    "repository": null,
+    "commit_id": null,
+    "is_clean": true,
+    "fix_reference": "Synthetic benchmark case modeling exception narrowing to prevent masking bugs",
+    "provenance": "synthetic_benchmark",
+    "change_type": "clean_unrelated",
+    "suitable_for_live_benchmark": true
+  }
+]

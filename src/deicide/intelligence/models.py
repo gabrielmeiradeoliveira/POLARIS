@@ -56,6 +56,7 @@ class EvidenceAssessment(BaseModel):
     quality: EvidenceQuality
     change_relevance: ChangeRelevance = ChangeRelevance.DIRECT_ADDED_OR_MODIFIED
     matched_lines: list[int] = Field(default_factory=list)
+    matched_delta_ids: list[str] = Field(default_factory=list)
     invented_symbols: list[str] = Field(default_factory=list)
     from_supplementary_only: bool = False
     rejection_code: str | None = None

@@ -95,6 +95,98 @@ def test_01_priority_ranking_order(tmp_path: Path) -> None:
     assert len(trans_cands) == 1
     assert trans_cands[0].qualified_name == "outer_workflow"
 
+    # Regression test: enclosing class passed before innermost method gets Priority 4 (RELATED_CLASS_METHOD)
+    (repo / "service.py").write_text(
+        "class Service:\n    def run(self):\n        return 1\n",
+        encoding="utf-8",
+    )
+    service_index = build_project_index(repo)
+    service_graph = build_dependency_graph(service_index)
+    service_ranker = ContextRanker(service_graph, service_index)
+
+    cls_sym = service_index.symbols_by_id["service.py::Service#class@1:3"]
+    meth_sym = service_index.symbols_by_id["service.py::Service.run#method@2:3"]
+
+    cs_class = ChangedSymbol(
+        symbol_id=cls_sym.id,
+        symbol_name=cls_sym.name,
+        qualified_name=cls_sym.qualified_name,
+        kind=cls_sym.kind,
+        location=cls_sym.location,
+        parent_id=None,
+        overlapping_lines=[2],
+        classification=OverlapClassification.BODY,
+        is_innermost=False,
+    )
+    cs_method = ChangedSymbol(
+        symbol_id=meth_sym.id,
+        symbol_name=meth_sym.name,
+        qualified_name=meth_sym.qualified_name,
+        kind=meth_sym.kind,
+        location=meth_sym.location,
+        parent_id=meth_sym.parent_id,
+        overlapping_lines=[2],
+        classification=OverlapClassification.BODY,
+        is_innermost=True,
+    )
+
+    enclosing_first_cands = service_ranker.discover_candidates([cs_class, cs_method])
+    cands_by_name = {c.qualified_name: c for c in enclosing_first_cands}
+    assert cands_by_name["Service.run"].priority == 0
+    assert cands_by_name["Service.run"].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert cands_by_name["Service"].priority == 4
+    assert cands_by_name["Service"].relationship == ContextRelationshipCategory.RELATED_CLASS_METHOD
+
+
+def test_02_enclosing_class_priority_4_enclosing_first_order(tmp_path: Path) -> None:
+    """Verify that when an enclosing class and innermost method are passed in enclosing-first
+
+    order to ranker.discover_candidates, the method gets Priority 0 (CHANGED_SYMBOL)
+    and the class gets Priority 4 (RELATED_CLASS_METHOD).
+    """
+    repo = tmp_path / "enclosing_repo"
+    repo.mkdir()
+    (repo / "service.py").write_text(
+        "class Service:\n    def run(self):\n        return 1\n",
+        encoding="utf-8",
+    )
+    index = build_project_index(repo)
+    graph = build_dependency_graph(index)
+    ranker = ContextRanker(graph, index)
+
+    cls_sym = index.symbols_by_id["service.py::Service#class@1:3"]
+    meth_sym = index.symbols_by_id["service.py::Service.run#method@2:3"]
+
+    cs_class = ChangedSymbol(
+        symbol_id=cls_sym.id,
+        symbol_name=cls_sym.name,
+        qualified_name=cls_sym.qualified_name,
+        kind=cls_sym.kind,
+        location=cls_sym.location,
+        parent_id=None,
+        overlapping_lines=[2],
+        classification=OverlapClassification.BODY,
+        is_innermost=False,
+    )
+    cs_method = ChangedSymbol(
+        symbol_id=meth_sym.id,
+        symbol_name=meth_sym.name,
+        qualified_name=meth_sym.qualified_name,
+        kind=meth_sym.kind,
+        location=meth_sym.location,
+        parent_id=meth_sym.parent_id,
+        overlapping_lines=[2],
+        classification=OverlapClassification.BODY,
+        is_innermost=True,
+    )
+
+    candidates = ranker.discover_candidates([cs_class, cs_method])
+    cands_by_name = {c.qualified_name: c for c in candidates}
+    assert cands_by_name["Service.run"].priority == 0
+    assert cands_by_name["Service.run"].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert cands_by_name["Service"].priority == 4
+    assert cands_by_name["Service"].relationship == ContextRelationshipCategory.RELATED_CLASS_METHOD
+
 
 # 06 - 08: Same-name symbols, ambiguous relationships, and dynamic calls
 def test_06_same_name_symbols_and_unresolved_dynamic_exclusion(tmp_path: Path) -> None:
@@ -194,6 +286,164 @@ def test_16_limits_enforcement(tmp_path: Path) -> None:
     assert res.omitted_snippets_count > 0
     reasons = {o.reason for o in res.omitted_candidates}
     assert OmissionReason.FILE_LIMIT_EXCEEDED in reasons or OmissionReason.SNIPPET_LIMIT_EXCEEDED in reasons
+
+    # target.py (Priority 0 CHANGED_SYMBOL) is ALWAYS included and is the first selected snippet
+    # even though "client_0.py" < "target.py" alphabetically
+    assert len(res.selected_snippets) >= 1
+    assert res.selected_snippets[0].file_path == "target.py"
+    assert res.selected_snippets[0].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert res.selected_snippets[0].priority == 0
+
+
+def test_priority_beats_alphabetical_filename_under_budget(tmp_path: Path) -> None:
+    """Verify that semantic priority beats alphabetical filename ordering under strict budget limits."""
+    repo = tmp_path / "priority_budget_repo"
+    repo.mkdir()
+
+    (repo / "z_changed.py").write_text("def target_func():\n    return 100\n", encoding="utf-8")
+    (repo / "m_middle.py").write_text(
+        "from z_changed import target_func\ndef middle_func():\n    return target_func()\n",
+        encoding="utf-8",
+    )
+    (repo / "a_transitive.py").write_text(
+        "from m_middle import middle_func\ndef outer_func():\n    return middle_func()\n",
+        encoding="utf-8",
+    )
+
+    index = build_project_index(repo)
+    graph = build_dependency_graph(index)
+    changed = _make_dummy_changed_sym("z_changed.py", "target_func", 1, 2, [2])
+
+    # 1. Under max_snippets=1: z_changed.py (Priority 0) must win over a_transitive.py (Priority 5)
+    limits_snip = ContextSelectionLimits(max_snippets=1, max_graph_depth=2, max_context_tokens=5000)
+    res_snip = select_context(repo, [changed], graph, index, limits=limits_snip)
+    assert res_snip.selected_snippets_count == 1
+    assert res_snip.selected_snippets[0].file_path == "z_changed.py"
+    assert res_snip.selected_snippets[0].priority == 0
+
+    omitted_trans = next(o for o in res_snip.omitted_candidates if o.file_path == "a_transitive.py")
+    assert omitted_trans.priority == 5
+    assert omitted_trans.reason == OmissionReason.SNIPPET_LIMIT_EXCEEDED
+
+    # 2. Under max_context_files=1: z_changed.py must win over a_transitive.py
+    limits_file = ContextSelectionLimits(max_context_files=1, max_graph_depth=2, max_context_tokens=5000)
+    res_file = select_context(repo, [changed], graph, index, limits=limits_file)
+    assert res_file.selected_files_count == 1
+    assert res_file.selected_snippets[0].file_path == "z_changed.py"
+    omitted_file_trans = next(o for o in res_file.omitted_candidates if o.file_path == "a_transitive.py")
+    assert omitted_file_trans.priority == 5
+    assert omitted_file_trans.reason == OmissionReason.FILE_LIMIT_EXCEEDED
+
+
+def test_semantic_relationship_precedence_in_deduplicate_and_merge() -> None:
+    """Verify semantic relationship precedence in _deduplicate_and_merge_snippets."""
+    # Case A: Identical spans (DIRECT_CALLER vs DIRECT_CALLEE)
+    # DIRECT_CALLER (priority 1) beats DIRECT_CALLEE (priority 2) even though "direct_callee" < "direct_caller"
+    s_callee = SelectedSnippet(
+        snippet_id="s_callee",
+        file_path="utils.py",
+        start_line=1,
+        end_line=10,
+        symbol_name="helper",
+        qualified_name="utils.helper",
+        content="   1 | def helper():\n   2 |     pass",
+        relationship=ContextRelationshipCategory.DIRECT_CALLEE,
+        priority=2,
+    )
+    s_caller = SelectedSnippet(
+        snippet_id="s_caller",
+        file_path="utils.py",
+        start_line=1,
+        end_line=10,
+        symbol_name="helper",
+        qualified_name="utils.helper",
+        content="   1 | def helper():\n   2 |     pass",
+        relationship=ContextRelationshipCategory.DIRECT_CALLER,
+        priority=1,
+    )
+
+    merged_identical = _deduplicate_and_merge_snippets([s_callee, s_caller], max_snippet_lines=20)
+    assert len(merged_identical) == 1
+    assert merged_identical[0].relationship == ContextRelationshipCategory.DIRECT_CALLER
+    assert merged_identical[0].priority == 1
+
+    # Case B: Adjacent spans where second snippet at later line has higher priority (priority 0 vs priority 2)
+    s_adjacent_callee = SelectedSnippet(
+        snippet_id="s_adj_1",
+        file_path="utils.py",
+        start_line=1,
+        end_line=3,
+        symbol_name="callee_func",
+        qualified_name="utils.callee_func",
+        content="   1 | def callee_func():\n   2 |     return 1\n   3 |     pass",
+        relationship=ContextRelationshipCategory.DIRECT_CALLEE,
+        priority=2,
+    )
+    s_adjacent_changed = SelectedSnippet(
+        snippet_id="s_adj_2",
+        file_path="utils.py",
+        start_line=4,
+        end_line=6,
+        symbol_name="changed_func",
+        qualified_name="utils.changed_func",
+        content="   4 | def changed_func():\n   5 |     return 2\n   6 |     pass",
+        relationship=ContextRelationshipCategory.CHANGED_SYMBOL,
+        priority=0,
+        is_truncated=True,
+        truncated_original_lines=50,
+    )
+
+    merged_adj = _deduplicate_and_merge_snippets([s_adjacent_callee, s_adjacent_changed], max_snippet_lines=20)
+    assert len(merged_adj) == 1
+    assert merged_adj[0].start_line == 1
+    assert merged_adj[0].end_line == 6
+    # Inherits dominant CHANGED_SYMBOL attributes
+    assert merged_adj[0].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+    assert merged_adj[0].priority == 0
+    assert merged_adj[0].symbol_name == "changed_func"
+    assert merged_adj[0].qualified_name == "utils.changed_func"
+    assert merged_adj[0].is_truncated is True
+    assert merged_adj[0].truncated_original_lines == 50
+
+
+def test_mutual_cyclic_calls_preserve_priority_and_max_visited_nodes_bounds(tmp_path: Path) -> None:
+    """Verify mutual/cyclic calls do not downgrade priorities and max_visited_nodes bounds expansion."""
+    repo = tmp_path / "cyclic_priority_repo"
+    repo.mkdir()
+
+    (repo / "mod_a.py").write_text(
+        "from mod_b import func_b\n\ndef func_a():\n    return func_b()\n",
+        encoding="utf-8",
+    )
+    (repo / "mod_b.py").write_text(
+        "from mod_a import func_a\n\ndef func_b():\n    return func_a()\n",
+        encoding="utf-8",
+    )
+
+    index = build_project_index(repo)
+    graph = build_dependency_graph(index)
+
+    changed_a = _make_dummy_changed_sym("mod_a.py", "func_a", 3, 4, [4])
+
+    ranker = ContextRanker(graph, index, ContextSelectionLimits(max_graph_depth=2, max_visited_nodes=100))
+    candidates = ranker.discover_candidates([changed_a])
+
+    cands_by_name = {c.qualified_name: c for c in candidates}
+    # func_a must retain CHANGED_SYMBOL (priority 0) and never be overwritten by TRANSITIVE_CALLER (priority 5)
+    assert "func_a" in cands_by_name
+    assert cands_by_name["func_a"].priority == 0
+    assert cands_by_name["func_a"].relationship == ContextRelationshipCategory.CHANGED_SYMBOL
+
+    # func_b must retain DIRECT_CALLER (priority 1) and never be overwritten by TRANSITIVE_CALLER (priority 5)
+    assert "func_b" in cands_by_name
+    assert cands_by_name["func_b"].priority == 1
+    assert cands_by_name["func_b"].relationship == ContextRelationshipCategory.DIRECT_CALLER
+
+    # Bound graph traversal with max_visited_nodes=1
+    ranker_bounded = ContextRanker(graph, index, ContextSelectionLimits(max_graph_depth=2, max_visited_nodes=1))
+    cands_bounded = ranker_bounded.discover_candidates([changed_a])
+    assert len(cands_bounded) == 1
+    assert cands_bounded[0].qualified_name == "func_a"
 
 
 # 20 - 25: Token budget enforcement, zero budget, tiny budget, overhead accounting

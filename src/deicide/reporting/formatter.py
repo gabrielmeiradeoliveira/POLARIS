@@ -45,6 +45,7 @@ def format_terminal_report(report: AnalysisReport) -> str:
         lines.append(f"  Related Files           : {report.context_summary.related_files}")
         lines.append(f"  Estimated Context Tokens: {report.context_summary.estimated_tokens}")
         lines.append(f"  Omitted Candidates      : {report.context_summary.omitted_candidates}")
+        lines.append(f"  Behavioral Deltas       : {report.context_summary.behavioral_deltas}")
         lines.append(f"  Fallback Used           : {'yes' if report.context_summary.fallback else 'no'}")
     lines.append("-" * 72)
 

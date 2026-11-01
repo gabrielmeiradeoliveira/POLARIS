@@ -109,6 +109,8 @@ DEICIDE_ALLOW_EXTERNAL_CODE=1
 | `DEICIDE_CONTEXT_MAX_SNIPPETS` | `16` | Maximum number of supplementary code snippets to select (`--context-snippets`). |
 | `DEICIDE_CONTEXT_MAX_SNIPPET_LINES` | `60` | Maximum line count per sliced snippet before truncation (`60`). |
 | `DEICIDE_CONTEXT_MAX_GRAPH_DEPTH` | `2` | Maximum traversal depth in the dependency graph (`2`). |
+| `DEICIDE_HYBRID_STATIC_SELECTION_ENABLED` | `false` | Opt in to exact supplementary-context duplicate suppression. |
+| `DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED` | `false` | Opt in to CFG/data-flow-informed ranking of proven direct context. |
 
 ---
 
@@ -161,6 +163,8 @@ The Context Engine is enabled by default and can be configured or disabled via C
 - `--context-tokens <int>`: Set the maximum token budget allocated for supplementary repository context (default: 2000).
 - `--context-files <int>`: Set the maximum number of supplementary context files to select (default: 8).
 - `--context-snippets <int>`: Set the maximum number of supplementary code snippets to select (default: 16).
+- `--hybrid-static-selection` / `--no-hybrid-static-selection`: Enable exact supplementary-context duplicate suppression (default: disabled).
+- `--static-relevance-selection` / `--no-static-relevance-selection`: Enable bounded CFG/data-flow-informed ranking of proven direct context (default: disabled).
 
 ### Known MVP 1.2 Limitations
 
@@ -292,6 +296,11 @@ The evaluation framework explicitly distinguishes three measurement tiers:
 - `deicide evaluate --baseline`: Compares against the legacy pre-MVP 1.3 baseline validator.
 - `deicide evaluate --strict-severity`: Enforces strict severity equality.
 - `deicide evaluate --end-to-end` (`--e2e`): Runs the full end-to-end review pipeline with the configured provider.
+- `deicide evaluate --provider <name>`: Selects AI provider (`fake` or `nvidia`).
+- `deicide evaluate --allow-external`: Explicitly authorizes transmitting evaluation fixtures to an external provider (required for `nvidia`).
+- `deicide evaluate --max-cases <int>`: Limits evaluation to the first $N$ benchmark cases.
+- `deicide evaluate --max-requests <int>`: Enforces a cumulative API request ceiling across the benchmark run.
+- `deicide evaluate --max-tokens <int>`: Enforces a cumulative token ceiling across the benchmark run.
 - `deicide evaluate --fixtures <path>`: Specifies a custom fixtures JSON file.
 - `deicide evaluate --format json`: Outputs structured machine-readable evaluation metrics.
 
@@ -368,6 +377,12 @@ deicide evaluate --fixtures evaluations/fixtures/real_world_benchmark.json
 
 # Run the full end-to-end pipeline (AST context + provider + post-processing):
 deicide evaluate --end-to-end --provider fake
+
+# Evaluate a bounded slice of benchmark cases with safety budget limits:
+deicide evaluate --fixtures evaluations/fixtures/real_world_benchmark.json --max-cases 5 --max-requests 5
+
+# Benchmark real NVIDIA LLM bug-detection accuracy with explicit external authorization:
+deicide evaluate --fixtures evaluations/fixtures/real_world_benchmark.json --provider nvidia --allow-external --max-cases 5 --max-requests 5
 
 # Export evaluation metrics in machine-readable JSON format:
 deicide evaluate --fixtures evaluations/fixtures/real_world_benchmark.json --format json

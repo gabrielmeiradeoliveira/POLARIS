@@ -5,6 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import NamedTuple
 
+from deicide.context.behavioral_delta import (
+    BehavioralDeltaResult,
+    analyze_behavioral_deltas,
+)
 from deicide.context.changed_symbols import identify_changed_symbols
 from deicide.context.context_models import (
     ContextSelectionLimits,
@@ -15,8 +19,10 @@ from deicide.context.models import ChangedSymbol, FileAnalysisStatus
 from deicide.context.project_index import IndexLimits, build_project_index
 from deicide.context.python_ast import PythonAstAnalyzer
 from deicide.context.snippet_selector import select_context
+from deicide.context.static_analysis import PythonStaticAnalyzer, StaticAnalysisResult
 from deicide.core.errors import SecurityViolationError
 from deicide.core.models import ContextSummary, ExecutionBudget
+from deicide.git.analyzer import ensure_safe_repo_file
 from deicide.git.models import DiffBundle, FileChangeStatus
 
 
@@ -27,12 +33,29 @@ class ContextPreparationOutcome(NamedTuple):
     summary: ContextSummary
 
 
+def calculate_context_token_allowance(
+    budget: ExecutionBudget,
+    *,
+    baseline_prompt_tokens: int,
+    requested_context_tokens: int,
+) -> int:
+    """Return the context capacity remaining after prompt, output, and safety reservations."""
+    output_reservation = 1000
+    safety_margin = 150
+    remaining_capacity = max(
+        0,
+        budget.max_total_tokens - baseline_prompt_tokens - output_reservation - safety_margin,
+    )
+    return min(max(0, requested_context_tokens), remaining_capacity)
+
+
 def prepare_review_context(
     repo_root: Path,
     diff_bundle: DiffBundle,
     budget: ExecutionBudget,
     limits: ContextSelectionLimits | None = None,
     context_enabled: bool = True,
+    behavioral_delta_enabled: bool = True,
     baseline_prompt_tokens: int = 0,
 ) -> ContextPreparationOutcome:
     """Safely prepare budgeted supplementary cross-file context for code review."""
@@ -53,7 +76,9 @@ def prepare_review_context(
 
     active_limits = limits or ContextSelectionLimits()
     ast_analyzer = PythonAstAnalyzer()
+    static_analyzer = PythonStaticAnalyzer()
     all_changed_symbols: list[ChangedSymbol] = []
+    static_analyses: dict[str, StaticAnalysisResult] = {}
 
     for fdiff in python_files:
         try:
@@ -61,6 +86,11 @@ def prepare_review_context(
             if analysis.status == FileAnalysisStatus.PARSED:
                 changed_res = identify_changed_symbols(fdiff, analysis)
                 all_changed_symbols.extend(changed_res.changed_symbols)
+                if active_limits.static_relevance_selection_enabled:
+                    source_path = ensure_safe_repo_file(repo_root, fdiff.new_path)
+                    static_analyses[fdiff.new_path] = static_analyzer.analyze_source(
+                        source_path.read_text(encoding="utf-8"), fdiff.new_path
+                    )
         except SecurityViolationError:
             raise
         except Exception:  # noqa: S112
@@ -81,14 +111,35 @@ def prepare_review_context(
         index = build_project_index(repo_root, limits=index_limits, analyzer=ast_analyzer)
         graph = build_dependency_graph(index)
 
-        # Budget allowance calculation
-        output_reservation = 1000
-        safety_margin = 150
-        remaining_capacity = max(
-            0,
-            budget.max_total_tokens - baseline_prompt_tokens - output_reservation - safety_margin,
+        context_token_allowance = calculate_context_token_allowance(
+            budget,
+            baseline_prompt_tokens=baseline_prompt_tokens,
+            requested_context_tokens=active_limits.max_context_tokens,
         )
-        context_token_allowance = min(active_limits.max_context_tokens, remaining_capacity)
+
+        delta_result = (
+            analyze_behavioral_deltas(
+                diff_bundle=diff_bundle,
+                repo_root=repo_root,
+                project_index=index,
+                dependency_graph=graph,
+                enabled=behavioral_delta_enabled,
+            )
+            if behavioral_delta_enabled
+            else BehavioralDeltaResult()
+        )
+        delta_allowance = (
+            min(active_limits.behavioral_delta_reserved_tokens, context_token_allowance)
+            if active_limits.behavioral_delta_reserved_tokens
+            else context_token_allowance
+        )
+        include_serialized_deltas = bool(delta_result.serialized_summary) and delta_result.estimated_tokens <= delta_allowance
+        delta_token_cost = delta_result.estimated_tokens if include_serialized_deltas else 0
+        snippet_token_allowance = (
+            max(0, context_token_allowance - delta_allowance)
+            if active_limits.behavioral_delta_reserved_tokens
+            else max(0, context_token_allowance - delta_token_cost)
+        )
 
         context_result = select_context(
             repo_root=repo_root,
@@ -96,7 +147,16 @@ def prepare_review_context(
             dependency_graph=graph,
             project_index=index,
             limits=active_limits,
-            max_context_tokens=context_token_allowance,
+            max_context_tokens=snippet_token_allowance,
+            static_analyses=static_analyses if active_limits.static_relevance_selection_enabled else None,
+        )
+        context_result = context_result.model_copy(
+            update={
+                "behavioral_deltas": delta_result.deltas,
+                "serialized_behavioral_deltas": delta_result.serialized_summary if include_serialized_deltas else "",
+                "total_estimated_tokens": context_result.total_estimated_tokens + delta_token_cost,
+                "max_allowed_tokens": context_token_allowance,
+            }
         )
 
         summary = ContextSummary(
@@ -106,6 +166,7 @@ def prepare_review_context(
             related_files=context_result.selected_files_count,
             estimated_tokens=context_result.total_estimated_tokens,
             omitted_candidates=context_result.omitted_snippets_count,
+            behavioral_deltas=len(delta_result.deltas),
             fallback=False,
         )
         return ContextPreparationOutcome(result=context_result, summary=summary)

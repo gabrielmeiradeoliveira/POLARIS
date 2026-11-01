@@ -39,9 +39,27 @@ class ContextRanker:
     ) -> list[ContextCandidate]:
         """Discover candidate context snippets across 0-6 priority categories."""
         candidates_by_id: dict[str, ContextCandidate] = {}
+        visited_nodes: set[str] = set()
+
+        # Innermost vs enclosing class handling:
+        # If an innermost symbol exists in a file, skip registering enclosing symbols whose
+        # overlapping lines are a subset of innermost symbols in that file as Priority 0.
+        innermost_lines_by_file: dict[str, set[int]] = {}
+        for cs in changed_symbols:
+            if cs.is_innermost:
+                innermost_lines_by_file.setdefault(cs.location.file_path, set()).update(cs.overlapping_lines)
+
+        priority_0_symbols: list[ChangedSymbol] = []
+        for cs in changed_symbols:
+            if not cs.is_innermost:
+                inner_lines = innermost_lines_by_file.get(cs.location.file_path, set())
+                if inner_lines and set(cs.overlapping_lines).issubset(inner_lines):
+                    continue
+            priority_0_symbols.append(cs)
 
         # Priority 0: Changed code
-        for cs in changed_symbols:
+        for cs in priority_0_symbols:
+            visited_nodes.add(cs.symbol_id)
             cid = f"cand::{cs.symbol_id}"
             prov = ProvenanceRecord(
                 source_id=cs.symbol_id,
@@ -71,6 +89,7 @@ class ContextRanker:
             )
             candidates_by_id[cid] = cand
 
+        for cs in changed_symbols:
             # Priority 1: Direct callers of changed symbols
             callers_with_ev = self.graph.get_callers_with_evidence(cs.symbol_id)
             for ev in callers_with_ev:
@@ -92,12 +111,19 @@ class ContextRanker:
                 if caller_cid in candidates_by_id:
                     existing = candidates_by_id[caller_cid]
                     # Merge provenance
-                    merged_prov = [*existing.provenance, caller_prov]
+                    merged_prov = list(existing.provenance)
+                    if caller_prov not in merged_prov:
+                        merged_prov.append(caller_prov)
                     merged_focus = sorted(set(existing.focus_lines + [ev.call_site.start_line]))
                     candidates_by_id[caller_cid] = existing.model_copy(
                         update={"provenance": merged_prov, "focus_lines": merged_focus}
                     )
                 else:
+                    if caller_sym.id not in visited_nodes:
+                        if len(visited_nodes) >= self.limits.max_visited_nodes:
+                            continue
+                        visited_nodes.add(caller_sym.id)
+
                     cand_caller = ContextCandidate(
                         candidate_id=caller_cid,
                         file_path=caller_sym.location.file_path,
@@ -136,7 +162,21 @@ class ContextRanker:
                     explanation=f"Directly called by modified symbol '{cs.qualified_name}'",
                 )
 
-                if callee_cid not in candidates_by_id:
+                if callee_cid in candidates_by_id:
+                    existing = candidates_by_id[callee_cid]
+                    merged_prov = list(existing.provenance)
+                    if callee_prov not in merged_prov:
+                        merged_prov.append(callee_prov)
+                    merged_focus = sorted(set(existing.focus_lines + [callee_sym.location.start_line]))
+                    candidates_by_id[callee_cid] = existing.model_copy(
+                        update={"provenance": merged_prov, "focus_lines": merged_focus}
+                    )
+                else:
+                    if callee_sym.id not in visited_nodes:
+                        if len(visited_nodes) >= self.limits.max_visited_nodes:
+                            continue
+                        visited_nodes.add(callee_sym.id)
+
                     cand_callee = ContextCandidate(
                         candidate_id=callee_cid,
                         file_path=callee_sym.location.file_path,
@@ -162,7 +202,21 @@ class ContextRanker:
             if cs.parent_id and cs.parent_id in self.index.symbols_by_id:
                 parent_sym = self.index.symbols_by_id[cs.parent_id]
                 parent_cid = f"cand::{parent_sym.id}"
-                if parent_cid not in candidates_by_id:
+                parent_prov = ProvenanceRecord(
+                    source_id=parent_sym.id,
+                    target_id=cs.symbol_id,
+                    relationship=ContextRelationshipCategory.RELATED_CLASS_METHOD,
+                    confidence=1.0,
+                    explanation=f"Containing class of '{cs.qualified_name}'",
+                )
+                if parent_cid in candidates_by_id:
+                    existing = candidates_by_id[parent_cid]
+                    merged_prov = list(existing.provenance)
+                    if parent_prov not in merged_prov:
+                        merged_prov.append(parent_prov)
+                    candidates_by_id[parent_cid] = existing.model_copy(update={"provenance": merged_prov})
+                elif parent_sym.id not in visited_nodes and len(visited_nodes) < self.limits.max_visited_nodes:
+                    visited_nodes.add(parent_sym.id)
                     candidates_by_id[parent_cid] = ContextCandidate(
                         candidate_id=parent_cid,
                         file_path=parent_sym.location.file_path,
@@ -176,15 +230,7 @@ class ContextRanker:
                         confidence=1.0,
                         priority=4,
                         priority_explanation=f"Containing class for '{cs.qualified_name}'",
-                        provenance=[
-                            ProvenanceRecord(
-                                source_id=parent_sym.id,
-                                target_id=cs.symbol_id,
-                                relationship=ContextRelationshipCategory.RELATED_CLASS_METHOD,
-                                confidence=1.0,
-                                explanation=f"Containing class of '{cs.qualified_name}'",
-                            )
-                        ],
+                        provenance=[parent_prov],
                         estimated_tokens=_approximate_tokens_for_span(
                             parent_sym.location.end_line, parent_sym.location.start_line
                         ),
@@ -197,9 +243,39 @@ class ContextRanker:
                     trans_callers = self.graph.get_callers_with_evidence(ev.caller_node.id)
                     for t_ev in trans_callers:
                         t_sym = self.index.get_symbol_by_id(t_ev.caller_node.id)
-                        if not t_sym or t_sym.id in candidates_by_id:
+                        if not t_sym:
                             continue
                         t_cid = f"cand::{t_sym.id}"
+                        t_prov = ProvenanceRecord(
+                            source_id=t_sym.id,
+                            target_id=ev.caller_node.id,
+                            relationship=ContextRelationshipCategory.TRANSITIVE_CALLER,
+                            call_site=t_ev.call_site,
+                            confidence=t_ev.confidence,
+                            explanation=f"Transitive caller via '{ev.caller_node.name}'",
+                        )
+                        if t_cid in candidates_by_id:
+                            existing = candidates_by_id[t_cid]
+                            if existing.priority == 5:
+                                merged_prov = list(existing.provenance)
+                                if t_prov not in merged_prov:
+                                    merged_prov.append(t_prov)
+                                merged_focus = sorted(set(existing.focus_lines + [t_ev.call_site.start_line]))
+                                candidates_by_id[t_cid] = existing.model_copy(
+                                    update={"provenance": merged_prov, "focus_lines": merged_focus}
+                                )
+                            elif existing.priority < 5:
+                                merged_prov = list(existing.provenance)
+                                if t_prov not in merged_prov:
+                                    merged_prov.append(t_prov)
+                                candidates_by_id[t_cid] = existing.model_copy(update={"provenance": merged_prov})
+                            continue
+
+                        if t_sym.id not in visited_nodes:
+                            if len(visited_nodes) >= self.limits.max_visited_nodes:
+                                continue
+                            visited_nodes.add(t_sym.id)
+
                         candidates_by_id[t_cid] = ContextCandidate(
                             candidate_id=t_cid,
                             file_path=t_sym.location.file_path,
@@ -213,16 +289,7 @@ class ContextRanker:
                             confidence=t_ev.confidence * 0.8,
                             priority=5,
                             priority_explanation=f"Transitive caller of '{ev.caller_node.name}'",
-                            provenance=[
-                                ProvenanceRecord(
-                                    source_id=t_sym.id,
-                                    target_id=ev.caller_node.id,
-                                    relationship=ContextRelationshipCategory.TRANSITIVE_CALLER,
-                                    call_site=t_ev.call_site,
-                                    confidence=t_ev.confidence,
-                                    explanation=f"Transitive caller via '{ev.caller_node.name}'",
-                                )
-                            ],
+                            provenance=[t_prov],
                             estimated_tokens=_approximate_tokens_for_span(
                                 t_sym.location.end_line, t_sym.location.start_line
                             ),

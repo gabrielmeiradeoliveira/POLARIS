@@ -265,7 +265,14 @@ class GitAnalyzer:
         res = self._run_git(["rev-parse", "--show-toplevel"], check=False)
         if res.returncode != 0:
             raise RepositoryError(f"Not a valid Git repository: '{target}'")
-        return Path(res.stdout.strip()).resolve()
+        repo_root = Path(res.stdout.strip()).resolve()
+        # A nested directory inherits its parent's Git metadata, but it is not
+        # an independently reviewable repository.  Treating it as one would
+        # silently analyze the enclosing worktree and violates the caller's
+        # explicit repository boundary.
+        if repo_root != target:
+            raise RepositoryError(f"Not a valid Git repository root: '{target}'")
+        return repo_root
 
     def has_head_commit(self) -> bool:
         """Return True if the repository has at least one commit at HEAD."""
@@ -480,3 +487,20 @@ class GitAnalyzer:
             )
 
         return contexts
+
+
+def retrieve_changed_file_context(
+    repo_root: Path,
+    diff_bundle: DiffBundle,
+    budget: ExecutionBudget,
+    tracker: BudgetTracker | None = None,
+) -> dict[str, FileContext]:
+    """Reuse production changed-file retrieval for synthetic evaluation workspaces.
+
+    The retrieval algorithm intentionally remains owned by ``GitAnalyzer``; this adapter
+    supplies a trusted, already-materialized repository root without invoking Git.
+    """
+    analyzer = object.__new__(GitAnalyzer)
+    analyzer.repo_root = repo_root.resolve()
+    analyzer.budget = budget
+    return GitAnalyzer.retrieve_context(analyzer, diff_bundle, tracker=tracker)

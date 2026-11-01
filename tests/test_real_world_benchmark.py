@@ -139,7 +139,7 @@ def test_real_world_benchmark_end_to_end_distinction() -> None:
     # The benchmark must report this limitation honestly without claiming false AI capability.
     assert e2e_summary.evaluation_mode == "end_to_end"
     assert e2e_summary.recall < 0.20, "FakeProvider must not deceptively pass authentic semantic benchmarks."
-    assert e2e_summary.precision == 0.0, "Zero predicted findings must report 0.0 precision, not 1.0."
+    assert e2e_summary.precision is None, "Zero predicted findings (TP+FP=0) has undefined denominator; must be None."
 
 
 def test_real_world_benchmark_severity_mismatch_not_counted_as_missed_bug() -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,6 +24,36 @@ class ProviderRequest(BaseModel):
     @property
     def estimated_prompt_tokens(self) -> int:
         return estimate_token_count(self.system_prompt) + estimate_token_count(self.user_prompt)
+
+
+class ProviderFailureCategory(StrEnum):
+    """Stable provider-neutral operational failure categories."""
+
+    TIMEOUT = "timeout"
+    RATE_LIMIT = "rate_limit"
+    SERVER_ERROR = "server_error"
+    CLIENT_ERROR = "client_error"
+    CONNECTION_ERROR = "connection_error"
+    INVALID_RESPONSE = "invalid_response"
+    PROVIDER_ERROR = "provider_error"
+
+
+class ProviderAttempt(BaseModel):
+    """Privacy-preserving metadata for one provider request attempt."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    attempt_number: int = Field(..., ge=1)
+    latency_ms: int | None = Field(default=None, ge=0)
+    prompt_hash: str | None = Field(default=None, min_length=64, max_length=64)
+    response_hash: str | None = Field(default=None, min_length=64, max_length=64)
+    retry_reason: str | None = None
+    error_category: ProviderFailureCategory | None = None
+    http_status: int | None = Field(default=None, ge=100, le=599)
+    usage: TokenUsage | None = None
+    transport_duration_ms: int | None = Field(default=None, ge=0)
+    configured_attempt_timeout_seconds: float | None = Field(default=None, gt=0.0)
+    termination_reason: str | None = None
 
 
 class ProviderResponse(BaseModel):
