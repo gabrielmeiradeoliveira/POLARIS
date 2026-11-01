@@ -179,9 +179,31 @@ class _ProcedureBuilder:
             definition = self.definitions.get(name)
             certainty = DataFlowCertainty.PROVEN if definition is not None else DataFlowCertainty.POSSIBLE
             fact_kind = kind
-            if definition is None and self.future_assignments.get(name, line) > line:
-                fact_kind = "possible_use_before_assignment"
+            if definition is None:
+                future_assignment = self.future_assignments.get(name)
+                if future_assignment is not None:
+                    fact_kind = (
+                        "possible_use_before_assignment"
+                        if future_assignment > line
+                        else "possible_unbound_local"
+                    )
             self.facts.append(DataFlowFact(name, definition, line, certainty, fact_kind))
+
+    @staticmethod
+    def _merge_continuing_definitions(paths: list[dict[str, int]]) -> dict[str, int]:
+        """Keep only bindings proven to exist on every path that continues.
+
+        The analysis records a single representative source line for a binding;
+        when separate branches assign it, the earliest valid assignment is
+        evidence of the binding while membership in every continuing path is the
+        proof that the use itself is safe from an unbound-local path.
+        """
+        if not paths:
+            return {}
+        common_names = set(paths[0])
+        for definitions in paths[1:]:
+            common_names.intersection_update(definitions)
+        return {name: min(definitions[name] for definitions in paths) for name in common_names}
 
     def statement_list(self, statements: list[ast.stmt], incoming: str | None) -> list[str]:
         exits = [incoming] if incoming else []
@@ -227,8 +249,18 @@ class _ProcedureBuilder:
             self.uses(stmt.test, stmt.lineno, "condition")
             self.signals.append(BehavioralSignal("condition", stmt.lineno, "if"))
             self.complexity += 1
+            before_branch = dict(self.definitions)
             yes = self.statement_list(stmt.body, current)
+            yes_definitions = dict(self.definitions)
+            self.definitions = dict(before_branch)
             no = self.statement_list(stmt.orelse, current) if stmt.orelse else [current]
+            no_definitions = dict(self.definitions)
+            continuing_definitions: list[dict[str, int]] = []
+            if yes:
+                continuing_definitions.append(yes_definitions)
+            if no:
+                continuing_definitions.append(no_definitions)
+            self.definitions = self._merge_continuing_definitions(continuing_definitions)
             return [*yes, *no]
         if isinstance(stmt, (ast.For, ast.AsyncFor, ast.While)):
             current = self.add(ControlFlowKind.LOOP, stmt, "loop")
@@ -250,16 +282,32 @@ class _ProcedureBuilder:
             current = self.add(ControlFlowKind.EXCEPTION, stmt, "try")
             self.connect(previous, current)
             self.complexity += len(stmt.handlers)
+            before_try = dict(self.definitions)
             body_exits = self.statement_list(stmt.body, current)
+            body_definitions = dict(self.definitions)
+            continuing_paths: list[dict[str, int]] = []
+            if body_exits:
+                if stmt.orelse:
+                    self.definitions = dict(body_definitions)
+                    body_exits = self.statement_list(stmt.orelse, body_exits[0])
+                    self.signals.append(BehavioralSignal("exception_else", stmt.orelse[0].lineno, "try_else"))
+                    body_definitions = dict(self.definitions)
+                if body_exits:
+                    continuing_paths.append(body_definitions)
             handler_exits: list[str] = []
             for handler in stmt.handlers:
+                self.definitions = dict(before_try)
                 handler_id = self.add(ControlFlowKind.EXCEPTION, handler, "except")
                 self.connect(current, handler_id, "exception")
                 if handler.name:
                     self.definitions[handler.name] = handler.lineno
-                handler_exits.extend(self.statement_list(handler.body, handler_id))
+                exits = self.statement_list(handler.body, handler_id)
+                handler_exits.extend(exits)
+                if exits:
+                    continuing_paths.append(dict(self.definitions))
                 self.signals.append(BehavioralSignal("exception_handler", handler.lineno, "except"))
             exits = [*body_exits, *handler_exits]
+            self.definitions = self._merge_continuing_definitions(continuing_paths)
             if stmt.finalbody:
                 final_id = self.add(ControlFlowKind.FINALLY, stmt.finalbody[0], "finally")
                 for exit_id in exits or [current]:

@@ -643,16 +643,28 @@ def test_orchestrator_end_to_end_finding_intelligence_pipeline(temp_git_repo: Pa
     assert report.provider.requests_made == 1
     assert report.rejected_findings_count == 1
     assert report.deduplicated_findings_count == 1
-    assert len(report.findings) == 2
+    assert len(report.findings) == 3
 
     # First finding is CRITICAL (return avg / 0), enriched with remediation from its merged duplicate
     assert report.findings[0].severity == Severity.CRITICAL
     assert report.findings[0].line_range.start_line == 6
     assert report.findings[0].suggested_remediation == "Remove '/ 0' divisor."
 
-    # Second finding was normalized from CRITICAL to HIGH due to ERROR_HANDLING category ceiling
-    assert report.findings[1].severity == Severity.HIGH
-    assert report.findings[1].category == FindingCategory.ERROR_HANDLING
+    # The new deterministic CFG pass also proves `avg` can be unbound after the
+    # swallowing handler; its evidence is the changed-path assignment.
+    assert any(
+        finding.category == FindingCategory.LOGIC_ERROR
+        and "may be unbound" in finding.title
+        and finding.line_range.start_line == 3
+        for finding in report.findings
+    )
+
+    # The provider finding remains normalized from CRITICAL to HIGH due to the
+    # ERROR_HANDLING category ceiling.
+    assert any(
+        finding.severity == Severity.HIGH and finding.category == FindingCategory.ERROR_HANDLING
+        for finding in report.findings
+    )
     assert any(w.code == "FINDING_SEVERITY_NORMALIZED" for w in report.warnings)
     assert (
         compute_finding_id(

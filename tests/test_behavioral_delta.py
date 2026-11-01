@@ -216,6 +216,40 @@ def test_detect_resource_lifecycle_and_return_behavior_deltas() -> None:
     assert "with" in res_delta.observed_change
 
 
+def test_detect_conditional_binding_contract_change_without_flagging_safe_paths() -> None:
+    """A former unconditional value made conditional before use is review-relevant evidence."""
+    risky_diff = (
+        "diff --git a/service.py b/service.py\n"
+        "--- a/service.py\n"
+        "+++ b/service.py\n"
+        "@@ -1,3 +1,4 @@\n"
+        " def render(enabled):\n"
+        "-    value = build_value()\n"
+        "+    if enabled:\n"
+        "+        value = build_value()\n"
+        "     return value.serialize()\n"
+    )
+    risky_contents = {
+        "service.py": "def render(enabled):\n    if enabled:\n        value = build_value()\n    return value.serialize()\n"
+    }
+    risky_bundle, risky_contexts = _make_bundle_and_contexts(risky_diff, risky_contents)
+    risky = analyze_behavioral_deltas(risky_bundle, risky_contexts)
+
+    assert any(delta.delta_type == BehavioralDeltaType.DATA_FLOW_CONTRACT_CHANGE for delta in risky.deltas)
+    delta = next(delta for delta in risky.deltas if delta.delta_type == BehavioralDeltaType.DATA_FLOW_CONTRACT_CHANGE)
+    assert delta.line_range.start_line == 3
+    assert "may be unbound" in delta.inferred_risk
+
+    safe_diff = risky_diff.replace("+    if enabled:\n+        value = build_value()\n", "+    if enabled:\n+        value = build_value()\n+    else:\n+        value = build_value()\n")
+    safe_contents = {
+        "service.py": "def render(enabled):\n    if enabled:\n        value = build_value()\n    else:\n        value = build_value()\n    return value.serialize()\n"
+    }
+    safe_bundle, safe_contexts = _make_bundle_and_contexts(safe_diff, safe_contents)
+    safe = analyze_behavioral_deltas(safe_bundle, safe_contexts)
+
+    assert not any(delta.delta_type == BehavioralDeltaType.DATA_FLOW_CONTRACT_CHANGE for delta in safe.deltas)
+
+
 def test_benchmark_corpus_behavioral_deltas_alignment() -> None:
     """Verify Behavioral Delta Analysis across all 8 MVP 1.4 benchmark fixtures."""
     fixtures = load_fixtures_from_file(BENCHMARK_PATH)

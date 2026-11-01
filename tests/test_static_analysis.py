@@ -8,6 +8,12 @@ from deicide.context.models import ChangedSymbol, OverlapClassification, SourceL
 from deicide.context.static_analysis import DataFlowCertainty, PythonStaticAnalyzer, StaticAnalysisStatus
 from deicide.context.static_relevance import prioritize_static_relevance
 from deicide.core.config import DeicideConfig
+from deicide.core.models import BudgetTracker, ExecutionBudget
+from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from deicide.git.analyzer import parse_unified_diff
+from deicide.git.models import ContextSnippet, DiffBundle, FileContext
+from deicide.modules.code_review import CodeReviewModule
+from deicide.providers.fake import FakeProvider
 
 
 def test_static_engine_extracts_structures_cfg_and_def_use_evidence() -> None:
@@ -76,6 +82,101 @@ def test_static_engine_marks_statements_after_terminal_flow_as_potentially_unrea
     result = PythonStaticAnalyzer().analyze_source("def f():\n    return 1\n    after_return = 2\n")
 
     assert result.procedures[0].unreachable_lines == (3,)
+
+
+def test_static_engine_keeps_branch_only_bindings_possible_and_merges_complete_branches() -> None:
+    """Branch assignments must not hide an UnboundLocalError path after the branch."""
+    partial = PythonStaticAnalyzer().analyze_source(
+        "def partial(flag):\n    if flag:\n        value = 1\n    return value\n"
+    ).procedures[0]
+    complete = PythonStaticAnalyzer().analyze_source(
+        "def complete(flag):\n    if flag:\n        value = 1\n    else:\n        value = 2\n    return value\n"
+    ).procedures[0]
+
+    assert any(fact.name == "value" and fact.kind == "possible_unbound_local" for fact in partial.data_flow)
+    assert any(
+        fact.name == "value" and fact.kind == "return" and fact.certainty == DataFlowCertainty.PROVEN
+        for fact in complete.data_flow
+    )
+
+
+def test_static_engine_models_try_else_and_does_not_promote_handler_only_bindings() -> None:
+    """Try-else is reachable only after the try body; handler-local names remain conditional."""
+    procedure = PythonStaticAnalyzer().analyze_source(
+        "def parse(raw):\n"
+        "    try:\n"
+        "        value = int(raw)\n"
+        "    except ValueError as exc:\n"
+        "        fallback = str(exc)\n"
+        "    else:\n"
+        "        value += 1\n"
+        "    return fallback\n"
+    ).procedures[0]
+
+    assert any(signal.kind == "exception_else" and signal.line == 7 for signal in procedure.signals)
+    assert any(fact.name == "fallback" and fact.kind == "possible_unbound_local" for fact in procedure.data_flow)
+
+
+def test_code_review_emits_changed_conditional_binding_as_deterministic_candidate() -> None:
+    """A proven new unbound-local path is reported without requiring an LLM guess."""
+    diff_text = (
+        "diff --git a/service.py b/service.py\n"
+        "--- a/service.py\n"
+        "+++ b/service.py\n"
+        "@@ -1,3 +1,4 @@\n"
+        " def render(enabled):\n"
+        "-    value = build_value()\n"
+        "+    if enabled:\n"
+        "+        value = build_value()\n"
+        "     return value.serialize()\n"
+    )
+    contents = "def render(enabled):\n    if enabled:\n        value = build_value()\n    return value.serialize()\n"
+    file_diff = parse_unified_diff(diff_text)[0]
+    bundle = DiffBundle(repository_root="/test", base_revision="HEAD", target_description="test", files=[file_diff])
+    context = FileContext(
+        file_path="service.py",
+        total_lines=4,
+        snippets=[ContextSnippet(start_line=1, end_line=4, lines=dict(enumerate(contents.splitlines(), start=1)))],
+    )
+    candidates = CodeReviewModule().analyze(
+        bundle,
+        {"service.py": context},
+        FakeProvider(scripted_responses=['{"findings": []}']),
+        BudgetTracker(ExecutionBudget(max_total_tokens=10_000)),
+    )
+
+    assert len(candidates) == 1
+    assert candidates[0].category.value == "logic_error"
+    assert candidates[0].start_line == 3
+    assert "may be unbound" in candidates[0].title
+
+
+def test_goal18_data_flow_contract_corpus_has_positive_and_negative_end_to_end_coverage() -> None:
+    """The GOAL 18 corpus proves detection without creating a safe-path false positive."""
+    fixtures = load_fixtures_from_file(Path("evaluations/fixtures/goal18_data_flow_contract_corpus.json"))
+    summary = evaluate_corpus(fixtures, FakeProvider(), force_end_to_end=True, strict_severity=True)
+
+    assert (summary.true_positives, summary.false_positives, summary.false_negatives) == (1, 0, 0)
+    assert summary.successful_cases == 2
+
+
+def test_goal18_engine_improves_over_the_pre_data_flow_module_behavior() -> None:
+    """The new deterministic pass recovers the previously missed executable defect."""
+    fixtures = load_fixtures_from_file(Path("evaluations/fixtures/goal18_data_flow_contract_corpus.json"))
+
+    class PreGoal18CodeReviewModule(CodeReviewModule):
+        @staticmethod
+        def _static_data_flow_candidates(_files: object, _contexts: object) -> list[object]:
+            return []
+
+    before = evaluate_corpus(
+        fixtures, FakeProvider(), module=PreGoal18CodeReviewModule(), force_end_to_end=True, strict_severity=True
+    )
+    after = evaluate_corpus(fixtures, FakeProvider(), module=CodeReviewModule(), force_end_to_end=True, strict_severity=True)
+
+    assert (before.true_positives, before.false_negatives) == (0, 1)
+    assert (after.true_positives, after.false_negatives) == (1, 0)
+    assert after.false_positives == 0
 
 
 def test_static_relevance_selection_is_opt_in_and_propagates_to_context_limits() -> None:

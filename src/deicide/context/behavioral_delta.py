@@ -61,6 +61,7 @@ class BehavioralDeltaType(StrEnum):
     STATE_MUTATION_CHANGE = "state_mutation_change"
     RETURN_BEHAVIOR_CHANGE = "return_behavior_change"
     RESOURCE_LIFECYCLE_CHANGE = "resource_lifecycle_change"
+    DATA_FLOW_CONTRACT_CHANGE = "data_flow_contract_change"
 
 
 class BehavioralDelta(BaseModel):
@@ -1282,6 +1283,103 @@ def _is_none_return(node: ast.Return) -> bool:
     return isinstance(node.value, ast.Constant) and node.value.value is None
 
 
+def _simple_assignment_name(statement: ast.stmt) -> str | None:
+    """Return the single local name assigned by a simple assignment statement."""
+    target: ast.expr | None = None
+    if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+        target = statement.targets[0]
+    elif isinstance(statement, ast.AnnAssign):
+        target = statement.target
+    return target.id if isinstance(target, ast.Name) else None
+
+
+def _detect_conditional_binding_deltas(
+    file_path: str,
+    qual_name: str,
+    before_fn: ast.FunctionDef | ast.AsyncFunctionDef,
+    after_fn: ast.FunctionDef | ast.AsyncFunctionDef,
+    related_callers: list[str],
+    related_deps: list[str],
+) -> list[BehavioralDelta]:
+    """Detect a formerly unconditional local binding made conditional before use.
+
+    This narrowly recognizes a structural replacement: an earlier top-level
+    assignment becomes the same assignment inside an ``if`` without an ``else``
+    and a later top-level statement reads that name. It is evidence of a changed
+    local-variable contract, not a claim that every conditional is defective.
+    """
+    before_assignments = {
+        name: statement
+        for statement in before_fn.body
+        if (name := _simple_assignment_name(statement)) is not None
+    }
+    deltas: list[BehavioralDelta] = []
+    for index, statement in enumerate(after_fn.body):
+        if not isinstance(statement, ast.If) or statement.orelse:
+            continue
+        for nested in statement.body:
+            name = _simple_assignment_name(nested)
+            if name is None or name not in before_assignments:
+                continue
+            before_assignment = before_assignments[name]
+            before_value = getattr(before_assignment, "value", None)
+            after_value = getattr(nested, "value", None)
+            if before_value is None or after_value is None or ast.dump(before_value) != ast.dump(after_value):
+                continue
+
+            later_use: ast.Name | None = None
+            reassigned = False
+            for later_statement in after_fn.body[index + 1 :]:
+                if _simple_assignment_name(later_statement) == name:
+                    reassigned = True
+                    break
+                for node in ast.walk(later_statement):
+                    if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id == name:
+                        later_use = node
+                        break
+                if later_use is not None:
+                    break
+            if reassigned or later_use is None:
+                continue
+
+            line = getattr(nested, "lineno", getattr(statement, "lineno", after_fn.lineno))
+            line_range = LineRange(start_line=line, end_line=getattr(nested, "end_lineno", line))
+            before_ev = _safe_unparse(before_assignment)
+            after_ev = _safe_unparse(statement)
+            delta_id = _compute_delta_id(
+                file_path,
+                BehavioralDeltaType.DATA_FLOW_CONTRACT_CHANGE,
+                qual_name,
+                line_range,
+                before_ev,
+                after_ev,
+            )
+            deltas.append(
+                BehavioralDelta(
+                    delta_id=delta_id,
+                    delta_type=BehavioralDeltaType.DATA_FLOW_CONTRACT_CHANGE,
+                    file_path=file_path,
+                    symbol_name=after_fn.name,
+                    qualified_name=qual_name,
+                    line_range=line_range,
+                    changed_lines=list(range(line_range.start_line, line_range.end_line + 1)),
+                    before_evidence=before_ev,
+                    after_evidence=after_ev,
+                    related_callers=related_callers,
+                    related_dependencies=related_deps,
+                    confidence=Confidence.HIGH,
+                    observed_change=(
+                        f"Made local binding `{name}` conditional in `{qual_name}` while a later statement still reads it."
+                    ),
+                    inferred_risk=(
+                        f"When the new condition is false, `{name}` may be unbound at the later use; verify all paths "
+                        "initialize the value or return before that use."
+                    ),
+                )
+            )
+    return deltas
+
+
 def _detect_return_behavior_deltas(
     file_path: str,
     qual_name: str,
@@ -1534,6 +1632,16 @@ def analyze_behavioral_deltas(
             )
             fn_deltas.extend(
                 _detect_resource_lifecycle_deltas(
+                    file_path=norm_path,
+                    qual_name=qual_name,
+                    before_fn=before_fn,
+                    after_fn=after_fn,
+                    related_callers=related_callers,
+                    related_deps=related_deps,
+                )
+            )
+            fn_deltas.extend(
+                _detect_conditional_binding_deltas(
                     file_path=norm_path,
                     qual_name=qual_name,
                     before_fn=before_fn,
