@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import tempfile
 import time
@@ -159,6 +160,23 @@ def _usage_delta(current: TokenUsage, previous: TokenUsage) -> TokenUsage:
             else None
         ),
     )
+
+
+def _wilson_interval(successes: int, trials: int, *, minimum_trials: int = 20) -> tuple[float | None, float | None]:
+    """Return a 95% Wilson interval only when the sample is large enough.
+
+    Small fixture corpora should expose point estimates without implying a
+    statistically meaningful confidence interval. The threshold is explicit so
+    callers can distinguish unavailable uncertainty from a zero-width interval.
+    """
+    if trials < minimum_trials:
+        return None, None
+    z = 1.959963984540054
+    proportion = successes / trials
+    denominator = 1 + (z * z / trials)
+    center = (proportion + z * z / (2 * trials)) / denominator
+    margin = z * math.sqrt((proportion * (1 - proportion) + z * z / (4 * trials)) / trials) / denominator
+    return round(max(0.0, center - margin), 4), round(min(1.0, center + margin), 4)
 
 
 def _observability_snapshot(
@@ -832,6 +850,18 @@ def evaluate_corpus(
             total_latency_ms += res.latency_ms
             budget_exhausted = True
             budget_exhausted_cases += 1
+            remaining = evaluated_fixtures[len(case_results) :]
+            for unattempted in remaining:
+                case_results.append(
+                    CaseEvaluationResult(
+                        case_id=unattempted.case_id,
+                        status="unassessed",
+                        operational_state="not_attempted_budget_exhausted",
+                        error=f"Not attempted because the evaluation budget was exhausted at case '{fixture.case_id}'.",
+                        provenance=unattempted.resolved_provenance,
+                        change_type=unattempted.resolved_change_type,
+                    )
+                )
             break
         elif res.status == "skipped":
             skipped_cases += 1
@@ -852,6 +882,10 @@ def evaluate_corpus(
         detection_precision = None
         detection_recall = None
         f1_score = None
+        detection_precision_ci_lower = detection_precision_ci_upper = None
+        detection_recall_ci_lower = detection_recall_ci_upper = None
+        precision_ci_lower = precision_ci_upper = None
+        recall_ci_lower = recall_ci_upper = None
     else:
         precision = round(total_tp / (total_tp + total_fp), 4) if (total_tp + total_fp) > 0 else None
         recall = round(total_tp / (total_tp + total_fn), 4) if (total_tp + total_fn) > 0 else None
@@ -876,6 +910,14 @@ def evaluate_corpus(
             f1_score = 0.0
         else:
             f1_score = round(2 * precision * recall / (precision + recall), 4)
+        precision_ci_lower, precision_ci_upper = _wilson_interval(total_tp, total_tp + total_fp)
+        recall_ci_lower, recall_ci_upper = _wilson_interval(total_tp, total_tp + total_fn)
+        detection_precision_ci_lower, detection_precision_ci_upper = _wilson_interval(
+            detected_expected_defects, total_tp + total_fp
+        )
+        detection_recall_ci_lower, detection_recall_ci_upper = _wilson_interval(
+            detected_expected_defects, detected_expected_defects + total_undetected_expected_defects
+        )
 
     avg_latency = (
         round(total_latency_ms / successful_cases, 2)
@@ -890,7 +932,7 @@ def evaluate_corpus(
         successful_cases=successful_cases,
         timeout_cases=timeout_cases,
         error_cases=error_cases,
-        unassessed_cases=len(case_results) - successful_cases,
+        unassessed_cases=sum(result.status in {"failed", "budget_exhausted", "unassessed"} for result in case_results),
         failed_cases=failed_cases,
         api_failed_cases=api_failed_cases,
         budget_exhausted_cases=budget_exhausted_cases,
@@ -902,10 +944,19 @@ def evaluate_corpus(
         undetected_expected_defects=total_undetected_expected_defects,
         detection_precision=detection_precision,
         detection_recall=detection_recall,
+        detection_precision_ci_lower=detection_precision_ci_lower,
+        detection_precision_ci_upper=detection_precision_ci_upper,
+        detection_recall_ci_lower=detection_recall_ci_lower,
+        detection_recall_ci_upper=detection_recall_ci_upper,
         precision=precision,
         recall=recall,
+        precision_ci_lower=precision_ci_lower,
+        precision_ci_upper=precision_ci_upper,
+        recall_ci_lower=recall_ci_lower,
+        recall_ci_upper=recall_ci_upper,
         f1_score=f1_score,
         false_positive_rate=fp_rate,
+        completion_rate=round(successful_cases / len(case_results), 4) if case_results else None,
         duplicates_reduced=total_duplicates_reduced,
         legitimate_rejected=total_legitimate_rejected,
         severity_mismatches=total_severity_mismatches,

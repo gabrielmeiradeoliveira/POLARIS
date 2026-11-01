@@ -598,6 +598,7 @@ def test_budget_exhaustion_does_not_corrupt_detection_metrics() -> None:
             change_type=ChangeType.DEFECT_INTRODUCTION,
         ),
     ]
+    fixtures.append(fixtures[-1].model_copy(update={"case_id": "case-3-unattempted"}))
 
     budget = ExecutionBudget(max_requests=1)
     summary = evaluate_corpus(fixtures, provider=provider, budget=budget, force_end_to_end=True)
@@ -606,11 +607,16 @@ def test_budget_exhaustion_does_not_corrupt_detection_metrics() -> None:
     assert summary.budget_exhausted_cases == 1
     assert summary.successful_cases == 1
     assert summary.failed_cases == 1
+    assert summary.unassessed_cases == 2
+    assert summary.completion_rate == 0.3333
     assert summary.case_results[0].status == "completed"
     assert summary.case_results[0].true_positives == 1
     assert summary.case_results[0].false_negatives == 0
     assert summary.case_results[1].status == "budget_exhausted"
     assert summary.case_results[1].false_negatives == 0
+    assert summary.case_results[2].status == "unassessed"
+    assert summary.case_results[2].operational_state == "not_attempted_budget_exhausted"
+    assert summary.case_results[2].false_negatives == 0
     assert summary.true_positives == 1
     assert summary.false_negatives == 0
     assert summary.precision == 1.0

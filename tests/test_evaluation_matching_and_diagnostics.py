@@ -22,7 +22,7 @@ from deicide.evaluation.models import (
     EvaluationSummary,
     ExpectedFindingSpec,
 )
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
+from deicide.evaluation.runner import _wilson_interval, evaluate_case, evaluate_corpus, load_fixtures_from_file
 from deicide.providers.fake import FakeProvider
 
 runner = CliRunner()
@@ -254,6 +254,14 @@ def test_detection_metrics_report_category_mismatches_separately() -> None:
     assert summary.undetected_expected_defects == 1
     assert summary.detection_precision == 1.0
     assert summary.detection_recall == 0.5
+
+
+def test_uncertainty_is_reported_only_for_sufficient_samples() -> None:
+    """Wilson intervals avoid implying precision from an undersized fixture sample."""
+    assert _wilson_interval(5, 19) == (None, None)
+    lower, upper = _wilson_interval(15, 20)
+    assert lower is not None and upper is not None
+    assert 0.0 <= lower < 0.75 < upper <= 1.0
 
 
 def test_incorrect_file_and_line_rejection() -> None:
