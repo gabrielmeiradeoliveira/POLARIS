@@ -55,9 +55,17 @@ def map_finding(finding: Finding, files: Iterable[ChangedFile]) -> MappedComment
     for changed in files:
         removed, added = _diff_lines(changed)
         if normalized == changed.path and finding.line_range.start_line in added:
-            return MappedComment(finding_id=finding.id, body=body, position=DiffPosition(path=changed.path, line=finding.line_range.start_line, side="RIGHT"))
+            return MappedComment(
+                finding_id=finding.id,
+                body=body,
+                position=DiffPosition(path=changed.path, line=finding.line_range.start_line, side="RIGHT"),
+            )
         if changed.previous_path and normalized == changed.previous_path and finding.line_range.start_line in removed:
-            return MappedComment(finding_id=finding.id, body=body, position=DiffPosition(path=changed.path, line=finding.line_range.start_line, side="LEFT"))
+            return MappedComment(
+                finding_id=finding.id,
+                body=body,
+                position=DiffPosition(path=changed.path, line=finding.line_range.start_line, side="LEFT"),
+            )
     return MappedComment(finding_id=finding.id, body=body, reason="Finding does not have an exact changed diff line.")
 
 

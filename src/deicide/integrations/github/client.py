@@ -86,7 +86,16 @@ class GitHubClient:
                 if 200 <= response.status_code < 300:
                     return response
                 error = self._classify(response)
-            if error.category not in {GitHubErrorCategory.RATE_LIMIT, GitHubErrorCategory.SERVER, GitHubErrorCategory.NETWORK, GitHubErrorCategory.TIMEOUT} or retries >= self._max_retries:
+            if (
+                error.category
+                not in {
+                    GitHubErrorCategory.RATE_LIMIT,
+                    GitHubErrorCategory.SERVER,
+                    GitHubErrorCategory.NETWORK,
+                    GitHubErrorCategory.TIMEOUT,
+                }
+                or retries >= self._max_retries
+            ):
                 raise error
             retries += 1
             self._sleep(float(retries))
@@ -100,22 +109,52 @@ class GitHubClient:
         payload = body_as_object(self._request("GET", self._path(owner, repository, f"/pulls/{number}")).body)
         head = payload.get("head")
         base = payload.get("base")
-        if not isinstance(head, dict) or not isinstance(base, dict) or not isinstance(head.get("sha"), str) or not isinstance(base.get("sha"), str):
-            raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "Pull request response lacks head/base SHA.")
-        return PullRequestMetadata(owner=owner, repository=repository, number=number, title=str(payload.get("title", "")), state=str(payload.get("state", "open")), head_sha=head["sha"], base_sha=base["sha"])
+        if (
+            not isinstance(head, dict)
+            or not isinstance(base, dict)
+            or not isinstance(head.get("sha"), str)
+            or not isinstance(base.get("sha"), str)
+        ):
+            raise GitHubIntegrationError(
+                GitHubErrorCategory.INVALID_RESPONSE, "Pull request response lacks head/base SHA."
+            )
+        return PullRequestMetadata(
+            owner=owner,
+            repository=repository,
+            number=number,
+            title=str(payload.get("title", "")),
+            state=str(payload.get("state", "open")),
+            head_sha=head["sha"],
+            base_sha=base["sha"],
+        )
 
     def list_changed_files(self, pr: PullRequestMetadata) -> list[ChangedFile]:
         path = self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/files?per_page=100&page=1")
         entries = self._list_pages(path)
         files: list[ChangedFile] = []
         for entry in entries:
-            if not isinstance(entry, dict) or not isinstance(entry.get("filename"), str) or not isinstance(entry.get("status"), str):
-                raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response contains an invalid entry.")
+            if (
+                not isinstance(entry, dict)
+                or not isinstance(entry.get("filename"), str)
+                or not isinstance(entry.get("status"), str)
+            ):
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response contains an invalid entry."
+                )
             patch = entry.get("patch")
             previous = entry.get("previous_filename")
-            if patch is not None and not isinstance(patch, str) or previous is not None and not isinstance(previous, str):
-                raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response has invalid patch fields.")
-            files.append(ChangedFile(path=entry["filename"], status=entry["status"], patch=patch, previous_path=previous))
+            if (
+                patch is not None
+                and not isinstance(patch, str)
+                or previous is not None
+                and not isinstance(previous, str)
+            ):
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response has invalid patch fields."
+                )
+            files.append(
+                ChangedFile(path=entry["filename"], status=entry["status"], patch=patch, previous_path=previous)
+            )
         return files
 
     def _list_pages(self, path: str) -> list[Any]:
@@ -130,9 +169,13 @@ class GitHubClient:
             try:
                 payload = json.loads(response.body)
             except (TypeError, ValueError) as exc:
-                raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "GitHub returned invalid JSON.") from exc
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "GitHub returned invalid JSON."
+                ) from exc
             if not isinstance(payload, list):
-                raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "GitHub paginated response must be a JSON array.")
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "GitHub paginated response must be a JSON array."
+                )
             collected.extend(payload)
             match = _LINK_NEXT.search(response.headers.get("Link", ""))
             current = match.group("url") if match else None
@@ -143,10 +186,18 @@ class GitHubClient:
         return collected
 
     def list_review_comments(self, pr: PullRequestMetadata) -> list[dict[str, Any]]:
-        entries = self._list_pages(self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/comments?per_page=100&page=1"))
+        entries = self._list_pages(
+            self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/comments?per_page=100&page=1")
+        )
         if not all(isinstance(entry, dict) for entry in entries):
-            raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "Review-comment response contains an invalid entry.")
+            raise GitHubIntegrationError(
+                GitHubErrorCategory.INVALID_RESPONSE, "Review-comment response contains an invalid entry."
+            )
         return entries
 
     def create_review(self, pr: PullRequestMetadata, body: str, comments: list[dict[str, Any]]) -> None:
-        self._request("POST", self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/reviews"), {"commit_id": pr.head_sha, "body": body, "event": "COMMENT", "comments": comments})
+        self._request(
+            "POST",
+            self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/reviews"),
+            {"commit_id": pr.head_sha, "body": body, "event": "COMMENT", "comments": comments},
+        )

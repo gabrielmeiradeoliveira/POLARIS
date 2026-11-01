@@ -3,11 +3,10 @@ name: DEICIDE Pull Request Review (dry run)
 on:
   workflow_call:
     inputs:
-      publish:
-        description: Explicitly permit publication after a trusted future runner integration is installed.
+      base_revision:
+        description: Optional base revision when invoked as a reusable workflow.
         required: false
-        type: boolean
-        default: false
+        type: string
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -35,7 +34,7 @@ jobs:
       - name: Analyze pull request (dry run)
         env:
           DEICIDE_PROVIDER: fake
-        run: deicide review --provider fake --base-revision "${{ github.event.pull_request.base.sha }}"
+        run: deicide review --provider fake --base "${{ inputs.base_revision || github.event.pull_request.base.sha }}"
       - name: Execution summary
         if: always()
         run: |
