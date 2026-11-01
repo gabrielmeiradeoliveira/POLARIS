@@ -196,6 +196,8 @@ class ExecutionBudget(BaseModel):
     max_requests: int = Field(default=3, ge=1)
     max_total_tokens: int = Field(default=8_000, ge=1)
     request_timeout_seconds: float = Field(default=60.0, gt=0.0, le=600.0)
+    attempt_deadline_seconds: float | None = Field(default=None, gt=0.0, le=600.0)
+    case_deadline_seconds: float | None = Field(default=None, gt=0.0, le=1800.0)
     max_elapsed_seconds: float = Field(default=360.0, gt=0.0, le=1800.0)
     max_retries: int = Field(default=0, ge=0, le=10)
     quota_enabled: bool = Field(default=True)

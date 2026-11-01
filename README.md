@@ -109,6 +109,8 @@ DEICIDE_ALLOW_EXTERNAL_CODE=1
 | `DEICIDE_CONTEXT_MAX_SNIPPETS` | `16` | Maximum number of supplementary code snippets to select (`--context-snippets`). |
 | `DEICIDE_CONTEXT_MAX_SNIPPET_LINES` | `60` | Maximum line count per sliced snippet before truncation (`60`). |
 | `DEICIDE_CONTEXT_MAX_GRAPH_DEPTH` | `2` | Maximum traversal depth in the dependency graph (`2`). |
+| `DEICIDE_HYBRID_STATIC_SELECTION_ENABLED` | `false` | Opt in to exact supplementary-context duplicate suppression. |
+| `DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED` | `false` | Opt in to CFG/data-flow-informed ranking of proven direct context. |
 
 ---
 
@@ -161,6 +163,8 @@ The Context Engine is enabled by default and can be configured or disabled via C
 - `--context-tokens <int>`: Set the maximum token budget allocated for supplementary repository context (default: 2000).
 - `--context-files <int>`: Set the maximum number of supplementary context files to select (default: 8).
 - `--context-snippets <int>`: Set the maximum number of supplementary code snippets to select (default: 16).
+- `--hybrid-static-selection` / `--no-hybrid-static-selection`: Enable exact supplementary-context duplicate suppression (default: disabled).
+- `--static-relevance-selection` / `--no-static-relevance-selection`: Enable bounded CFG/data-flow-informed ranking of proven direct context (default: disabled).
 
 ### Known MVP 1.2 Limitations
 

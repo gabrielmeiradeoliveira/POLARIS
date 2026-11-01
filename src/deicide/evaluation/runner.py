@@ -17,7 +17,14 @@ from deicide.context.context_models import (
 )
 from deicide.context.pipeline import calculate_context_token_allowance, prepare_review_context
 from deicide.core.errors import BudgetExceededError, QuotaExhaustedError
-from deicide.core.models import BudgetTracker, CandidateFinding, ExecutionBudget, LineRange, TokenUsage, estimate_token_count
+from deicide.core.models import (
+    BudgetTracker,
+    CandidateFinding,
+    ExecutionBudget,
+    LineRange,
+    TokenUsage,
+    estimate_token_count,
+)
 from deicide.core.registry import AnalysisModule
 from deicide.evaluation.baseline import baseline_process_candidates
 from deicide.evaluation.models import (
@@ -26,9 +33,9 @@ from deicide.evaluation.models import (
     CaseObservability,
     CategoryMismatchDiagnostic,
     ChangeType,
+    ContextSelectionDiagnostic,
     EvaluationFixture,
     EvaluationSummary,
-    ContextSelectionDiagnostic,
     FindingMatchDiagnostic,
     RejectedCandidateDiagnostic,
     UnmatchedExpectedDiagnostic,
@@ -59,6 +66,11 @@ def _categorize_error(
     provider: LLMProvider | None = None,
 ) -> tuple[str, int | None, int]:
     """Extract error category, HTTP status code (if available), and retry count."""
+    structured_category = getattr(exc, "failure_category", None)
+    structured_status = getattr(exc, "http_status", None)
+    structured_retries = getattr(exc, "retries_attempted", None)
+    if isinstance(structured_category, str):
+        return structured_category, structured_status if isinstance(structured_status, int) else None, int(structured_retries or 0)
     msg = str(exc)
     category = "unknown"
     http_status: int | None = None
@@ -101,6 +113,20 @@ def _categorize_error(
         category = "connection_error"
 
     return category, http_status, retries
+
+
+def _operational_state(status: str, category: str | None) -> str:
+    """Expose operational outcome without changing legacy evaluation status values."""
+    if status == "budget_exhausted":
+        return "budget_exhausted"
+    return {
+        "timeout": "provider_timeout",
+        "rate_limit": "provider_rate_limited",
+        "connection_error": "provider_connection_error",
+        "invalid_response": "provider_invalid_response",
+        "server_error": "provider_http_error",
+        "client_error": "provider_http_error",
+    }.get(category or "", "evaluation_error")
 
 
 def _build_fixture_contexts(
@@ -158,7 +184,7 @@ def _observability_snapshot(
     return CaseObservability(
         provider=provider.provider_name,
         model=provider.model_name,
-        attempts=list(getattr(provider, "last_attempts", [])),
+        attempts=list(getattr(provider, "last_attempts", [])) or None,
         context=context,
     )
 
@@ -203,11 +229,14 @@ def evaluate_case(
     tracker: BudgetTracker | None = None,
     skip_unsuitable: bool = False,
     behavioral_delta_enabled: bool = True,
+    hybrid_static_selection_enabled: bool = False,
+    static_relevance_selection_enabled: bool = False,
     production_parity: bool = False,
     context_limits: ContextSelectionLimits | None = None,
     observability: bool = False,
 ) -> CaseEvaluationResult:
     """Run a single EvaluationFixture and compute TP, FP, FN, latency, and token consumption."""
+    case_started = time.monotonic()
     active_module = module or CodeReviewModule()
     active_budget = budget or ExecutionBudget()
     active_tracker = tracker or BudgetTracker(
@@ -230,6 +259,7 @@ def evaluate_case(
             usage=_usage_delta(active_tracker.usage, usage_before),
             actual_findings=[],
             status="skipped",
+            operational_state="skipped",
             error="Skipped fixture unsuitable for live benchmark",
             provenance=fixture.resolved_provenance,
             change_type=fixture.resolved_change_type,
@@ -268,7 +298,12 @@ def evaluate_case(
     if callable(estimate_baseline):
         baseline_prompt_tokens = estimate_baseline(diff_bundle, contexts)
 
-    context_limits = context_limits or ContextSelectionLimits()
+    context_limits = (context_limits or ContextSelectionLimits()).model_copy(
+        update={
+            "hybrid_static_selection_enabled": hybrid_static_selection_enabled,
+            "static_relevance_selection_enabled": static_relevance_selection_enabled,
+        }
+    )
     context_token_allowance = calculate_context_token_allowance(
         active_budget,
         baseline_prompt_tokens=baseline_prompt_tokens,
@@ -321,6 +356,8 @@ def evaluate_case(
         candidates = list(fixture.candidate_findings)
     else:
         try:
+            if active_budget.case_deadline_seconds is not None and time.monotonic() - case_started > active_budget.case_deadline_seconds:
+                raise BudgetExceededError("Evaluation case deadline exceeded before provider request.")
             active_tracker.check_can_make_request()
             try:
                 candidates = active_module.analyze(
@@ -337,6 +374,10 @@ def evaluate_case(
                     provider=provider,
                     tracker=active_tracker,
                 )
+            # The synchronous urllib transport cannot be interrupted here beyond
+            # its socket timeout; enforce the case deadline immediately on return.
+            if active_budget.case_deadline_seconds is not None and time.monotonic() - case_started > active_budget.case_deadline_seconds:
+                raise BudgetExceededError("Evaluation case deadline exceeded after provider request.")
         except (BudgetExceededError, QuotaExhaustedError) as exc:
             case_status = "budget_exhausted"
             case_error = _sanitize_error_message(str(exc), provider)
@@ -360,6 +401,7 @@ def evaluate_case(
             usage=_usage_delta(active_tracker.usage, usage_before),
             actual_findings=[],
             status=case_status,
+            operational_state=_operational_state(case_status, error_category),
             error=case_error,
             error_category=error_category,
             http_status=http_status,
@@ -674,6 +716,8 @@ def evaluate_corpus(
     shared_tracker: BudgetTracker | None = None,
     skip_unsuitable: bool = False,
     behavioral_delta_enabled: bool = True,
+    hybrid_static_selection_enabled: bool = False,
+    static_relevance_selection_enabled: bool = False,
     production_parity: bool = False,
     context_limits: ContextSelectionLimits | None = None,
     case_ids: list[str] | None = None,
@@ -759,6 +803,8 @@ def evaluate_corpus(
             tracker=active_tracker,
             skip_unsuitable=skip_unsuitable,
             behavioral_delta_enabled=behavioral_delta_enabled,
+            hybrid_static_selection_enabled=hybrid_static_selection_enabled,
+            static_relevance_selection_enabled=static_relevance_selection_enabled,
             production_parity=production_parity,
             context_limits=context_limits,
             observability=observability,

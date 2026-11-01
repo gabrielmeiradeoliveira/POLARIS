@@ -784,8 +784,12 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
         quota_scope="zero-retry-scope",
     )
     req = ProviderRequest(system_prompt="sys", user_prompt="a" * 400)
-    with pytest.raises(ProviderError, match="The read operation timed out"):
+    with pytest.raises(ProviderError, match="network/timeout error after 0 retries") as timeout_exc:
         provider_zero.generate(req)
+    # Provider exception text is persisted into evaluation diagnostics, so raw
+    # transport bodies/messages must not become a telemetry data channel.
+    assert "The read operation timed out" not in str(timeout_exc.value)
+    assert getattr(timeout_exc.value, "failure_category") == "timeout"
 
     # Exactly 1 attempt was made and recorded as uncertain
     assert attempts_zero == 1

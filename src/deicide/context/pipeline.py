@@ -19,8 +19,10 @@ from deicide.context.models import ChangedSymbol, FileAnalysisStatus
 from deicide.context.project_index import IndexLimits, build_project_index
 from deicide.context.python_ast import PythonAstAnalyzer
 from deicide.context.snippet_selector import select_context
+from deicide.context.static_analysis import PythonStaticAnalyzer, StaticAnalysisResult
 from deicide.core.errors import SecurityViolationError
 from deicide.core.models import ContextSummary, ExecutionBudget
+from deicide.git.analyzer import ensure_safe_repo_file
 from deicide.git.models import DiffBundle, FileChangeStatus
 
 
@@ -74,7 +76,9 @@ def prepare_review_context(
 
     active_limits = limits or ContextSelectionLimits()
     ast_analyzer = PythonAstAnalyzer()
+    static_analyzer = PythonStaticAnalyzer()
     all_changed_symbols: list[ChangedSymbol] = []
+    static_analyses: dict[str, StaticAnalysisResult] = {}
 
     for fdiff in python_files:
         try:
@@ -82,6 +86,11 @@ def prepare_review_context(
             if analysis.status == FileAnalysisStatus.PARSED:
                 changed_res = identify_changed_symbols(fdiff, analysis)
                 all_changed_symbols.extend(changed_res.changed_symbols)
+                if active_limits.static_relevance_selection_enabled:
+                    source_path = ensure_safe_repo_file(repo_root, fdiff.new_path)
+                    static_analyses[fdiff.new_path] = static_analyzer.analyze_source(
+                        source_path.read_text(encoding="utf-8"), fdiff.new_path
+                    )
         except SecurityViolationError:
             raise
         except Exception:  # noqa: S112
@@ -139,6 +148,7 @@ def prepare_review_context(
             project_index=index,
             limits=active_limits,
             max_context_tokens=snippet_token_allowance,
+            static_analyses=static_analyses if active_limits.static_relevance_selection_enabled else None,
         )
         context_result = context_result.model_copy(
             update={

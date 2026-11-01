@@ -259,6 +259,41 @@ def test_cli_evaluate_max_elapsed_seconds_validation() -> None:
     assert "less than or equal to 1800" in res_ceil.output
 
 
+def test_cli_deadline_options_validate_and_propagate(monkeypatch) -> None:
+    captured_budgets = []
+
+    import deicide.cli
+
+    original = deicide.cli.evaluate_corpus
+
+    def capture(*args, **kwargs):
+        captured_budgets.append(kwargs.get("budget"))
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(deicide.cli, "evaluate_corpus", capture)
+    success = runner.invoke(
+        app,
+        [
+            "evaluate",
+            "--provider",
+            "fake",
+            "--attempt-deadline",
+            "6.5",
+            "--case-deadline",
+            "30",
+        ],
+    )
+    assert success.exit_code == int(ExitCode.SUCCESS)
+    assert captured_budgets[0].attempt_deadline_seconds == 6.5
+    assert captured_budgets[0].case_deadline_seconds == 30.0
+
+    for option in ("--attempt-deadline", "--case-deadline"):
+        for invalid in ("0", "-1"):
+            result = runner.invoke(app, ["evaluate", "--provider", "fake", option, invalid])
+            assert result.exit_code == int(ExitCode.CONFIGURATION_ERROR)
+            assert "greater than zero" in result.output
+
+
 def test_cli_evaluate_tracker_receives_configured_max_elapsed(monkeypatch) -> None:
     """End-to-end verification that the active BudgetTracker receives the configured max_elapsed_seconds."""
     tracker_budgets = []

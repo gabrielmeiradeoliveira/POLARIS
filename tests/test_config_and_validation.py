@@ -392,6 +392,32 @@ def test_timeout_and_retries_preserve_total_execution_budget() -> None:
     assert cfg_env.budget.max_elapsed_seconds == 500.0
 
 
+def test_attempt_and_case_deadline_configuration_defaults_args_env_and_validation() -> None:
+    defaults = DeicideConfig.from_env_and_args(provider="fake", environ={})
+    assert defaults.budget.attempt_deadline_seconds is None
+    assert defaults.budget.case_deadline_seconds is None
+
+    explicit = DeicideConfig.from_env_and_args(
+        provider="fake",
+        attempt_deadline_seconds=12.5,
+        case_deadline_seconds=90.0,
+        environ={},
+    )
+    assert explicit.budget.attempt_deadline_seconds == 12.5
+    assert explicit.budget.case_deadline_seconds == 90.0
+
+    environment = DeicideConfig.from_env_and_args(
+        provider="fake",
+        environ={"DEICIDE_ATTEMPT_DEADLINE_SECONDS": "7.5", "DEICIDE_CASE_DEADLINE_SECONDS": "45"},
+    )
+    assert environment.budget.attempt_deadline_seconds == 7.5
+    assert environment.budget.case_deadline_seconds == 45.0
+
+    for option, value in (("attempt_deadline_seconds", 0), ("attempt_deadline_seconds", -1), ("case_deadline_seconds", 0), ("case_deadline_seconds", -1)):
+        with pytest.raises(ConfigurationError, match="greater than zero"):
+            DeicideConfig.from_env_and_args(provider="fake", environ={}, **{option: value})
+
+
 def test_tracker_stops_execution_when_elapsed_time_limit_exceeded() -> None:
     """Verify BudgetTracker stops execution when configured max_elapsed_seconds is exceeded."""
     clock_time = 0.0

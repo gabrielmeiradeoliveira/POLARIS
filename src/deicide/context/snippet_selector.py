@@ -21,6 +21,8 @@ from deicide.context.context_ranker import ContextRanker
 from deicide.context.dependency_graph import DependencyGraph
 from deicide.context.models import ChangedSymbol
 from deicide.context.project_index import ProjectIndex
+from deicide.context.static_analysis import StaticAnalysisResult
+from deicide.context.static_relevance import prioritize_static_relevance
 from deicide.core.errors import SecurityViolationError
 from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
 
@@ -260,6 +262,7 @@ def select_context(
     project_index: ProjectIndex,
     limits: ContextSelectionLimits | None = None,
     max_context_tokens: int | None = None,
+    static_analyses: dict[str, StaticAnalysisResult] | None = None,
 ) -> ContextSelectionResult:
     """High-level entrypoint: discovers, ranks, slices, deduplicates, and budgets context."""
     active_limits = limits.model_copy() if limits else ContextSelectionLimits()
@@ -293,6 +296,14 @@ def select_context(
         limits=active_limits,
     )
     ranked_candidates = ranker.discover_candidates(changed_symbols)
+    if active_limits.static_relevance_selection_enabled and static_analyses is not None:
+        ranked_candidates, static_diagnostics = prioritize_static_relevance(
+            ranked_candidates, changed_symbols, static_analyses
+        )
+        diagnostics.extend(static_diagnostics)
+        ranked_candidates.sort(
+            key=lambda c: (c.priority, c.relationship_depth, -c.confidence, c.estimated_tokens, c.file_path, c.start_line, c.candidate_id)
+        )
 
     # 2. Extract snippets
     extractor = SnippetExtractor(

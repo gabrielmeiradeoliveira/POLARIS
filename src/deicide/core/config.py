@@ -238,7 +238,26 @@ class DeicideConfig(BaseModel):
     usage_db_path: Path | None = Field(default=None)
     context_enabled: bool = Field(default=True)
     behavioral_delta_enabled: bool = Field(default=False)
+    hybrid_static_selection_enabled: bool = Field(default=False)
+    static_relevance_selection_enabled: bool = Field(default=False)
     context_limits: ContextSelectionLimits = Field(default_factory=ContextSelectionLimits)
+
+    def model_post_init(self, __context: object) -> None:
+        """Keep direct config construction and context-pipeline limits consistent."""
+        if (
+            self.context_limits.hybrid_static_selection_enabled != self.hybrid_static_selection_enabled
+            or self.context_limits.static_relevance_selection_enabled != self.static_relevance_selection_enabled
+        ):
+            object.__setattr__(
+                self,
+                "context_limits",
+                self.context_limits.model_copy(
+                    update={
+                        "hybrid_static_selection_enabled": self.hybrid_static_selection_enabled,
+                        "static_relevance_selection_enabled": self.static_relevance_selection_enabled,
+                    }
+                ),
+            )
 
     @field_validator("provider")
     @classmethod
@@ -323,6 +342,8 @@ class DeicideConfig(BaseModel):
         max_requests: int | None = None,
         max_retries: int | None = None,
         timeout_seconds: float | None = None,
+        attempt_deadline_seconds: float | None = None,
+        case_deadline_seconds: float | None = None,
         max_elapsed_seconds: float | None = None,
         max_files: int | None = None,
         rate_limit_rpm: int | None = None,
@@ -334,6 +355,8 @@ class DeicideConfig(BaseModel):
         nvidia_base_url: str | None = None,
         context_enabled: bool | None = None,
         behavioral_delta_enabled: bool | None = None,
+        hybrid_static_selection_enabled: bool | None = None,
+        static_relevance_selection_enabled: bool | None = None,
         context_max_files: int | None = None,
         context_max_snippets: int | None = None,
         context_max_snippet_lines: int | None = None,
@@ -442,6 +465,20 @@ class DeicideConfig(BaseModel):
             if min_elapsed > current_elapsed:
                 budget_kwargs["max_elapsed_seconds"] = min_elapsed
 
+        parsed_attempt_deadline = _parse_positive_float(
+            attempt_deadline_seconds if attempt_deadline_seconds is not None else env.get("DEICIDE_ATTEMPT_DEADLINE_SECONDS"),
+            "DEICIDE_ATTEMPT_DEADLINE_SECONDS",
+        )
+        if parsed_attempt_deadline is not None:
+            budget_kwargs["attempt_deadline_seconds"] = parsed_attempt_deadline
+
+        parsed_case_deadline = _parse_positive_float(
+            case_deadline_seconds if case_deadline_seconds is not None else env.get("DEICIDE_CASE_DEADLINE_SECONDS"),
+            "DEICIDE_CASE_DEADLINE_SECONDS",
+        )
+        if parsed_case_deadline is not None:
+            budget_kwargs["case_deadline_seconds"] = parsed_case_deadline
+
         parsed_max_files = _parse_positive_int(max_files, "max_files")
         if parsed_max_files is not None:
             budget_kwargs["max_files"] = parsed_max_files
@@ -505,6 +542,21 @@ class DeicideConfig(BaseModel):
             default=False,
         )
 
+        resolved_hybrid_static_selection_enabled = _parse_strict_bool(
+            hybrid_static_selection_enabled
+            if hybrid_static_selection_enabled is not None
+            else env.get("DEICIDE_HYBRID_STATIC_SELECTION_ENABLED"),
+            "DEICIDE_HYBRID_STATIC_SELECTION_ENABLED",
+            default=False,
+        )
+        resolved_static_relevance_selection_enabled = _parse_strict_bool(
+            static_relevance_selection_enabled
+            if static_relevance_selection_enabled is not None
+            else env.get("DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED"),
+            "DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED",
+            default=False,
+        )
+
         ctx_limits_kwargs: dict[str, int] = {}
         parsed_ctx_max_files = _parse_positive_int(
             context_max_files if context_max_files is not None else env.get("DEICIDE_CONTEXT_MAX_FILES"),
@@ -554,7 +606,11 @@ class DeicideConfig(BaseModel):
         if parsed_ctx_depth is not None:
             ctx_limits_kwargs["max_graph_depth"] = parsed_ctx_depth
 
-        context_limits = ContextSelectionLimits(**ctx_limits_kwargs)
+        context_limits = ContextSelectionLimits(
+            **ctx_limits_kwargs,
+            hybrid_static_selection_enabled=resolved_hybrid_static_selection_enabled,
+            static_relevance_selection_enabled=resolved_static_relevance_selection_enabled,
+        )
 
         try:
             budget = ExecutionBudget(**budget_kwargs)  # type: ignore[arg-type]
@@ -572,6 +628,8 @@ class DeicideConfig(BaseModel):
                 usage_db_path=resolved_db_path,
                 context_enabled=resolved_context_enabled,
                 behavioral_delta_enabled=resolved_behavioral_delta_enabled,
+                hybrid_static_selection_enabled=resolved_hybrid_static_selection_enabled,
+                static_relevance_selection_enabled=resolved_static_relevance_selection_enabled,
                 context_limits=context_limits,
             )
         except DeicideError:

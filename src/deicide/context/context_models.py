@@ -171,6 +171,8 @@ class ContextSelectionLimits(BaseModel):
     max_visited_nodes: int = Field(default=100, ge=1)
     max_context_tokens: int = Field(default=2000, ge=0)
     behavioral_delta_reserved_tokens: int = Field(default=0, ge=0)
+    hybrid_static_selection_enabled: bool = False
+    static_relevance_selection_enabled: bool = False
 
 
 class ContextSelectionResult(BaseModel):
@@ -191,6 +193,16 @@ class ContextSelectionResult(BaseModel):
     serialized_behavioral_deltas: str = ""
     diagnostics: list[str] = Field(default_factory=list)
     limits: ContextSelectionLimits = Field(default_factory=ContextSelectionLimits)
+
+    @property
+    def hybrid_static_selection_enabled(self) -> bool:
+        """Whether prompt-local duplicate suppression is explicitly enabled."""
+        return self.limits.hybrid_static_selection_enabled
+
+    @property
+    def static_relevance_selection_enabled(self) -> bool:
+        """Whether the experimental CFG/data-flow relevance policy was enabled."""
+        return self.limits.static_relevance_selection_enabled
 
 
 __all__ = [

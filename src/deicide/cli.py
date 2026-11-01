@@ -131,6 +131,8 @@ def review_command(
             help="Per-request timeout in seconds.",
         ),
     ] = None,
+    attempt_deadline: Annotated[float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")] = None,
+    case_deadline: Annotated[float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")] = None,
     allow_external: Annotated[
         bool | None,
         typer.Option(
@@ -157,6 +159,20 @@ def review_command(
         typer.Option(
             "--behavioral-delta/--no-behavioral-delta",
             help="Enable or disable AST-based behavioral delta analysis (default: disabled).",
+        ),
+    ] = None,
+    hybrid_static_selection: Annotated[
+        bool | None,
+        typer.Option(
+            "--hybrid-static-selection/--no-hybrid-static-selection",
+            help="Opt in to conservative removal of exact supplementary context duplicates (default: disabled).",
+        ),
+    ] = None,
+    static_relevance_selection: Annotated[
+        bool | None,
+        typer.Option(
+            "--static-relevance-selection/--no-static-relevance-selection",
+            help="Opt in to CFG/data-flow-informed ranking of proven direct context (default: disabled).",
         ),
     ] = None,
     context_tokens: Annotated[
@@ -194,9 +210,13 @@ def review_command(
             max_requests=max_requests,
             max_retries=max_retries,
             timeout_seconds=timeout,
+            attempt_deadline_seconds=attempt_deadline,
+            case_deadline_seconds=case_deadline,
             usage_db_path=db_path,
             context_enabled=context,
             behavioral_delta_enabled=behavioral_delta,
+            hybrid_static_selection_enabled=hybrid_static_selection,
+            static_relevance_selection_enabled=static_relevance_selection,
             context_max_tokens=context_tokens,
             context_max_files=context_files,
             context_max_snippets=context_snippets,
@@ -405,6 +425,8 @@ def evaluate_command(
             help="Per-request timeout in seconds for provider evaluation.",
         ),
     ] = None,
+    attempt_deadline: Annotated[float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")] = None,
+    case_deadline: Annotated[float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")] = None,
     max_retries: Annotated[
         int | None,
         typer.Option(
@@ -442,6 +464,20 @@ def evaluate_command(
             help="Enable or disable AST-based behavioral delta analysis during evaluation (default: disabled).",
         ),
     ] = None,
+    hybrid_static_selection: Annotated[
+        bool | None,
+        typer.Option(
+            "--hybrid-static-selection/--no-hybrid-static-selection",
+            help="Opt in to conservative removal of exact supplementary context duplicates (default: disabled).",
+        ),
+    ] = None,
+    static_relevance_selection: Annotated[
+        bool | None,
+        typer.Option(
+            "--static-relevance-selection/--no-static-relevance-selection",
+            help="Opt in to CFG/data-flow-informed ranking of proven direct context (default: disabled).",
+        ),
+    ] = None,
     observability_file: Annotated[
         Path | None,
         typer.Option(
@@ -465,12 +501,16 @@ def evaluate_command(
             model=model,
             allow_external_code=allow_external,
             behavioral_delta_enabled=behavioral_delta,
+            hybrid_static_selection_enabled=hybrid_static_selection,
+            static_relevance_selection_enabled=static_relevance_selection,
             context_max_tokens=context_tokens,
             behavioral_delta_reserved_tokens=behavioral_delta_reserved_tokens,
             max_tokens=max_tokens,
             max_requests=max_requests,
             max_retries=max_retries,
             timeout_seconds=timeout,
+            attempt_deadline_seconds=attempt_deadline,
+            case_deadline_seconds=case_deadline,
             max_elapsed_seconds=max_elapsed_seconds,
             output_format=output_format,
         )
@@ -487,6 +527,8 @@ def evaluate_command(
             max_requests is not None
             or max_tokens is not None
             or timeout is not None
+            or attempt_deadline is not None
+            or case_deadline is not None
             or max_retries is not None
             or max_elapsed_seconds is not None
             or config.budget.max_elapsed_seconds != 360.0
@@ -512,6 +554,8 @@ def evaluate_command(
             max_cases=max_cases,
             skip_unsuitable=skip_unsuitable,
             behavioral_delta_enabled=config.behavioral_delta_enabled,
+            hybrid_static_selection_enabled=config.hybrid_static_selection_enabled,
+            static_relevance_selection_enabled=config.static_relevance_selection_enabled,
             production_parity=production_parity,
             context_limits=config.context_limits,
             case_ids=case_id,

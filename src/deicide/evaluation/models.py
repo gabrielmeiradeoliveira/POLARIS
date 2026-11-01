@@ -236,7 +236,7 @@ class CaseObservability(BaseModel):
 
     provider: str
     model: str
-    attempts: list[ProviderAttempt] = Field(default_factory=list)
+    attempts: list[ProviderAttempt] | None = None
     context: ContextSelectionDiagnostic | None = None
 
 
@@ -325,6 +325,7 @@ class CaseEvaluationResult(BaseModel):
     usage: TokenUsage = Field(default_factory=TokenUsage)
     actual_findings: list[Finding] = Field(default_factory=list)
     status: str = Field(default="completed")
+    operational_state: str = Field(default="completed")
     error: str | None = Field(default=None)
     error_category: str | None = Field(default=None)
     http_status: int | None = Field(default=None)
