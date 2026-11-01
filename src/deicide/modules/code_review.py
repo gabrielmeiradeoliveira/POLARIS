@@ -10,7 +10,16 @@ from pydantic import ValidationError
 
 from deicide.context.behavioral_delta import serialize_behavioral_deltas
 from deicide.context.context_relevance import select_hybrid_supplementary_context
-from deicide.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, CandidateFinding, estimate_token_count
+from deicide.context.static_analysis import PythonStaticAnalyzer
+from deicide.core.models import (
+    TOKEN_ESTIMATION_SAFETY_MARGIN,
+    BudgetTracker,
+    CandidateFinding,
+    Confidence,
+    FindingCategory,
+    Severity,
+    estimate_token_count,
+)
 from deicide.git.models import DiffBundle, FileContext, FileDiff
 from deicide.providers.base import LLMProvider, ProviderRequest
 from deicide.quota.store import RequestStatus
@@ -97,6 +106,8 @@ class CodeReviewModule:
         if not reviewable_files:
             return []
 
+        static_candidates = self._static_data_flow_candidates(reviewable_files, contexts)
+
         user_prompt = self._build_user_prompt(reviewable_files, contexts, context_result=context_result)
         request = ProviderRequest(
             system_prompt=SYSTEM_PROMPT,
@@ -139,7 +150,74 @@ class CodeReviewModule:
             tracker.retries_performed += response.retries_performed
             tracker.complete_attempt(reservation_id, response.usage)
 
-        return self._parse_candidates(response.content, tracker)
+        return [*static_candidates, *self._parse_candidates(response.content, tracker)]
+
+    @staticmethod
+    def _static_data_flow_candidates(
+        files: list[FileDiff],
+        contexts: dict[str, FileContext],
+    ) -> list[CandidateFinding]:
+        """Emit only proved changed-path unbound-local candidates.
+
+        The intraprocedural analyzer identifies a local variable that is only
+        initialized on some continuing paths. A candidate is emitted only when
+        the responsible assignment line itself is added or modified, keeping
+        the finding directly reviewable and compatible with evidence validation.
+        """
+        analyzer = PythonStaticAnalyzer()
+        candidates: list[CandidateFinding] = []
+        emitted: set[tuple[str, int, str]] = set()
+        for file_diff in files:
+            if not file_diff.new_path.endswith(".py"):
+                continue
+            context = contexts.get(file_diff.new_path)
+            if context is None or context.total_lines <= 0:
+                continue
+            numbered = {line: text for snippet in context.snippets for line, text in snippet.lines.items()}
+            if set(numbered) != set(range(1, context.total_lines + 1)):
+                continue
+            source = "\n".join(numbered[line] for line in range(1, context.total_lines + 1))
+            analysis = analyzer.analyze_source(source, file_diff.new_path)
+            for procedure in analysis.procedures:
+                for fact in procedure.data_flow:
+                    if fact.kind != "possible_unbound_local":
+                        continue
+                    assignment_lines = [
+                        signal.line
+                        for signal in procedure.signals
+                        if signal.kind == "assignment" and signal.detail == fact.name and signal.line < fact.use_line
+                    ]
+                    changed_assignments = sorted(set(assignment_lines).intersection(file_diff.added_lines))
+                    if not changed_assignments:
+                        continue
+                    line = changed_assignments[-1]
+                    key = (file_diff.new_path, line, fact.name)
+                    if key in emitted:
+                        continue
+                    evidence = numbered[line].strip()
+                    if not evidence:
+                        continue
+                    emitted.add(key)
+                    candidates.append(
+                        CandidateFinding(
+                            category=FindingCategory.LOGIC_ERROR,
+                            severity=Severity.HIGH,
+                            confidence=Confidence.HIGH,
+                            file_path=file_diff.new_path,
+                            start_line=line,
+                            end_line=line,
+                            title=f"Conditionally initialized local '{fact.name}' may be unbound",
+                            description=(
+                                f"'{fact.name}' is initialized only on a subset of paths but is later used at line "
+                                f"{fact.use_line}; the other path can raise UnboundLocalError."
+                            ),
+                            evidence=evidence,
+                            suggested_remediation=(
+                                f"Initialize '{fact.name}' on every continuing path or return before its later use."
+                            ),
+                        )
+                    )
+        return candidates
 
     def estimate_baseline_tokens(
         self,

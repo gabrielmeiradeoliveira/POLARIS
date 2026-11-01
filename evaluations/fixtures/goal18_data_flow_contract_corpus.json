@@ -1,0 +1,39 @@
+[
+  {
+    "case_id": "goal18-conditional-binding-unbound",
+    "description": "A formerly unconditional local binding becomes conditional while a later return still dereferences it.",
+    "diff_text": "diff --git a/service.py b/service.py\n--- a/service.py\n+++ b/service.py\n@@ -1,3 +1,4 @@\n def render(enabled):\n-    value = build_value()\n+    if enabled:\n+        value = build_value()\n     return value.serialize()\n",
+    "file_contents": {
+      "service.py": "def render(enabled):\n    if enabled:\n        value = build_value()\n    return value.serialize()\n"
+    },
+    "expected_findings": [
+      {
+        "file_path": "service.py",
+        "line_range": {"start_line": 3, "end_line": 3},
+        "category": "logic_error",
+        "severity": "high",
+        "evidence": "When enabled is false, value is never initialized before the return expression."
+      }
+    ],
+    "change_type": "defect_introduction",
+    "verification_status": "EXECUTABLE_VERIFIED",
+    "provenance": "goal18_executable_oracle",
+    "reproduction_instructions": "Call render(False); Python raises UnboundLocalError before serialize can run.",
+    "known_limitations": ["The helper build_value is intentionally not executed; the failure is established before its result is needed."]
+  },
+  {
+    "case_id": "goal18-conditional-binding-complete",
+    "description": "Both conditional paths initialize the local before it is returned.",
+    "diff_text": "diff --git a/service.py b/service.py\n--- a/service.py\n+++ b/service.py\n@@ -1,3 +1,6 @@\n def render(enabled):\n-    value = build_value()\n+    if enabled:\n+        value = build_value()\n+    else:\n+        value = build_value()\n     return value.serialize()\n",
+    "file_contents": {
+      "service.py": "def render(enabled):\n    if enabled:\n        value = build_value()\n    else:\n        value = build_value()\n    return value.serialize()\n"
+    },
+    "expected_findings": [],
+    "is_clean": true,
+    "change_type": "clean_unrelated",
+    "verification_status": "EXECUTABLE_VERIFIED",
+    "provenance": "goal18_executable_oracle",
+    "reproduction_instructions": "Stub build_value with an object exposing serialize and call render(True) and render(False).",
+    "known_limitations": ["The case verifies only local initialization semantics."]
+  }
+]
