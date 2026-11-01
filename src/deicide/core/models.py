@@ -207,6 +207,9 @@ class ExecutionBudget(BaseModel):
     reservation_ttl_seconds: float = Field(default=120.0, gt=0.0, le=3600.0)
 
 
+TOKEN_ESTIMATION_SAFETY_MARGIN = 256
+
+
 class AnalysisWarning(BaseModel):
     """Structured warning when part of an analysis is skipped, truncated, or rejected."""
 
@@ -320,16 +323,52 @@ class BudgetTracker:
             )
             raise BudgetExceededError(msg)
 
+    def available_output_tokens(
+        self,
+        estimated_prompt_tokens: int,
+        requested_output_tokens: int,
+        *,
+        safety_margin_tokens: int = TOKEN_ESTIMATION_SAFETY_MARGIN,
+        minimum_output_tokens: int = 64,
+    ) -> int:
+        """Return the output ceiling that can be reserved before an attempt.
+
+        The local prompt estimate is protected by a conservative margin because
+        provider tokenizers can count a prompt differently. A provider response
+        that exceeds this reservation is still accounted and rejected, but no
+        subsequent attempt is allowed to ignore the overage.
+        """
+        prompt_tokens = max(0, int(estimated_prompt_tokens))
+        requested = max(0, int(requested_output_tokens))
+        margin = max(0, int(safety_margin_tokens))
+        minimum = max(1, int(minimum_output_tokens))
+        remaining = self.budget.max_total_tokens - self.usage.total_tokens
+        available = remaining - prompt_tokens - margin
+        if available < minimum:
+            raise BudgetExceededError(
+                "Token budget exceeded before request: insufficient reservation; "
+                f"remaining {remaining} tokens cannot reserve prompt {prompt_tokens}, "
+                f"safety margin {margin}, and minimum output {minimum}."
+            )
+        return min(requested, available)
+
     def reserve_attempt(
         self,
         estimated_prompt_tokens: int = 0,
         *,
+        reserved_output_tokens: int = 0,
+        safety_margin_tokens: int = 0,
         provider_name: str | None = None,
         model_name: str | None = None,
         is_retry: bool = False,
     ) -> str | None:
         """Check per-analysis and persistent quotas and atomically reserve 1 request attempt."""
-        self.check_can_make_request(estimated_prompt_tokens)
+        reserved_total = (
+            max(0, int(estimated_prompt_tokens))
+            + max(0, int(reserved_output_tokens))
+            + max(0, int(safety_margin_tokens))
+        )
+        self.check_can_make_request(reserved_total)
         resolved_provider = (provider_name or self.provider_name).strip().lower()
         resolved_model = (model_name or self.model_name).strip()
 

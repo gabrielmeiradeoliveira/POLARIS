@@ -475,8 +475,9 @@ def test_max_tokens_accounts_for_provider_reported_tokens_and_halts() -> None:
         ),
     ]
 
-    # max_total_tokens=1000 allows case 0 (300 tokens used), but case 1 has projected 300 + ~764 > 1000
-    budget = ExecutionBudget(max_requests=10, max_total_tokens=1000)
+    # 1,300 tokens allow case 0 (300 reported tokens) plus its prompt/output
+    # reservation, while case 1 cannot reserve prompt + safety margin + minimum output.
+    budget = ExecutionBudget(max_requests=10, max_total_tokens=1300)
     summary = evaluate_corpus(fixtures, provider=provider, budget=budget, force_end_to_end=True)
 
     assert http_call_count == 1

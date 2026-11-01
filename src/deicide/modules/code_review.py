@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from deicide.context.behavioral_delta import serialize_behavioral_deltas
 from deicide.context.context_relevance import select_hybrid_supplementary_context
-from deicide.core.models import BudgetTracker, CandidateFinding, estimate_token_count
+from deicide.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, CandidateFinding, estimate_token_count
 from deicide.git.models import DiffBundle, FileContext, FileDiff
 from deicide.providers.base import LLMProvider, ProviderRequest
 from deicide.quota.store import RequestStatus
@@ -114,8 +114,16 @@ class CodeReviewModule:
             finally:
                 bind_fn(None)
         else:
+            permitted_output = tracker.available_output_tokens(
+                request.estimated_prompt_tokens,
+                request.max_output_tokens,
+                safety_margin_tokens=TOKEN_ESTIMATION_SAFETY_MARGIN,
+            )
+            request = request.model_copy(update={"max_output_tokens": permitted_output})
             reservation_id = tracker.reserve_attempt(
                 request.estimated_prompt_tokens,
+                reserved_output_tokens=request.max_output_tokens,
+                safety_margin_tokens=TOKEN_ESTIMATION_SAFETY_MARGIN,
                 provider_name=provider.provider_name,
                 model_name=provider.model_name,
             )
