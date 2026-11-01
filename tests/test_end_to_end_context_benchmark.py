@@ -9,7 +9,6 @@ from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
 from deicide.git.analyzer import parse_unified_diff
 from deicide.providers.fake import FakeProvider
 
-
 BENCHMARK_PATH = Path("evaluations/fixtures/end_to_end_context_benchmark.json")
 
 

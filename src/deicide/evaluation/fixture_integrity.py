@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
 _HUNK = re.compile(r"^@@ -(?P<old_start>\d+)(?:,(?P<old_count>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_count>\d+))? @@")
 
 
@@ -75,7 +74,7 @@ def validate_fixture_diff(diff_text: str, file_contents: dict[str, str]) -> list
             raise FixtureIntegrityError(f"Diff path is not materialized: {path!r}")
         after_lines = file_contents[path].splitlines()
         source = list(after_lines)
-        for old_start, old_count, new_start, new_count, old_body, new_body in reversed(hunks):
+        for _old_start, _old_count, new_start, new_count, old_body, new_body in reversed(hunks):
             at = new_start - 1
             if at < 0 or source[at : at + new_count] != new_body:
                 raise FixtureIntegrityError(f"New-side lines do not match materialized AFTER for {path}:{new_start}")

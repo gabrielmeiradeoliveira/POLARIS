@@ -643,3 +643,67 @@ def test_undefined_metric_denominators_produce_none_and_terminal_na(tmp_path: Pa
     assert "Precision           : N/A" in cli_res.stdout
     assert "Recall              : 0.00%" in cli_res.stdout
     assert "False Positive Rate : N/A" in cli_res.stdout
+
+
+def test_f1_is_undefined_when_precision_or_recall_is_undefined() -> None:
+    """F1 must remain undefined rather than being converted to zero."""
+    fixture = _build_test_fixture(
+        expected_findings=[],
+        candidate_findings=[],
+        case_id="empty-negative",
+        is_clean=True,
+    )
+
+    summary = evaluate_corpus([fixture], provider=FakeProvider())
+
+    assert summary.precision is None
+    assert summary.recall is None
+    assert summary.f1_score is None
+
+
+def test_f1_is_zero_when_defined_precision_and_recall_are_both_zero() -> None:
+    """A defined zero precision/recall pair has a defined zero F1."""
+    fixture = _build_test_fixture(
+        expected_findings=[
+            ExpectedFindingSpec(
+                file_path="src/math.py",
+                line_range=LineRange(start_line=4, end_line=4),
+                category=FindingCategory.CORRECTNESS,
+            )
+        ],
+        candidate_findings=[
+            CandidateFinding(
+                category=FindingCategory.CONCURRENCY,
+                severity=Severity.HIGH,
+                confidence=Confidence.HIGH,
+                file_path="src/math.py",
+                start_line=4,
+                end_line=4,
+                title="Incorrect category",
+                description="The classification is intentionally wrong.",
+                evidence="return a / b",
+            )
+        ],
+        case_id="zero-f1",
+    )
+
+    summary = evaluate_corpus([fixture], provider=FakeProvider())
+
+    assert summary.precision == 0.0
+    assert summary.recall == 0.0
+    assert summary.f1_score == 0.0
+
+
+def test_case_id_selection_is_applied_before_max_cases() -> None:
+    """A bounded selected batch must not silently revert to corpus-order fixtures."""
+    first = _build_test_fixture(case_id="first", is_clean=True)
+    selected = _build_test_fixture(case_id="selected", is_clean=True)
+
+    summary = evaluate_corpus(
+        [first, selected],
+        provider=FakeProvider(),
+        case_ids=["selected"],
+        max_cases=1,
+    )
+
+    assert [case.case_id for case in summary.case_results] == ["selected"]

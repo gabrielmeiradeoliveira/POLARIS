@@ -9,9 +9,8 @@ from deicide.context.behavioral_delta import (
     analyze_behavioral_deltas,
     serialize_behavioral_deltas,
 )
-from deicide.context.changed_symbols import identify_changed_symbols
 from deicide.context.change_impact import ExactOverlapEvidence, primary_prompt_source_lines, prove_exact_primary_overlap
-from deicide.context.context_relevance import HybridContextSelection, select_hybrid_supplementary_context
+from deicide.context.changed_symbols import identify_changed_symbols
 from deicide.context.context_budget import (
     enforce_context_budget,
     estimate_snippet_tokens,
@@ -29,6 +28,7 @@ from deicide.context.context_models import (
     SelectedSnippet,
 )
 from deicide.context.context_ranker import ContextRanker
+from deicide.context.context_relevance import HybridContextSelection, select_hybrid_supplementary_context
 from deicide.context.dependency_graph import (
     CallerEvidence,
     ChangedSymbolImpact,

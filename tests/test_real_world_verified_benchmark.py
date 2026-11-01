@@ -4,8 +4,7 @@ from pathlib import Path
 
 from deicide.core.models import CandidateFinding
 from deicide.evaluation.models import GroundTruthVerificationStatus
-from deicide.evaluation.runner import load_fixtures_from_file
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus
+from deicide.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
 from deicide.git.analyzer import parse_unified_diff
 from deicide.git.models import DiffBundle, FileContext
 from deicide.modules.code_review import CodeReviewModule

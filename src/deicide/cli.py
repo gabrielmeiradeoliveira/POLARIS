@@ -13,6 +13,7 @@ from deicide.core.errors import DeicideError, ExitCode
 from deicide.core.models import ExecutionBudget
 from deicide.core.orchestrator import AnalysisOrchestrator
 from deicide.core.registry import ModuleRegistry
+from deicide.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
 from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
 from deicide.modules.code_review import CodeReviewModule
 from deicide.providers.factory import create_provider
@@ -485,6 +486,25 @@ def evaluate_command(
             help="Write opt-in hash-only experimental telemetry to a local JSON file; prompts and responses are never stored.",
         ),
     ] = None,
+    history_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--history-dir",
+            help="Append a sanitized immutable validation-history manifest and run-scoped trend reports here.",
+        ),
+    ] = None,
+    history_run_id: Annotated[
+        str | None,
+        typer.Option("--history-run-id", help="Stable unique ID required when --history-dir is used."),
+    ] = None,
+    history_configuration: Annotated[
+        str,
+        typer.Option("--history-configuration", help="Declared benchmark configuration label, such as A, B, or C."),
+    ] = "default",
+    history_corpus_kind: Annotated[
+        CorpusKind,
+        typer.Option("--history-corpus-kind", help="Corpus provenance; real and synthetic histories remain separate."),
+    ] = CorpusKind.SYNTHETIC,
     output_format: Annotated[
         str,
         typer.Option(
@@ -569,6 +589,26 @@ def evaluate_command(
                 encoding="utf-8",
             )
 
+        if history_dir is not None:
+            if history_run_id is None:
+                raise typer.BadParameter("--history-run-id is required when --history-dir is used.")
+            history_budget = eval_budget or config.budget
+            manifest = build_manifest(
+                run_id=history_run_id,
+                summary=summary,
+                corpus_path=fixtures_file,
+                corpus_kind=history_corpus_kind,
+                provider=llm_provider.provider_name,
+                model=llm_provider.model_name,
+                configuration=history_configuration,
+                operational_limits=history_budget.model_dump(),
+                repo_root=Path.cwd(),
+            )
+            manifest_path = append_manifest(history_dir, manifest)
+            trend_json, trend_markdown = write_trend_reports(history_dir, run_id=history_run_id)
+            typer.echo(f"History Manifest    : {manifest_path}", err=config.output_format == OutputFormat.JSON)
+            typer.echo(f"History Trends      : {trend_json}, {trend_markdown}", err=config.output_format == OutputFormat.JSON)
+
         if config.output_format == OutputFormat.JSON:
             typer.echo(summary.model_dump_json(indent=2))
         else:
@@ -596,9 +636,11 @@ def evaluate_command(
             )
             prec_str = f"{summary.precision:.2%}" if summary.precision is not None else "N/A"
             rec_str = f"{summary.recall:.2%}" if summary.recall is not None else "N/A"
+            f1_str = f"{summary.f1_score:.2%}" if summary.f1_score is not None else "N/A"
             fpr_str = f"{summary.false_positive_rate:.2%}" if summary.false_positive_rate is not None else "N/A"
             typer.echo(f"Precision           : {prec_str}")
             typer.echo(f"Recall              : {rec_str}")
+            typer.echo(f"F1                  : {f1_str}")
             typer.echo(f"False Positive Rate : {fpr_str}")
             typer.echo(f"Duplicates Reduced  : {summary.duplicates_reduced}")
             typer.echo(f"Legitimate Rejected : {summary.legitimate_rejected}")
@@ -608,6 +650,12 @@ def evaluate_command(
                 typer.echo(f"Successful Cases    : {summary.successful_cases}")
             if summary.api_failed_cases > 0:
                 typer.echo(f"API Failed Cases    : {summary.api_failed_cases}")
+            if summary.timeout_cases > 0:
+                typer.echo(f"Timeout Cases       : {summary.timeout_cases}")
+            if summary.error_cases > 0:
+                typer.echo(f"Error Cases         : {summary.error_cases}")
+            if summary.unassessed_cases > 0:
+                typer.echo(f"Unassessed Cases    : {summary.unassessed_cases}")
             if summary.budget_exhausted_cases > 0:
                 typer.echo(f"Budget Exhausted    : {summary.budget_exhausted_cases}")
             if summary.skipped_cases > 0:

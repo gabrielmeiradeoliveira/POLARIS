@@ -112,6 +112,13 @@ def test_section_21_cross_file_caller_context_integration(tmp_path: Path) -> Non
     assert report.context_summary.related_files >= 1
     assert report.context_summary.fallback is False
     assert report.context_summary.estimated_tokens > 0
+    assert "ast_parse" in report.context_summary.stage_timings_ms
+    assert "project_index" in report.context_summary.stage_timings_ms
+    assert "dependency_graph" in report.context_summary.stage_timings_ms
+    assert "context_selection" in report.context_summary.stage_timings_ms
+    assert "context.context_preparation_total" in report.stage_timings_ms
+    assert "module_analysis.code_review" in report.stage_timings_ms
+    assert "finding_validation" in report.stage_timings_ms
 
     # 2. Provider requests: only 1 request made for actual analysis, 0 for context discovery
     assert report.provider.requests_made == 1

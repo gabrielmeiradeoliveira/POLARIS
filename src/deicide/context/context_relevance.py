@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 from deicide.context.change_impact import primary_prompt_source_lines, prove_exact_primary_overlap
 from deicide.context.context_budget import serialize_context_bundle

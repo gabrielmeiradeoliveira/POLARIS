@@ -229,6 +229,7 @@ class ContextSummary(BaseModel):
     estimated_tokens: int = Field(default=0, ge=0)
     omitted_candidates: int = Field(default=0, ge=0)
     behavioral_deltas: int = Field(default=0, ge=0)
+    stage_timings_ms: dict[str, int] = Field(default_factory=dict)
     fallback: bool = False
     fallback_reason: str | None = None
 
@@ -258,6 +259,7 @@ class AnalysisReport(BaseModel):
     provider: ProviderInfo
     usage: TokenUsage
     duration_ms: int = Field(default=0, ge=0)
+    stage_timings_ms: dict[str, int] = Field(default_factory=dict)
     files_analyzed: list[str] = Field(default_factory=list)
     findings: list[Finding] = Field(default_factory=list)
     rejected_findings_count: int = Field(default=0, ge=0)
