@@ -1,4 +1,4 @@
-# DEICIDE Validation History Trend
+# POLARIS Validation History Trend
 
 Corpus kind: `real`
 Runs: 0
@@ -9,7 +9,7 @@ Runs: 0
 Calibration is reported only when explicitly numeric probabilities and the configured minimum sample size exist.
 Qualitative confidence labels are not probabilities and are never converted to one.
 
-# DEICIDE Validation History Trend
+# POLARIS Validation History Trend
 
 Corpus kind: `synthetic`
 Runs: 10

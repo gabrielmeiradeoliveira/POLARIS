@@ -8,17 +8,17 @@ import re
 from pathlib import Path
 from typing import Any
 
-from deicide.core.errors import SecurityViolationError
-from deicide.core.models import (
+from polaris.core.errors import SecurityViolationError
+from polaris.core.models import (
     AnalysisWarning,
     CandidateFinding,
     Confidence,
     Finding,
     LineRange,
 )
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
-from deicide.git.models import DiffBundle, FileChangeStatus, FileContext, FileDiff
-from deicide.intelligence.models import (
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.git.models import DiffBundle, FileChangeStatus, FileContext, FileDiff
+from polaris.intelligence.models import (
     ChangeRelevance,
     EvidenceAssessment,
     EvidenceQuality,

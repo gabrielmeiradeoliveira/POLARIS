@@ -1,0 +1,21 @@
+Purpose: verbatim Git worktree baseline captured before GOAL 16.1 edits.
+Base commit: 1214ee040de3122e2f3f11e329cde4ea33bc1b60
+
+ M AGENTS.md
+ M calculator.py
+ D context_test.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? .pytest-goal11-15-final/
+?? .pytest-goal11-15-final2/
+?? .pytest-goal11-15-metrics/
+?? .pytest-goal11-15-release/
+?? .pytest-goal11-15-targeted/
+?? .pytest-goal11-15-timing/
+?? .pytest-goal11-15/
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/reports/baseline_mvp1_4_minimax_m3_1_flash.md
+?? evaluations/results/
+?? scratch/

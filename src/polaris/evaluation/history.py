@@ -1,4 +1,4 @@
-"""Append-only, sanitized benchmark-validation history for DEICIDE."""
+"""Append-only, sanitized benchmark-validation history for POLARIS."""
 
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from deicide.core.models import Confidence, FindingCategory, LineRange
-from deicide.evaluation.models import CaseEvaluationResult, EvaluationSummary
+from polaris.core.models import Confidence, FindingCategory, LineRange
+from polaris.evaluation.models import CaseEvaluationResult, EvaluationSummary
 
 _SECRET_PATTERNS = (
     re.compile(r"nvapi-[A-Za-z0-9_-]+", re.IGNORECASE),
@@ -158,7 +158,7 @@ class BenchmarkHistoryManifest(BaseModel):
     run_id: str = Field(min_length=8, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
     timestamp_utc: datetime = Field(default_factory=_utc_now)
     git_commit: str
-    deicide_version: str
+    polaris_version: str
     provider: str
     model: str
     configuration: str
@@ -355,10 +355,10 @@ def current_git_commit(repo_root: Path) -> str:
         return "unknown"
 
 
-def installed_deicide_version() -> str:
+def installed_polaris_version() -> str:
     """Return installed package version with a source-tree fallback."""
     try:
-        return version("deicide")
+        return version("polaris")
     except PackageNotFoundError:
         return "0.1.0"
 
@@ -383,7 +383,7 @@ def build_manifest(
     unsealed = BenchmarkHistoryManifest(
         run_id=run_id,
         git_commit=current_git_commit(repo_root),
-        deicide_version=installed_deicide_version(),
+        polaris_version=installed_polaris_version(),
         provider=provider,
         model=model,
         configuration=configuration,
@@ -443,7 +443,7 @@ def trend_summary(manifests: list[BenchmarkHistoryManifest], *, corpus_kind: Cor
             {
                 "run_id": manifest.run_id,
                 "timestamp_utc": manifest.timestamp_utc.isoformat(),
-                "deicide_version": manifest.deicide_version,
+                "polaris_version": manifest.polaris_version,
                 "provider": manifest.provider,
                 "model": manifest.model,
                 "configuration": manifest.configuration,
@@ -465,7 +465,7 @@ def trend_summary(manifests: list[BenchmarkHistoryManifest], *, corpus_kind: Cor
 def render_trend_markdown(summary: dict[str, Any]) -> str:
     """Render a compact, provenance-scoped trend report without invented certainty."""
     lines = [
-        "# DEICIDE Validation History Trend",
+        "# POLARIS Validation History Trend",
         "",
         f"Corpus kind: `{summary['corpus_kind']}`",
         f"Runs: {summary['run_count']}",
@@ -481,7 +481,7 @@ def render_trend_markdown(summary: dict[str, Any]) -> str:
         lines.append(
             "| {run_id} | {version} | {provider}/{model} | {configuration} | {cases} | {precision} | {recall} | {f1} | {coverage} |".format(
                 run_id=run["run_id"],
-                version=run["deicide_version"],
+                version=run["polaris_version"],
                 provider=run["provider"],
                 model=run["model"],
                 configuration=run["configuration"],

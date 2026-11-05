@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from deicide.integrations.github.client import GitHubClient
-from deicide.integrations.github.mapping import finding_marker
-from deicide.integrations.github.models import MappedComment, PublishOperation, PullRequestMetadata
+from polaris.integrations.github.client import GitHubClient
+from polaris.integrations.github.mapping import finding_marker
+from polaris.integrations.github.models import MappedComment, PublishOperation, PullRequestMetadata
 
 
 class SafePublisher:
@@ -53,7 +53,7 @@ class SafePublisher:
 
         if not publishable and not summaries:
             return operations
-        review_body = "DEICIDE automated review."
+        review_body = "POLARIS automated review."
         if summaries:
             review_body += "\n\nFindings without a valid diff location:\n" + "\n".join(
                 f"- {item.body}" for item in summaries

@@ -1,0 +1,25 @@
+{
+  "goal": "goal36",
+  "project": "pallets/flask",
+  "pull_request": 2288,
+  "pull_request_url": "https://github.com/pallets/flask/pull/2288",
+  "base_sha": "a558d47ee2b007f039985ec9124ffcc9c36e959f",
+  "head_sha": "b11f7354d17ae4d7d11bc1b204cac98573f48965",
+  "fix_sha": "c17f379390731543eea33a570a47bd4ef76a54fa",
+  "direction": "introduced_defect",
+  "oracle": {
+    "summary": "The PR adds partial access tracking to SecureCookieSession but leaves key-only session operations untracked, allowing an accessed session response to omit Vary: Cookie.",
+    "expected_location": "flask/sessions.py:SecureCookieSession",
+    "expected_behavior": "__contains__ and len-style key-only access must mark session access before response caching policy is emitted.",
+    "upstream_evidence": [
+      "https://github.com/pallets/flask/security/advisories/GHSA-68rp-wp8r-4726",
+      "https://github.com/pallets/flask/commit/c17f379390731543eea33a570a47bd4ef76a54fa"
+    ]
+  },
+  "matching": {
+    "tp": "A finding identifies the missing access tracking for key-only session operations or its Vary: Cookie consequence in the changed session implementation.",
+    "fp": "Any finding unrelated to the frozen defect.",
+    "fn": "No matching finding."
+  },
+  "frozen_before_execution": true
+}

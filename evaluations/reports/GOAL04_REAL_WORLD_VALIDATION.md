@@ -38,7 +38,7 @@ reproduction is made.
 
 ## Observability
 
-`deicide evaluate --observability-file PATH` is explicit opt-in telemetry.
+`polaris evaluate --observability-file PATH` is explicit opt-in telemetry.
 It writes the normal JSON summary plus, for each case, provider/model,
 SHA-256 prompt and structured-response hashes, attempt number, latency, retry
 reason, timeout/error classification, provider-reported usage, and bounded
@@ -54,7 +54,7 @@ construct a provider or send a request. The single pilot run used a writable
 local quota database and this configuration:
 
 ```powershell
-deicide evaluate --fixtures evaluations/fixtures/real_world_verified_benchmark.json --provider nvidia --end-to-end --production-parity --no-behavioral-delta --context-tokens 2000 --max-requests 16 --max-tokens 100000 --timeout 40 --max-retries 1 --max-elapsed-seconds 720 --allow-external --observability-file evaluations/results/real_world_nvidia_pilot/pilot.json --format json
+polaris evaluate --fixtures evaluations/fixtures/real_world_verified_benchmark.json --provider nvidia --end-to-end --production-parity --no-behavioral-delta --context-tokens 2000 --max-requests 16 --max-tokens 100000 --timeout 40 --max-retries 1 --max-elapsed-seconds 720 --allow-external --observability-file evaluations/results/real_world_nvidia_pilot/pilot.json --format json
 ```
 
 This executed eight distinct cases, permits at most two attempts each, and did

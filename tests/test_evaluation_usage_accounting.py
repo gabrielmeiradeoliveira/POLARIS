@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.providers.fake import FakeProvider
 
 
 def test_case_usage_is_incremental_while_summary_remains_aggregate() -> None:

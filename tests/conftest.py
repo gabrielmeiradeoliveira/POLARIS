@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -10,8 +11,11 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def isolate_live_dotenv(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    """Prevent unit tests from reading the developer's live .env unless explicitly tested."""
-    monkeypatch.setenv("DEICIDE_ENV_FILE", str(tmp_path / ".isolated_empty_dotenv"))
+    """Prevent unit tests from inheriting live provider configuration unless explicitly tested."""
+    for name in tuple(os.environ):
+        if name.startswith("POLARIS_") or name in {"NVIDIA_API_KEY", "NVIDIA_BASE_URL"}:
+            monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("POLARIS_ENV_FILE", str(tmp_path / ".isolated_empty_dotenv"))
 
 
 def run_git_cmd(repo: Path, *args: str) -> str:

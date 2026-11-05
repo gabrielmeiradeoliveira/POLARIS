@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from deicide.context.models import (
+from polaris.context.models import (
     ChangedSymbol,
     ChangedSymbolsResult,
     FileAnalysis,
@@ -11,7 +11,7 @@ from deicide.context.models import (
     OverlapClassification,
     Symbol,
 )
-from deicide.git.models import FileChangeStatus, FileDiff
+from polaris.git.models import FileChangeStatus, FileDiff
 
 
 def _classify_overlap(symbol: Symbol, overlapping_lines: list[int]) -> OverlapClassification:

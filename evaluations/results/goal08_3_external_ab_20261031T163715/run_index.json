@@ -1,0 +1,19 @@
+{
+  "run_root": "evaluations/results/goal08_3_external_ab_20261031T163715",
+  "arms": [
+    "baseline",
+    "hybrid_opt_in"
+  ],
+  "corpus_sha256": "17019e5f994b1bfc4ba4afe62992cf69bd829f509db3e075cf68ba9615759096",
+  "case_ids": [
+    "rw-requests-2023-proxy-authorization",
+    "rw-requests-jsondecodeerror-pickle",
+    "rw-requests-super-len-unicode",
+    "rw-urllib3-cookie-cross-origin",
+    "rw-urllib3-proxy-redirect-origin",
+    "rw-urllib3-port-zero",
+    "rw-urllib3-invalid-timeout-error",
+    "rw-werkzeug-debugger-trusted-host"
+  ],
+  "artifact_policy": "sanitized errors; hash-only observability"
+}

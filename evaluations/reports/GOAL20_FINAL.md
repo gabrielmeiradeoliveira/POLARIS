@@ -13,7 +13,7 @@ diff from available patches, runs the existing `CodeReviewModule` and
 diff mapper, and invokes the existing `SafePublisher` in dry-run mode. It
 returns the normal `AnalysisReport` plus the structured `ReviewSummary`.
 
-`deicide github review --repo OWNER/REPO --pr NUMBER --fixture FIXTURE.json
+`polaris github review --repo OWNER/REPO --pr NUMBER --fixture FIXTURE.json
 --dry-run` is now an offline-only command. Its local fixture transport accepts
 only read-like fixture responses, the command accepts only the `fake` provider,
 and it has no token option or HTTP implementation. JSON output contains both

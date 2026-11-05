@@ -7,9 +7,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from deicide.context.behavioral_delta import BehavioralDelta, BehavioralDeltaResult, BehavioralDeltaType
-from deicide.context.dependency_graph import EdgeResolutionStatus
-from deicide.context.models import SourceLocation
+from polaris.context.behavioral_delta import BehavioralDelta, BehavioralDeltaResult, BehavioralDeltaType
+from polaris.context.dependency_graph import EdgeResolutionStatus
+from polaris.context.models import SourceLocation
 
 
 class ContextRelationshipCategory(StrEnum):

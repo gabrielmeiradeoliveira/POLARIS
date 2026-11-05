@@ -1,4 +1,4 @@
-name: DEICIDE Pull Request Review (dry run)
+name: POLARIS Pull Request Review (dry run)
 
 on:
   workflow_call:
@@ -29,14 +29,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install DEICIDE
+      - name: Install POLARIS
         run: python -m pip install .
       - name: Analyze pull request (dry run)
         env:
-          DEICIDE_PROVIDER: fake
-        run: deicide review --provider fake --base "${{ inputs.base_revision || github.event.pull_request.base.sha }}"
+          POLARIS_PROVIDER: fake
+        run: polaris review --provider fake --base "${{ inputs.base_revision || github.event.pull_request.base.sha }}"
       - name: Execution summary
         if: always()
         run: |
-          echo "## DEICIDE PR review" >> "$GITHUB_STEP_SUMMARY"
+          echo "## POLARIS PR review" >> "$GITHUB_STEP_SUMMARY"
           echo "Dry-run is enforced by the integration default. No GitHub comments are published." >> "$GITHUB_STEP_SUMMARY"

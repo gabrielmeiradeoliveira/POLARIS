@@ -1,15 +1,15 @@
-"""Map DEICIDE findings to only explicit, valid unified-diff locations."""
+"""Map POLARIS findings to only explicit, valid unified-diff locations."""
 
 from __future__ import annotations
 
 import re
 from collections.abc import Iterable
 
-from deicide.core.models import Finding
-from deicide.integrations.github.models import ChangedFile, DiffPosition, MappedComment
+from polaris.core.models import Finding
+from polaris.integrations.github.models import ChangedFile, DiffPosition, MappedComment
 
 _HUNK = re.compile(r"^@@ -(?P<old>\d+)(?:,(?P<old_count>\d+))? \+(?P<new>\d+)(?:,(?P<new_count>\d+))? @@")
-_MARKER = "<!-- deicide:finding:{finding_id} -->"
+_MARKER = "<!-- polaris:finding:{finding_id} -->"
 
 
 def finding_marker(finding_id: str) -> str:

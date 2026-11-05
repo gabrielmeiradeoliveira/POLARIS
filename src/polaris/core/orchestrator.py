@@ -4,27 +4,27 @@ from __future__ import annotations
 
 import time
 
-from deicide.context.pipeline import prepare_review_context
-from deicide.core.config import DeicideConfig
-from deicide.core.models import (
+from polaris.context.pipeline import prepare_review_context
+from polaris.core.config import PolarisConfig
+from polaris.core.models import (
     AnalysisReport,
     BudgetTracker,
     CandidateFinding,
     ProviderInfo,
 )
-from deicide.core.registry import ModuleRegistry
-from deicide.git.analyzer import GitAnalyzer
-from deicide.intelligence.pipeline import FindingIntelligenceEngine
-from deicide.providers.base import LLMProvider
-from deicide.quota.store import UsageStore
+from polaris.core.registry import ModuleRegistry
+from polaris.git.analyzer import GitAnalyzer
+from polaris.intelligence.pipeline import FindingIntelligenceEngine
+from polaris.providers.base import LLMProvider
+from polaris.quota.store import UsageStore
 
 
 class AnalysisOrchestrator:
-    """Stateless orchestrator executing the end-to-end DEICIDE analysis pipeline."""
+    """Stateless orchestrator executing the end-to-end POLARIS analysis pipeline."""
 
     def __init__(
         self,
-        config: DeicideConfig,
+        config: PolarisConfig,
         provider: LLMProvider,
         registry: ModuleRegistry,
         usage_store: UsageStore | None = None,
@@ -182,6 +182,8 @@ class AnalysisOrchestrator:
             "FILE_TOO_LARGE",
             "TOKEN_BUDGET_TRUNCATED",
             "BUDGET_EXCEEDED_INCOMPLETE",
+            "PROVIDER_SKIPPED_BUDGET",
+            "PROVIDER_STAGE_FAILED_STATIC_PRESERVED",
         }
         has_incomplete_warning = (
             diff_bundle.truncated

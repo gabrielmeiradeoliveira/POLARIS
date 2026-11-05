@@ -1,6 +1,6 @@
-"""Evaluation framework for DEICIDE analysis quality, precision, recall, latency, and tokens."""
+"""Evaluation framework for POLARIS analysis quality, precision, recall, latency, and tokens."""
 
-from deicide.evaluation.history import (
+from polaris.evaluation.history import (
     BenchmarkHistoryManifest,
     CorpusKind,
     FindingValidationRecord,
@@ -10,7 +10,7 @@ from deicide.evaluation.history import (
     load_manifests,
     write_trend_reports,
 )
-from deicide.evaluation.models import (
+from polaris.evaluation.models import (
     CaseDiagnostics,
     CaseEvaluationResult,
     EvaluationFixture,
@@ -21,7 +21,7 @@ from deicide.evaluation.models import (
     UnmatchedExpectedDiagnostic,
     UnmatchedFindingDiagnostic,
 )
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
+from polaris.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
 
 __all__ = [
     "CaseDiagnostics",

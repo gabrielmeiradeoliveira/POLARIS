@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.evaluation.models import EvaluationSummary
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.models import EvaluationSummary
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.providers.fake import FakeProvider
 
 
 def test_finding_intelligence_quality_evaluation_benchmark() -> None:

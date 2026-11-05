@@ -18,13 +18,13 @@ The evaluator manifest is the SHA-256 of UTF-8, newline-terminated lines
 `<relative path> <file SHA-256>` in this exact order:
 
 ```text
-src/deicide/providers/base.py babfb48d74a65175dca81d91bef899d8bc6a3ac0ae3c06096ec80d657732af92
-src/deicide/providers/nvidia.py 5c44c41c535784843456c8865da2538b9a911a964548963c5f177119ffd645ba
-src/deicide/core/models.py be6cdb8a2de53d6000ef7a4cc30538a88259742058f4dd555f1e3220f729d072
-src/deicide/core/config.py b4c08edc187d3493ea715e7972d620ebde943ad7e8cfeb7c644e785be56704c5
-src/deicide/evaluation/models.py 4240dba92c8c3e6f95c69ed5f99873dd585169cc6dc07e5c9f1f0d2e72393637
-src/deicide/evaluation/runner.py b92f2a733cc537d76a546d684f30de135f24ed6f36b1a3275846b051d98a7f4f
-src/deicide/cli.py b67c663c4ebfc2728be9b32d320d93ffbbe69f023d77da27032e636a0be60a9e
+src/polaris/providers/base.py babfb48d74a65175dca81d91bef899d8bc6a3ac0ae3c06096ec80d657732af92
+src/polaris/providers/nvidia.py 5c44c41c535784843456c8865da2538b9a911a964548963c5f177119ffd645ba
+src/polaris/core/models.py be6cdb8a2de53d6000ef7a4cc30538a88259742058f4dd555f1e3220f729d072
+src/polaris/core/config.py b4c08edc187d3493ea715e7972d620ebde943ad7e8cfeb7c644e785be56704c5
+src/polaris/evaluation/models.py 4240dba92c8c3e6f95c69ed5f99873dd585169cc6dc07e5c9f1f0d2e72393637
+src/polaris/evaluation/runner.py b92f2a733cc537d76a546d684f30de135f24ed6f36b1a3275846b051d98a7f4f
+src/polaris/cli.py b67c663c4ebfc2728be9b32d320d93ffbbe69f023d77da27032e636a0be60a9e
 ```
 
 ## Offline evidence

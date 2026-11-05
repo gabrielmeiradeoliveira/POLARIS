@@ -8,14 +8,18 @@ import urllib.request
 from typing import Any
 from unittest.mock import MagicMock
 
+import pytest
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.models import FindingCategory, LineRange, Severity
-from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
-from deicide.evaluation.runner import evaluate_corpus
-from deicide.providers.nvidia import NvidiaProvider
+from polaris.cli import app
+from polaris.core.errors import ProviderError
+from polaris.core.models import BudgetTracker, ExecutionBudget, FindingCategory, LineRange, Severity
+from polaris.evaluation.models import EvaluationFixture, ExpectedFindingSpec
+from polaris.evaluation.runner import evaluate_corpus
+from polaris.providers.base import ProviderRequest
+from polaris.providers.nvidia import NvidiaProvider
+from polaris.quota.store import UsageStore
 
 runner = CliRunner()
 
@@ -50,6 +54,23 @@ SAMPLE_FIXTURE = EvaluationFixture(
 
 def _make_fixture_list() -> list[EvaluationFixture]:
     return [SAMPLE_FIXTURE.model_copy(deep=True)]
+
+
+def _persisted_diagnostic(tmp_path: Any, transport: Any) -> dict[str, Any]:
+    store = UsageStore(tmp_path / "usage.sqlite3")
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-test-key"),
+        budget=ExecutionBudget(max_requests=1, max_total_tokens=1000),
+        usage_store=store,
+        quota_scope="diagnostics",
+        max_retries=0,
+        transport_fn=transport,
+    )
+    with pytest.raises(ProviderError):
+        provider.generate(ProviderRequest(system_prompt="system", user_prompt="public diff", max_output_tokens=64))
+    with store._connect() as conn:
+        row = conn.execute("SELECT * FROM attempt_diagnostics").fetchone()
+    return dict(row)
 
 
 def test_connection_timeout_diagnostics_and_zero_fn() -> None:
@@ -111,6 +132,116 @@ def test_read_timeout_diagnostics_and_zero_fn() -> None:
     res = summary.case_results[0]
     assert res.status == "failed"
     assert res.error_category == "timeout"
+
+
+def test_persists_timeout_diagnostic_before_cli_exit(tmp_path: Any) -> None:
+    def timeout_transport(_req: urllib.request.Request, _to: float) -> tuple[int, dict[str, str], str]:
+        raise TimeoutError("timed out")
+
+    diagnostic = _persisted_diagnostic(tmp_path, timeout_transport)
+    assert diagnostic["state"] == "uncertain"
+    assert diagnostic["error_category"] == "timeout"
+    assert diagnostic["configured_attempt_timeout_seconds"] == 60.0
+    assert diagnostic["response_hash"] is None
+    assert diagnostic["prompt_hash"] is not None
+
+
+def test_persists_connection_and_missing_response_diagnostics(tmp_path: Any) -> None:
+    def connection_transport(_req: urllib.request.Request, _to: float) -> tuple[int, dict[str, str], str]:
+        raise urllib.error.URLError("connection reset")
+
+    diagnostic = _persisted_diagnostic(tmp_path, connection_transport)
+    assert diagnostic["state"] == "uncertain"
+    assert diagnostic["error_category"] == "connection_error"
+    assert diagnostic["http_status"] is None
+    assert diagnostic["response_hash"] is None
+
+
+def test_bound_tracker_persists_transport_failure_without_provider_store(tmp_path: Any) -> None:
+    store = UsageStore(tmp_path / "usage.sqlite3")
+    budget = ExecutionBudget(max_requests=1, max_total_tokens=1000)
+
+    def timeout_transport(_req: urllib.request.Request, _to: float) -> tuple[int, dict[str, str], str]:
+        raise TimeoutError("timed out")
+
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-test-key"), budget=budget, max_retries=0, transport_fn=timeout_transport
+    )
+    provider.bind_tracker(
+        BudgetTracker(budget, usage_store=store, provider_name="nvidia", model_name=provider.model_name)
+    )
+    with pytest.raises(ProviderError):
+        provider.generate(ProviderRequest(system_prompt="system", user_prompt="public diff", max_output_tokens=64))
+    with store._connect() as conn:
+        row = conn.execute(
+            "SELECT u.status, d.error_category FROM usage_records u "
+            "JOIN attempt_diagnostics d ON d.reservation_id = u.reservation_id"
+        ).fetchone()
+    assert tuple(row) == ("uncertain", "timeout")
+
+
+def test_pre_send_payload_error_does_not_reserve_uncertain_usage(tmp_path: Any, monkeypatch: Any) -> None:
+    store = UsageStore(tmp_path / "usage.sqlite3")
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-test-key"),
+        budget=ExecutionBudget(max_requests=1, max_total_tokens=1000),
+        usage_store=store,
+        max_retries=0,
+    )
+
+    def payload_error(_request: ProviderRequest) -> bytes:
+        raise ValueError("payload construction failed")
+
+    monkeypatch.setattr(provider, "_build_payload", payload_error)
+    with pytest.raises(ValueError, match="payload construction failed"):
+        provider.generate(ProviderRequest(system_prompt="system", user_prompt="public diff", max_output_tokens=64))
+    with store._connect() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM usage_records").fetchone()[0]
+    assert count == 0
+
+
+def test_cli_exit_persists_timeout_diagnostic(temp_git_repo: Any, tmp_path: Any, monkeypatch: Any) -> None:
+    (temp_git_repo / "src" / "calc.py").write_text("def add(a, b):\n    return a - b\n", encoding="utf-8")
+    secret = "nvapi-cli-timeout-key"
+    monkeypatch.setenv("NVIDIA_API_KEY", secret)
+    monkeypatch.setenv("POLARIS_USAGE_DB_PATH", str(tmp_path / "cli_usage.sqlite3"))
+
+    def timeout_transport(_req: urllib.request.Request, _to: float) -> tuple[int, dict[str, str], str]:
+        raise TimeoutError("timed out")
+
+    real_provider_init = NvidiaProvider.__init__
+
+    def patched_init(self: Any, *args: Any, **kwargs: Any) -> None:
+        kwargs.update(transport_fn=timeout_transport, max_retries=0)
+        real_provider_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(NvidiaProvider, "__init__", patched_init)
+    result = runner.invoke(
+        app,
+        [
+            "review",
+            "--repo",
+            str(temp_git_repo),
+            "--base",
+            "HEAD",
+            "--provider",
+            "nvidia",
+            "--allow-external",
+            "--no-context",
+            "--max-requests",
+            "1",
+        ],
+    )
+
+    assert result.exit_code == 4
+    assert secret not in result.stdout
+    store = UsageStore(tmp_path / "cli_usage.sqlite3")
+    with store._connect() as conn:
+        diagnostic = conn.execute(
+            "SELECT u.status, d.state, d.error_category, d.response_hash FROM usage_records u "
+            "JOIN attempt_diagnostics d ON d.reservation_id = u.reservation_id"
+        ).fetchone()
+    assert tuple(diagnostic) == ("uncertain", "uncertain", "timeout", None)
 
 
 def test_http_429_rate_limit_diagnostics() -> None:
@@ -283,7 +414,7 @@ def test_cli_diagnostics_formatting_and_secret_redaction(tmp_path: Any, monkeypa
         )
 
     monkeypatch.setenv("NVIDIA_API_KEY", secret)
-    monkeypatch.setenv("DEICIDE_USAGE_DB_PATH", str(tmp_path / "test_usage.sqlite3"))
+    monkeypatch.setenv("POLARIS_USAGE_DB_PATH", str(tmp_path / "test_usage.sqlite3"))
 
     real_provider_init = NvidiaProvider.__init__
 
@@ -323,3 +454,7 @@ def test_cli_diagnostics_formatting_and_secret_redaction(tmp_path: Any, monkeypa
     assert "Retries          : 0" in output
     assert secret not in output
     assert "[REDACTED]" in output
+    store = UsageStore(tmp_path / "test_usage.sqlite3")
+    with store._connect() as conn:
+        diagnostic = conn.execute("SELECT state, error_category, http_status FROM attempt_diagnostics").fetchone()
+    assert tuple(diagnostic) == ("failed", "server_error", 503)

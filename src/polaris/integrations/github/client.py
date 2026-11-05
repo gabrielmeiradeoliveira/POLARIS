@@ -7,7 +7,7 @@ import re
 from collections.abc import Callable
 from typing import Any
 
-from deicide.integrations.github.models import (
+from polaris.integrations.github.models import (
     ChangedFile,
     GitHubErrorCategory,
     GitHubIntegrationError,
@@ -15,10 +15,11 @@ from deicide.integrations.github.models import (
     PullRequestMetadata,
     body_as_object,
 )
-from deicide.integrations.github.transport import GitHubTransport
+from polaris.integrations.github.transport import GitHubTransport
 
 _LINK_NEXT = re.compile(r'<(?P<url>[^>]+)>;\s*rel="next"')
 _SAFE_PART = re.compile(r"^[A-Za-z0-9_.-]+$")
+_VALID_CHANGED_FILE_STATUSES = frozenset({"added", "modified", "removed", "renamed", "copied", "changed", "unchanged"})
 
 
 class GitHubClient:
@@ -103,21 +104,57 @@ class GitHubClient:
     def _path(self, owner: str, repository: str, suffix: str) -> str:
         return f"/repos/{self._validate_part(owner, 'owner')}/{self._validate_part(repository, 'repository')}{suffix}"
 
-    def get_pull_request(self, owner: str, repository: str, number: int) -> PullRequestMetadata:
-        if number < 1:
-            raise ValueError("Pull request number must be positive.")
-        payload = body_as_object(self._request("GET", self._path(owner, repository, f"/pulls/{number}")).body)
+    def authenticated_user(self) -> dict[str, Any]:
+        payload = body_as_object(self._request("GET", "/user").body)
+        if not isinstance(payload.get("id"), int) or not isinstance(payload.get("login"), str):
+            raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "GitHub user response is invalid.")
+        return payload
+
+    def list_accessible_repositories(self) -> list[dict[str, Any]]:
+        entries = self._list_pages("/user/repos?affiliation=owner,collaborator,organization_member&per_page=100&page=1")
+        if not all(isinstance(entry, dict) for entry in entries):
+            raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "GitHub repository response is invalid.")
+        return entries
+
+    def branch_sha(self, owner: str, repository: str, branch: str) -> str:
+        payload = body_as_object(
+            self._request(
+                "GET", self._path(owner, repository, f"/commits/{self._validate_part(branch, 'branch')}")
+            ).body
+        )
+        sha = payload.get("sha")
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{40,64}", sha):
+            raise GitHubIntegrationError(GitHubErrorCategory.INVALID_RESPONSE, "GitHub commit response is invalid.")
+        return sha
+
+    @staticmethod
+    def _parse_pr_payload(owner: str, repository: str, payload: dict[str, Any]) -> PullRequestMetadata:
         head = payload.get("head")
         base = payload.get("base")
+        number = payload.get("number")
         if (
             not isinstance(head, dict)
             or not isinstance(base, dict)
             or not isinstance(head.get("sha"), str)
             or not isinstance(base.get("sha"), str)
+            or not isinstance(number, int)
         ):
             raise GitHubIntegrationError(
-                GitHubErrorCategory.INVALID_RESPONSE, "Pull request response lacks head/base SHA."
+                GitHubErrorCategory.INVALID_RESPONSE, "Pull request response lacks head/base SHA or number."
             )
+        user = payload.get("user") if isinstance(payload.get("user"), dict) else {}
+        head_repo = head.get("repo") if isinstance(head.get("repo"), dict) else None
+        base_repo = base.get("repo") if isinstance(base.get("repo"), dict) else None
+        is_fork = bool(
+            (head_repo and head_repo.get("fork"))
+            or (
+                head_repo
+                and base_repo
+                and head_repo.get("full_name")
+                and base_repo.get("full_name")
+                and head_repo.get("full_name") != base_repo.get("full_name")
+            )
+        )
         return PullRequestMetadata(
             owner=owner,
             repository=repository,
@@ -126,7 +163,33 @@ class GitHubClient:
             state=str(payload.get("state", "open")),
             head_sha=head["sha"],
             base_sha=base["sha"],
+            head_ref=str(head.get("ref", "")),
+            base_ref=str(base.get("ref", "")),
+            author_login=str(user.get("login", "")),
+            is_fork=is_fork,
+            merged=bool(payload.get("merged") or payload.get("merged_at")),
+            html_url=str(payload.get("html_url", "")),
         )
+
+    def get_pull_request(self, owner: str, repository: str, number: int) -> PullRequestMetadata:
+        if number < 1:
+            raise ValueError("Pull request number must be positive.")
+        payload = body_as_object(self._request("GET", self._path(owner, repository, f"/pulls/{number}")).body)
+        payload.setdefault("number", number)
+        return self._parse_pr_payload(owner, repository, payload)
+
+    def list_pull_requests(self, owner: str, repository: str, state: str = "open") -> list[PullRequestMetadata]:
+        safe_state = state if state in {"open", "closed", "all"} else "open"
+        path = self._path(owner, repository, f"/pulls?state={safe_state}&per_page=100&page=1")
+        entries = self._list_pages(path)
+        result: list[PullRequestMetadata] = []
+        for entry in entries:
+            if not isinstance(entry, dict):
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "Pull request list contains an invalid entry."
+                )
+            result.append(self._parse_pr_payload(owner, repository, entry))
+        return result
 
     def list_changed_files(self, pr: PullRequestMetadata) -> list[ChangedFile]:
         path = self._path(pr.owner, pr.repository, f"/pulls/{pr.number}/files?per_page=100&page=1")
@@ -140,6 +203,10 @@ class GitHubClient:
             ):
                 raise GitHubIntegrationError(
                     GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response contains an invalid entry."
+                )
+            if entry["status"] not in _VALID_CHANGED_FILE_STATUSES:
+                raise GitHubIntegrationError(
+                    GitHubErrorCategory.INVALID_RESPONSE, "Changed-file response contains an unsupported status."
                 )
             patch = entry.get("patch")
             previous = entry.get("previous_filename")

@@ -1,0 +1,473 @@
+{
+  "dataset_size": 8,
+  "positive_cases": 8,
+  "negative_cases": 0,
+  "successful_cases": 0,
+  "failed_cases": 8,
+  "api_failed_cases": 8,
+  "budget_exhausted_cases": 0,
+  "skipped_cases": 0,
+  "true_positives": 0,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "category_mismatch_detections": 0,
+  "undetected_expected_defects": 0,
+  "detection_precision": null,
+  "detection_recall": null,
+  "precision": null,
+  "recall": null,
+  "false_positive_rate": null,
+  "duplicates_reduced": 0,
+  "legitimate_rejected": 0,
+  "severity_mismatches": 0,
+  "evaluation_mode": "end_to_end",
+  "total_latency_ms": 3023,
+  "average_latency_ms": 377.88,
+  "usage": {
+    "prompt_tokens": 9781,
+    "completion_tokens": 0,
+    "total_tokens": 9781,
+    "is_estimated": true,
+    "estimated_cost_usd": null
+  },
+  "verified_cases": 0,
+  "documented_verified_cases": 8,
+  "reference_modeled_cases": 0,
+  "unverified_cases": 0,
+  "budget_exhausted": false,
+  "max_cases_applied": null,
+  "case_results": [
+    {
+      "case_id": "rw-requests-2023-proxy-authorization",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 389,
+      "usage": {
+        "prompt_tokens": 1511,
+        "completion_tokens": 0,
+        "total_tokens": 1511,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 383,
+            "prompt_hash": "08857ea30789d6dc440667c478a0d51fabca050eca983634c92f6ba656404a41",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 275,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-jsondecodeerror-pickle",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 372,
+      "usage": {
+        "prompt_tokens": 1188,
+        "completion_tokens": 0,
+        "total_tokens": 1188,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 366,
+            "prompt_hash": "8f12af15fee6c1732f485e40f8da01e369f83cc8c7c82376ad495993aee225f9",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 132,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-super-len-unicode",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 368,
+      "usage": {
+        "prompt_tokens": 1127,
+        "completion_tokens": 0,
+        "total_tokens": 1127,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 363,
+            "prompt_hash": "cf169596ff1deca515658751be297f7e338e5edb247abb3d5241be7179cc2915",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 110,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-cookie-cross-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 369,
+      "usage": {
+        "prompt_tokens": 1059,
+        "completion_tokens": 0,
+        "total_tokens": 1059,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 364,
+            "prompt_hash": "7a5904ebcd9c68a086d8d71468e57391950ac672287cd859eee8861e8bcf5bff",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 93,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-proxy-redirect-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 381,
+      "usage": {
+        "prompt_tokens": 1368,
+        "completion_tokens": 0,
+        "total_tokens": 1368,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 374,
+            "prompt_hash": "c43ab5ba24e496bcce3c33436b2826e6871232e3f6e29a28deff1b8648333381",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 164,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-port-zero",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 400,
+      "usage": {
+        "prompt_tokens": 1103,
+        "completion_tokens": 0,
+        "total_tokens": 1103,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 395,
+            "prompt_hash": "d5fb6e5cf714577eed1025f6de26666fb578484939a50cececcdf8d1125040e1",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 111,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-invalid-timeout-error",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 378,
+      "usage": {
+        "prompt_tokens": 1243,
+        "completion_tokens": 0,
+        "total_tokens": 1243,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 367,
+            "prompt_hash": "8affb3ec345658360ec349099117d0ebfee151d54e208dd743582b842ce59e4b",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 173,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-werkzeug-debugger-trusted-host",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 366,
+      "usage": {
+        "prompt_tokens": 1182,
+        "completion_tokens": 0,
+        "total_tokens": 1182,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API request failed with HTTP 401: {\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Invalid JWT serialization: Missing dot delimiter(s)\"}",
+      "error_category": "client_error",
+      "http_status": 401,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 361,
+            "prompt_hash": "90abc71341dfae56ab99e380abce312c2414c3da139f04ed9c579298a6735a55",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "client_error",
+            "http_status": 401,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 150,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    }
+  ]
+}

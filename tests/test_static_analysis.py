@@ -2,18 +2,18 @@
 
 from pathlib import Path
 
-from deicide.context.context_models import ContextCandidate, ContextRelationshipCategory, ProvenanceRecord
-from deicide.context.dependency_graph import EdgeResolutionStatus
-from deicide.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
-from deicide.context.static_analysis import DataFlowCertainty, PythonStaticAnalyzer, StaticAnalysisStatus
-from deicide.context.static_relevance import prioritize_static_relevance
-from deicide.core.config import DeicideConfig
-from deicide.core.models import BudgetTracker, ExecutionBudget
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.fake import FakeProvider
+from polaris.context.context_models import ContextCandidate, ContextRelationshipCategory, ProvenanceRecord
+from polaris.context.dependency_graph import EdgeResolutionStatus
+from polaris.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
+from polaris.context.static_analysis import DataFlowCertainty, PythonStaticAnalyzer, StaticAnalysisStatus
+from polaris.context.static_relevance import prioritize_static_relevance
+from polaris.core.config import PolarisConfig
+from polaris.core.models import BudgetTracker, ExecutionBudget
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.fake import FakeProvider
 
 
 def test_static_engine_extracts_structures_cfg_and_def_use_evidence() -> None:
@@ -180,8 +180,8 @@ def test_goal18_engine_improves_over_the_pre_data_flow_module_behavior() -> None
 
 
 def test_static_relevance_selection_is_opt_in_and_propagates_to_context_limits() -> None:
-    default = DeicideConfig.from_env_and_args(repo_path=Path("."), provider="fake", environ={})
-    enabled = DeicideConfig.from_env_and_args(
+    default = PolarisConfig.from_env_and_args(repo_path=Path("."), provider="fake", environ={})
+    enabled = PolarisConfig.from_env_and_args(
         repo_path=Path("."), provider="fake", static_relevance_selection_enabled=True, environ={}
     )
 

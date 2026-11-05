@@ -2,7 +2,7 @@
 
 ## Methodology and provenance
 
-This is an original, synthetic-but-realistic corpus inspired by common Python application layers. It is **not** represented as a collection of defects extracted from named third-party projects. Every case was authored independently of DEICIDE findings and is stored in `evaluations/fixtures/goal23_real_world/cases.json`.
+This is an original, synthetic-but-realistic corpus inspired by common Python application layers. It is **not** represented as a collection of defects extracted from named third-party projects. Every case was authored independently of POLARIS findings and is stored in `evaluations/fixtures/goal23_real_world/cases.json`.
 
 The corpus was prepared against reference commit `e78778f` on the active workspace. GOAL 22 was modifying the engine concurrently, so any runtime result below is a provisional diagnostic, not a stable baseline or a comparison with GOAL 22. The fixture corpus must not be changed in response to these results.
 
@@ -41,7 +41,7 @@ Command/configuration used for the provisional run:
 
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE='1'
-.\.venv\Scripts\python.exe -c "from tests.test_goal23_real_world import _cases, _fixture; from deicide.evaluation.runner import evaluate_corpus; from deicide.providers.fake import FakeProvider; evaluate_corpus([_fixture(c) for c in _cases()], provider=FakeProvider(), force_end_to_end=True, behavioral_delta_enabled=False)"
+.\.venv\Scripts\python.exe -c "from tests.test_goal23_real_world import _cases, _fixture; from polaris.evaluation.runner import evaluate_corpus; from polaris.providers.fake import FakeProvider; evaluate_corpus([_fixture(c) for c in _cases()], provider=FakeProvider(), force_end_to_end=True, behavioral_delta_enabled=False)"
 ```
 
 | Metric | Provisional FakeProvider pipeline result |

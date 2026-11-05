@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "project": "encode/httpx",
+  "pull_request": 2156,
+  "source_url": "https://github.com/encode/httpx/pull/2156",
+  "base_sha": "67c297069f3d6b034069882428e4c1dd303d693c",
+  "head_sha": "3350d7e6831e2d942f68653b2f58cfa5ecb0bacd",
+  "checkout": "C:/Users/gabri/AppData/Local/polaris/goal35-httpx",
+  "oracle": {
+    "direction": "clean_bug_fix",
+    "base_defect": "Cancellation-derived BaseException was not covered, leaving a response stream unclosed.",
+    "upstream_evidence": "PR description states the failing cancellation test and the fix changes handling to BaseException; the merged PR includes the test.",
+    "expected_review_findings": 0,
+    "scoring": "Corrective diff: TP=0, FP=0, FN=0, TN=1; this is not a defect-introduction recall measurement."
+  },
+  "cli": {
+    "command_mode": "review --provider fake --format json --context --no-allow-external",
+    "provider": "fake",
+    "nvidia_used": false,
+    "upstream_code_executed": false,
+    "exit_code": 0,
+    "wall_duration_ms": 583,
+    "cli_duration_ms": 219,
+    "files_analyzed": ["httpx/_client.py", "tests/client/test_async_client.py"],
+    "findings": [],
+    "errors": [],
+    "warnings": [],
+    "context": {"indexed_files": 12, "selected_snippets": 4, "related_files": 1, "estimated_tokens": 1910, "omitted_candidates": 32, "fallback": false},
+    "usage": {"prompt_tokens": 8708, "completion_tokens": 4, "total_tokens": 8712, "estimated": true}
+  },
+  "result": {"status": "PASS", "tp": 0, "fp": 0, "fn": 0, "tn": 1}
+}

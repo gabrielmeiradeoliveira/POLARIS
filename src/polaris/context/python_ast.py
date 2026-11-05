@@ -6,7 +6,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from deicide.context.models import (
+from polaris.context.models import (
     CallReference,
     FileAnalysis,
     FileAnalysisStatus,
@@ -16,8 +16,8 @@ from deicide.context.models import (
     Symbol,
     SymbolKind,
 )
-from deicide.core.errors import SecurityViolationError
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.core.errors import SecurityViolationError
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
 
 
 @dataclass(frozen=True)

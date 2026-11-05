@@ -6,15 +6,15 @@ from pathlib import Path
 
 import pytest
 
-from deicide.core.errors import InvalidRevisionError, RepositoryError, SecurityViolationError
-from deicide.core.models import ExecutionBudget, LineRange
-from deicide.git.analyzer import (
+from polaris.core.errors import InvalidRevisionError, RepositoryError, SecurityViolationError
+from polaris.core.models import ExecutionBudget, LineRange
+from polaris.git.analyzer import (
     GitAnalyzer,
     ensure_safe_repo_file,
     normalize_repo_relative_path,
     parse_unified_diff,
 )
-from deicide.git.models import FileChangeStatus
+from polaris.git.models import FileChangeStatus
 from tests.conftest import run_git_cmd
 
 

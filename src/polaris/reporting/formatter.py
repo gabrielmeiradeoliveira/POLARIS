@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from deicide.core.models import AnalysisReport, Finding
-from deicide.quota.store import QuotaSnapshot
+from polaris.core.models import AnalysisReport, Finding
+from polaris.quota.store import QuotaSnapshot
 
 
 def _format_line_span(finding: Finding) -> str:
@@ -18,7 +18,7 @@ def format_terminal_report(report: AnalysisReport) -> str:
     """Format an AnalysisReport for human-readable terminal display."""
     lines: list[str] = []
     lines.append("=" * 72)
-    lines.append(f"DEICIDE Code Review Report ({report.status.upper()})")
+    lines.append(f"POLARIS Code Review Report ({report.status.upper()})")
     lines.append("=" * 72)
     if report.status == "incomplete":
         lines.append("NOTICE     : Analysis is INCOMPLETE due to context or execution budget limits.")
@@ -96,7 +96,7 @@ def format_json_report(report: AnalysisReport) -> str:
 
 
 def format_usage_terminal(snapshot: QuotaSnapshot) -> str:
-    """Format a QuotaSnapshot for human-readable terminal display (`deicide usage`)."""
+    """Format a QuotaSnapshot for human-readable terminal display (`polaris usage`)."""
     rpd_str = str(snapshot.configured_rpd_limit) if snapshot.configured_rpd_limit is not None else "unlimited"
     rem_rpd_str = (
         f"{snapshot.estimated_remaining_daily_requests} (locally estimated)"
@@ -108,7 +108,7 @@ def format_usage_terminal(snapshot: QuotaSnapshot) -> str:
 
     lines: list[str] = [
         "=" * 72,
-        "DEICIDE Persistent API Usage & Quota Report",
+        "POLARIS Persistent API Usage & Quota Report",
         "=" * 72,
         f"Provider & Model              : {snapshot.provider} ({snapshot.model})",
         f"Quota Scope                   : {snapshot.quota_scope}",

@@ -4,17 +4,19 @@ from __future__ import annotations
 
 import json
 import urllib.error
+from pathlib import Path
 
 import pytest
 from pydantic import SecretStr
 
-import deicide.providers.nvidia as nvidia_module
-from deicide.core.errors import BudgetExceededError, ProviderError
-from deicide.core.models import BudgetTracker, ExecutionBudget, FindingCategory, LineRange, Severity
-from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus
-from deicide.providers.base import ProviderRequest
-from deicide.providers.nvidia import NvidiaProvider
+import polaris.providers.nvidia as nvidia_module
+from polaris.core.errors import BudgetExceededError, ProviderError
+from polaris.core.models import BudgetTracker, ExecutionBudget, FindingCategory, LineRange, Severity, TokenUsage
+from polaris.evaluation.models import EvaluationFixture, ExpectedFindingSpec
+from polaris.evaluation.runner import evaluate_case, evaluate_corpus
+from polaris.providers.base import ProviderRequest
+from polaris.providers.nvidia import NvidiaProvider
+from polaris.quota.store import RequestStatus, UsageStore
 
 
 def _request() -> ProviderRequest:
@@ -44,6 +46,51 @@ def _fixture() -> EvaluationFixture:
         ),
         file_contents={"sample.py": "value = 1\n"},
     )
+
+
+def test_separate_input_output_caps_are_reserved_before_transport() -> None:
+    tracker = BudgetTracker(
+        ExecutionBudget(
+            max_requests=2,
+            max_total_tokens=1_000,
+            max_input_tokens=100,
+            max_output_tokens=80,
+            max_input_tokens_per_request=60,
+            max_output_tokens_per_request=40,
+        )
+    )
+    with pytest.raises(BudgetExceededError, match="Input token limit"):
+        tracker.reserve_attempt(61, reserved_output_tokens=1)
+    with pytest.raises(BudgetExceededError, match="Output token limit"):
+        tracker.reserve_attempt(1, reserved_output_tokens=41)
+    reservation = tracker.reserve_attempt(50, reserved_output_tokens=40)
+    with pytest.raises(BudgetExceededError, match="Input token budget"):
+        tracker.reserve_attempt(51, reserved_output_tokens=1)
+    tracker.complete_attempt(reservation, TokenUsage(prompt_tokens=50, completion_tokens=40, total_tokens=90))
+
+
+def test_missing_usage_failure_consumes_input_cap_and_blocks_retry() -> None:
+    tracker = BudgetTracker(
+        ExecutionBudget(max_requests=2, max_total_tokens=500, max_input_tokens=50, max_output_tokens=100)
+    )
+    reservation = tracker.reserve_attempt(50, reserved_output_tokens=10)
+    tracker.fail_attempt(reservation, status=RequestStatus.UNCERTAIN, estimated_prompt_tokens=50)
+    with pytest.raises(BudgetExceededError, match="Input token budget"):
+        tracker.reserve_attempt(1, reserved_output_tokens=1)
+
+
+def test_uncertain_attempt_keeps_full_persistent_reservation(tmp_path: Path) -> None:
+    store = UsageStore(db_path=tmp_path / "usage.sqlite3")
+    budget = ExecutionBudget(max_requests=2, max_total_tokens=100, max_input_tokens=50, max_output_tokens=40)
+    tracker = BudgetTracker(budget, usage_store=store, provider_name="nvidia", model_name="test", quota_scope="scope")
+
+    reservation = tracker.reserve_attempt(20, reserved_output_tokens=40)
+    tracker.fail_attempt(reservation, status=RequestStatus.UNCERTAIN, estimated_prompt_tokens=20)
+
+    snapshot = store.get_snapshot(provider="nvidia", model="test", quota_scope="scope")
+    assert (snapshot.uncertain_today, snapshot.input_tokens_today, snapshot.output_tokens_today) == (1, 20, 40)
+    with pytest.raises(BudgetExceededError, match="Output token budget"):
+        tracker.reserve_attempt(1, reserved_output_tokens=1)
 
 
 def test_attempt_deadline_is_passed_to_transport_and_success_telemetry_is_complete() -> None:
@@ -220,7 +267,7 @@ def test_timeout_and_connection_error_are_distinct_and_budgeted_attempts_are_vis
 
 def test_case_deadline_after_provider_response_is_explicit_operational_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     ticks = iter((0.0, 0.0, 2.0))
-    monkeypatch.setattr("deicide.evaluation.runner.time.monotonic", lambda: next(ticks))
+    monkeypatch.setattr("polaris.evaluation.runner.time.monotonic", lambda: next(ticks))
     provider = NvidiaProvider(
         api_key=SecretStr("nvapi-testing-key"),
         transport_fn=lambda *_: (200, {}, _response()),
@@ -412,23 +459,72 @@ def test_reported_usage_over_reservation_is_accounted_and_stops_budget() -> None
         tracker.available_output_tokens(estimated_prompt_tokens=1, requested_output_tokens=64)
 
 
-def test_missing_usage_uses_estimate_with_reserved_nvidia_cap_and_fake_provider_stays_compatible() -> None:
+def test_missing_usage_keeps_pre_send_reservation_and_uses_estimate(tmp_path: Path) -> None:
     payloads: list[dict[str, object]] = []
+    store = UsageStore(db_path=tmp_path / "usage.sqlite3")
+    observed_reservations: list[tuple[int, int, int, int]] = []
 
     def transport(req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
         payloads.append(json.loads(req.data.decode("utf-8")))  # type: ignore[attr-defined]
+        snapshot = store.get_snapshot(provider="nvidia", model="test", quota_scope="missing-usage")
+        observed_reservations.append(
+            (snapshot.active_reservations_today, snapshot.input_tokens_today, snapshot.output_tokens_today, snapshot.total_tokens_today)
+        )
         return 200, {}, json.dumps({"choices": [{"message": {"content": '{"findings": []}'}}]})
 
     budget = ExecutionBudget(max_total_tokens=1_000, max_requests=1)
-    provider = NvidiaProvider(api_key=SecretStr("nvapi-testing-key"), budget=budget, transport_fn=transport)
-    tracker = BudgetTracker(budget, provider_name="nvidia", model_name=provider.model_name)
+    provider = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        model_name="test",
+        budget=budget,
+        usage_store=store,
+        quota_scope="missing-usage",
+        transport_fn=transport,
+    )
+    tracker = BudgetTracker(budget, usage_store=store, provider_name="nvidia", model_name=provider.model_name, quota_scope="missing-usage")
     provider.bind_tracker(tracker)
     response = provider.generate(_request())
     provider.bind_tracker(None)
 
     assert payloads[0]["max_tokens"] == 741
+    assert observed_reservations == [(1, 259, 741, 1_000)]
     assert response.usage.is_estimated is True
     assert response.usage.total_tokens <= budget.max_total_tokens
+
+
+def test_individual_caps_block_before_transport() -> None:
+    calls: list[int] = []
+
+    def transport(_req: object, _timeout: float) -> tuple[int, dict[str, str], str]:
+        calls.append(1)
+        return 200, {}, _response()
+
+    input_limited = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        budget=ExecutionBudget(max_total_tokens=1_000, max_input_tokens_per_request=2),
+        transport_fn=transport,
+    )
+    with pytest.raises(BudgetExceededError, match="Input token limit"):
+        input_limited.generate(_request())
+
+    output_limited = NvidiaProvider(
+        api_key=SecretStr("nvapi-testing-key"),
+        budget=ExecutionBudget(max_total_tokens=1_000, max_output_tokens=63),
+        transport_fn=transport,
+    )
+    with pytest.raises(BudgetExceededError, match="Output token budget"):
+        output_limited.generate(_request())
+
+    request_budget = ExecutionBudget(max_total_tokens=1_000, max_requests=1)
+    request_limited = NvidiaProvider(api_key=SecretStr("nvapi-testing-key"), budget=request_budget, transport_fn=transport)
+    tracker = BudgetTracker(request_budget, provider_name="nvidia", model_name=request_limited.model_name)
+    request_limited.bind_tracker(tracker)
+    request_limited.generate(_request())
+    with pytest.raises(BudgetExceededError, match="request budget"):
+        request_limited.generate(_request())
+    request_limited.bind_tracker(None)
+
+    assert len(calls) == 1
 
 
 def test_local_transport_baseline_and_reliability_controls_preserve_outcomes() -> None:

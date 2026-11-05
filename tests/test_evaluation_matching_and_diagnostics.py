@@ -7,9 +7,9 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.errors import ExitCode
-from deicide.core.models import (
+from polaris.cli import app
+from polaris.core.errors import ExitCode
+from polaris.core.models import (
     CandidateFinding,
     Confidence,
     Finding,
@@ -17,13 +17,13 @@ from deicide.core.models import (
     LineRange,
     Severity,
 )
-from deicide.evaluation.models import (
+from polaris.evaluation.models import (
     EvaluationFixture,
     EvaluationSummary,
     ExpectedFindingSpec,
 )
-from deicide.evaluation.runner import _wilson_interval, evaluate_case, evaluate_corpus, load_fixtures_from_file
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.runner import _wilson_interval, evaluate_case, evaluate_corpus, load_fixtures_from_file
+from polaris.providers.fake import FakeProvider
 
 runner = CliRunner()
 
@@ -55,7 +55,7 @@ def _build_test_fixture(
         file_contents=MATH_CONTENTS,
         expected_findings=expected_findings or [],
         candidate_findings=candidate_findings or [],
-        repository="deicide/test",
+        repository="polaris/test",
         commit_id="1234567",
         is_clean=is_clean,
         fix_reference="test-fix",

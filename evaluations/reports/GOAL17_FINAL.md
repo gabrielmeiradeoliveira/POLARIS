@@ -15,8 +15,8 @@ NVIDIA quality.
 - append-only A/B/C manifests and trend reports;
 - offline tests for budget accounting and uncertainty gating.
 
-Modified source/test files: `src/deicide/evaluation/models.py`,
-`src/deicide/evaluation/runner.py`, `src/deicide/evaluation/history.py`,
+Modified source/test files: `src/polaris/evaluation/models.py`,
+`src/polaris/evaluation/runner.py`, `src/polaris/evaluation/history.py`,
 `tests/test_review_accuracy_baseline.py`, and
 `tests/test_evaluation_matching_and_diagnostics.py`.
 

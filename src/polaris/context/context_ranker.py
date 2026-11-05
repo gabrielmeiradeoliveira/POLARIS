@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from deicide.context.context_models import (
+from polaris.context.context_models import (
     ContextCandidate,
     ContextRelationshipCategory,
     ContextSelectionLimits,
     ProvenanceRecord,
 )
-from deicide.context.dependency_graph import DependencyGraph, EdgeResolutionStatus
-from deicide.context.models import ChangedSymbol
-from deicide.context.project_index import ProjectIndex
-from deicide.core.models import estimate_token_count
+from polaris.context.dependency_graph import DependencyGraph, EdgeResolutionStatus
+from polaris.context.models import ChangedSymbol
+from polaris.context.project_index import ProjectIndex
+from polaris.core.models import estimate_token_count
 
 
 def _approximate_tokens_for_span(end_line: int, start_line: int) -> int:

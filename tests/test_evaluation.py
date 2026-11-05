@@ -1,11 +1,11 @@
-"""Tests for the DEICIDE evaluation framework and curated fixture corpus."""
+"""Tests for the POLARIS evaluation framework and curated fixture corpus."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.providers.fake import FakeProvider
 
 
 def test_curated_evaluation_corpus_metrics() -> None:
@@ -33,14 +33,14 @@ def test_curated_evaluation_corpus_metrics() -> None:
 def test_evaluation_cli_and_provider_validation() -> None:
     from typer.testing import CliRunner
 
-    from deicide.cli import app
-    from deicide.core.errors import ExitCode
+    from polaris.cli import app
+    from polaris.core.errors import ExitCode
 
     runner = CliRunner()
     # Evaluating with fake succeeds
     res_fake = runner.invoke(app, ["evaluate", "--provider", "fake"])
     assert res_fake.exit_code == int(ExitCode.SUCCESS)
-    assert "DEICIDE Evaluation Summary" in res_fake.stdout
+    assert "POLARIS Evaluation Summary" in res_fake.stdout
 
     # Evaluating with baseline flag succeeds
     res_base = runner.invoke(app, ["evaluate", "--provider", "fake", "--baseline"])

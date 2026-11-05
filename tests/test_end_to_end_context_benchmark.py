@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.evaluation.models import ChangeType, ContextRequirement, NegativeChangeType
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.models import ChangeType, ContextRequirement, NegativeChangeType
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.providers.fake import FakeProvider
 
 BENCHMARK_PATH = Path("evaluations/fixtures/end_to_end_context_benchmark.json")
 

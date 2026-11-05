@@ -9,11 +9,11 @@ from pathlib import Path
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.models import FindingCategory, LineRange, Severity
-from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
-from deicide.evaluation.runner import evaluate_corpus
-from deicide.providers.nvidia import NvidiaProvider
+from polaris.cli import app
+from polaris.core.models import FindingCategory, LineRange, Severity
+from polaris.evaluation.models import EvaluationFixture, ExpectedFindingSpec
+from polaris.evaluation.runner import evaluate_corpus
+from polaris.providers.nvidia import NvidiaProvider
 
 
 def _fixture() -> EvaluationFixture:

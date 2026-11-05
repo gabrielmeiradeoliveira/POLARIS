@@ -1,0 +1,41 @@
+{
+  "run_arm": "hybrid_opt_in",
+  "corpus_path": "evaluations/fixtures/real_world_verified_benchmark.json",
+  "corpus_sha256": "17019e5f994b1bfc4ba4afe62992cf69bd829f509db3e075cf68ba9615759096",
+  "case_ids": [
+    "rw-requests-2023-proxy-authorization",
+    "rw-requests-jsondecodeerror-pickle",
+    "rw-requests-super-len-unicode",
+    "rw-urllib3-cookie-cross-origin",
+    "rw-urllib3-proxy-redirect-origin",
+    "rw-urllib3-port-zero",
+    "rw-urllib3-invalid-timeout-error",
+    "rw-werkzeug-debugger-trusted-host"
+  ],
+  "provider": "nvidia",
+  "model": "minimaxai/minimax-m3.1-flash",
+  "end_to_end": true,
+  "production_parity": true,
+  "behavioral_delta_enabled": false,
+  "hybrid_static_selection_enabled": true,
+  "strict_severity": false,
+  "context_tokens": 2000,
+  "budget": {
+    "max_files": 30,
+    "max_file_bytes": 256000,
+    "max_context_lines_per_hunk": 20,
+    "max_total_context_bytes": 200000,
+    "max_diff_bytes": 300000,
+    "max_requests": 16,
+    "max_total_tokens": 100000,
+    "request_timeout_seconds": 40.0,
+    "max_elapsed_seconds": 720.0,
+    "max_retries": 1,
+    "quota_enabled": true,
+    "rate_limit_rpm": null,
+    "rate_limit_tpm": null,
+    "rate_limit_rpd": null,
+    "reservation_ttl_seconds": 120.0
+  },
+  "artifact_policy": "sanitized errors; hash-only observability; no prompts, raw responses, credentials, headers, or provider error bodies"
+}

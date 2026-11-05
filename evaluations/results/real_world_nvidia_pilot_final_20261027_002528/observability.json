@@ -1,0 +1,618 @@
+{
+  "dataset_size": 8,
+  "positive_cases": 8,
+  "negative_cases": 0,
+  "successful_cases": 2,
+  "failed_cases": 6,
+  "api_failed_cases": 6,
+  "budget_exhausted_cases": 0,
+  "skipped_cases": 0,
+  "true_positives": 0,
+  "false_positives": 0,
+  "false_negatives": 2,
+  "category_mismatch_detections": 0,
+  "undetected_expected_defects": 2,
+  "detection_precision": null,
+  "detection_recall": 0.0,
+  "precision": null,
+  "recall": 0.0,
+  "false_positive_rate": null,
+  "duplicates_reduced": 0,
+  "legitimate_rejected": 1,
+  "severity_mismatches": 0,
+  "evaluation_mode": "end_to_end",
+  "total_latency_ms": 531554,
+  "average_latency_ms": 265777.0,
+  "usage": {
+    "prompt_tokens": 17361,
+    "completion_tokens": 1176,
+    "total_tokens": 18537,
+    "is_estimated": true,
+    "estimated_cost_usd": null
+  },
+  "verified_cases": 0,
+  "documented_verified_cases": 8,
+  "reference_modeled_cases": 0,
+  "unverified_cases": 0,
+  "budget_exhausted": false,
+  "max_cases_applied": null,
+  "case_results": [
+    {
+      "case_id": "rw-requests-2023-proxy-authorization",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81505,
+      "usage": {
+        "prompt_tokens": 3022,
+        "completion_tokens": 0,
+        "total_tokens": 3022,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41259,
+            "prompt_hash": "08857ea30789d6dc440667c478a0d51fabca050eca983634c92f6ba656404a41",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40237,
+            "prompt_hash": "08857ea30789d6dc440667c478a0d51fabca050eca983634c92f6ba656404a41",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 275,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-jsondecodeerror-pickle",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81527,
+      "usage": {
+        "prompt_tokens": 2376,
+        "completion_tokens": 0,
+        "total_tokens": 2376,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41260,
+            "prompt_hash": "8f12af15fee6c1732f485e40f8da01e369f83cc8c7c82376ad495993aee225f9",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40257,
+            "prompt_hash": "8f12af15fee6c1732f485e40f8da01e369f83cc8c7c82376ad495993aee225f9",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 132,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-super-len-unicode",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81516,
+      "usage": {
+        "prompt_tokens": 2254,
+        "completion_tokens": 0,
+        "total_tokens": 2254,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41256,
+            "prompt_hash": "cf169596ff1deca515658751be297f7e338e5edb247abb3d5241be7179cc2915",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40249,
+            "prompt_hash": "cf169596ff1deca515658751be297f7e338e5edb247abb3d5241be7179cc2915",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 110,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-cookie-cross-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81531,
+      "usage": {
+        "prompt_tokens": 2118,
+        "completion_tokens": 0,
+        "total_tokens": 2118,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41275,
+            "prompt_hash": "7a5904ebcd9c68a086d8d71468e57391950ac672287cd859eee8861e8bcf5bff",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40244,
+            "prompt_hash": "7a5904ebcd9c68a086d8d71468e57391950ac672287cd859eee8861e8bcf5bff",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 93,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-proxy-redirect-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81517,
+      "usage": {
+        "prompt_tokens": 2736,
+        "completion_tokens": 0,
+        "total_tokens": 2736,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41260,
+            "prompt_hash": "c43ab5ba24e496bcce3c33436b2826e6871232e3f6e29a28deff1b8648333381",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40246,
+            "prompt_hash": "c43ab5ba24e496bcce3c33436b2826e6871232e3f6e29a28deff1b8648333381",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 164,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-port-zero",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 1,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 1,
+      "severity_mismatches": 0,
+      "latency_ms": 35275,
+      "usage": {
+        "prompt_tokens": 1201,
+        "completion_tokens": 1053,
+        "total_tokens": 2254,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "boundary_condition",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "src/urllib3/util/url.py",
+            "start_line": 6,
+            "end_line": 6,
+            "title": "Explicit port 0 is omitted from the netloc",
+            "description": "The change from checking `self.port is not None` to checking truthiness causes an explicitly specified port of `0` to be treated as if no port were provided. Port 0 is a valid explicit port value, so `netloc` incorrectly returns only the host instead of `host:0`, changing the URL authority and potentially causing requests to target the default port rather than port 0.",
+            "evidence": "if self.port:",
+            "suggested_remediation": "Restore the explicit-None check: `if self.port is not None:`."
+          }
+        ],
+        "validated_findings": [],
+        "rejected_candidates": [
+          {
+            "file_path": "src/urllib3/util/url.py",
+            "line_range": {
+              "start_line": 6,
+              "end_line": 6
+            },
+            "category": "boundary_condition",
+            "severity": "medium",
+            "title": "Explicit port 0 is omitted from the netloc",
+            "reason": "Rejected finding on 'src/urllib3/util/url.py:6-6' because location does not correspond to changed lines.",
+            "rejection_code": "FINDING_REJECTED_UNMAPPED_LINE"
+          }
+        ],
+        "matched_findings": [],
+        "category_mismatches": [],
+        "unmatched_findings": [],
+        "unmatched_expected": [
+          {
+            "file_path": "src/urllib3/util/url.py",
+            "line_range": {
+              "start_line": 5,
+              "end_line": 6
+            },
+            "category": "boundary_condition",
+            "allowed_categories": [
+              "boundary_condition",
+              "correctness"
+            ],
+            "severity": "medium",
+            "reason": "Candidate finding 'Explicit port 0 is omitted from the netloc' matched expected location and category, but was rejected during validation: Rejected finding on 'src/urllib3/util/url.py:6-6' because location does not correspond to changed lines."
+          }
+        ]
+      },
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 35262,
+            "prompt_hash": "d5fb6e5cf714577eed1025f6de26666fb578484939a50cececcdf8d1125040e1",
+            "response_hash": "8cd5456f2f9ff4a621ec709d662b165650bde8ba22237b483431756f36a022db",
+            "retry_reason": null,
+            "error_category": null,
+            "http_status": null,
+            "usage": {
+              "prompt_tokens": 1201,
+              "completion_tokens": 1053,
+              "total_tokens": 2254,
+              "is_estimated": false,
+              "estimated_cost_usd": null
+            }
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 111,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-invalid-timeout-error",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 1,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 7204,
+      "usage": {
+        "prompt_tokens": 1290,
+        "completion_tokens": 123,
+        "total_tokens": 1413,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [],
+        "validated_findings": [],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "category_mismatches": [],
+        "unmatched_findings": [],
+        "unmatched_expected": [
+          {
+            "file_path": "src/urllib3/connectionpool.py",
+            "line_range": {
+              "start_line": 3,
+              "end_line": 5
+            },
+            "category": "error_handling",
+            "allowed_categories": [
+              "correctness",
+              "error_handling",
+              "resource_management"
+            ],
+            "severity": "medium",
+            "reason": "No candidate findings generated by provider/module for this case."
+          }
+        ]
+      },
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 7194,
+            "prompt_hash": "8affb3ec345658360ec349099117d0ebfee151d54e208dd743582b842ce59e4b",
+            "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+            "retry_reason": null,
+            "error_category": null,
+            "http_status": null,
+            "usage": {
+              "prompt_tokens": 1290,
+              "completion_tokens": 123,
+              "total_tokens": 1413,
+              "is_estimated": false,
+              "estimated_cost_usd": null
+            }
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 173,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-werkzeug-debugger-trusted-host",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81479,
+      "usage": {
+        "prompt_tokens": 2364,
+        "completion_tokens": 0,
+        "total_tokens": 2364,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41232,
+            "prompt_hash": "90abc71341dfae56ab99e380abce312c2414c3da139f04ed9c579298a6735a55",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40239,
+            "prompt_hash": "90abc71341dfae56ab99e380abce312c2414c3da139f04ed9c579298a6735a55",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 150,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    }
+  ]
+}

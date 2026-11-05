@@ -3,7 +3,7 @@
   "run_id": "goal17-offline-b-20261101",
   "timestamp_utc": "2026-11-01T16:18:49.249881Z",
   "git_commit": "637c60abbe94db52e65e0649ea7eb270eaa84a45",
-  "deicide_version": "0.1.0",
+  "polaris_version": "0.1.0",
   "provider": "fake",
   "model": "fake-deterministic-v1",
   "configuration": "B",

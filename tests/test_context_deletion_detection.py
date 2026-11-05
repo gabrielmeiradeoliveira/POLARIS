@@ -1,14 +1,14 @@
-"""Tests for deletion-only diff detection in the DEICIDE Context Engine."""
+"""Tests for deletion-only diff detection in the POLARIS Context Engine."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.context.changed_symbols import identify_changed_symbols
-from deicide.context.models import FileAnalysisStatus, OverlapClassification
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import FileChangeStatus
+from polaris.context.changed_symbols import identify_changed_symbols
+from polaris.context.models import FileAnalysisStatus, OverlapClassification
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import FileChangeStatus
 
 
 def test_deletion_only_symbol_detection() -> None:
@@ -53,21 +53,21 @@ def test_deletion_only_cross_file_pipeline_integration(tmp_path: Path) -> None:
     5. Supplementary context includes snippet from reports.py.
     6. CodeReviewModule runs with FakeProvider and validates findings.
     """
-    from deicide.context.pipeline import prepare_review_context
-    from deicide.core.config import DeicideConfig
-    from deicide.core.models import ExecutionBudget
-    from deicide.core.orchestrator import AnalysisOrchestrator
-    from deicide.core.registry import ModuleRegistry
-    from deicide.git.analyzer import GitAnalyzer
-    from deicide.modules.code_review import CodeReviewModule
-    from deicide.providers.fake import FakeProvider
+    from polaris.context.pipeline import prepare_review_context
+    from polaris.core.config import PolarisConfig
+    from polaris.core.models import ExecutionBudget
+    from polaris.core.orchestrator import AnalysisOrchestrator
+    from polaris.core.registry import ModuleRegistry
+    from polaris.git.analyzer import GitAnalyzer
+    from polaris.modules.code_review import CodeReviewModule
+    from polaris.providers.fake import FakeProvider
     from tests.conftest import run_git_cmd
 
     repo = tmp_path / "repo_deletion_pipeline"
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
-    run_git_cmd(repo, "config", "user.name", "Deicide Tester")
-    run_git_cmd(repo, "config", "user.email", "tester@deicide.local")
+    run_git_cmd(repo, "config", "user.name", "Polaris Tester")
+    run_git_cmd(repo, "config", "user.email", "tester@polaris.local")
 
     calc_file = repo / "calculator.py"
     calc_file.write_text(
@@ -119,7 +119,7 @@ def test_deletion_only_cross_file_pipeline_integration(tmp_path: Path) -> None:
     assert found_caller_snippet, "Expected reports.py caller snippet in selected context"
 
     # Now verify end-to-end code review orchestration
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=True,

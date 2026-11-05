@@ -50,9 +50,9 @@ An offline replay through `FindingIntelligenceEngine.process_candidates` before 
 
 ## Finding path and rejection cause
 
-`evaluate_case` parses `fixture.diff_text` using `parse_unified_diff`, builds full numbered fixture contexts, and passes candidates to `FindingIntelligenceEngine.process_candidates`. Its evidence-validation stage calls `validate_and_assess_candidates` in `src/deicide/intelligence/evidence_validator.py`.
+`evaluate_case` parses `fixture.diff_text` using `parse_unified_diff`, builds full numbered fixture contexts, and passes candidates to `FindingIntelligenceEngine.process_candidates`. Its evidence-validation stage calls `validate_and_assess_candidates` in `src/polaris/intelligence/evidence_validator.py`.
 
-That function constructs `LineRange(6, 6)` and invokes `FileDiff.has_changed_overlap` in `src/deicide/git/models.py`. Before the correction, the parsed added-line set was `{1}`. The declared hunk range was 1–3 and its two-line adjacency allowance does not reach line 6. Rejection was therefore mechanically consistent with the malformed parsed diff, but not with the materialized source or the candidate's evidence.
+That function constructs `LineRange(6, 6)` and invokes `FileDiff.has_changed_overlap` in `src/polaris/git/models.py`. Before the correction, the parsed added-line set was `{1}`. The declared hunk range was 1–3 and its two-line adjacency allowance does not reach line 6. Rejection was therefore mechanically consistent with the malformed parsed diff, but not with the materialized source or the candidate's evidence.
 
 ## Minimal correction
 

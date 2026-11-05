@@ -7,9 +7,9 @@ import re
 from collections.abc import Callable
 from typing import Any
 
-from deicide.core.config import DEFAULT_FAKE_MODEL
-from deicide.core.models import TokenUsage
-from deicide.providers.base import (
+from polaris.core.config import DEFAULT_FAKE_MODEL
+from polaris.core.models import TokenUsage
+from polaris.providers.base import (
     ProviderRequest,
     ProviderResponse,
     estimate_token_count,

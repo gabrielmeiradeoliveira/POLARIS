@@ -1,4 +1,4 @@
-"""Runner for evaluating DEICIDE analysis modules against curated ground-truth fixtures."""
+"""Runner for evaluating POLARIS analysis modules against curated ground-truth fixtures."""
 
 from __future__ import annotations
 
@@ -9,16 +9,16 @@ import tempfile
 import time
 from pathlib import Path
 
-from deicide.context.behavioral_delta import analyze_behavioral_deltas
-from deicide.context.context_models import (
+from polaris.context.behavioral_delta import analyze_behavioral_deltas
+from polaris.context.context_models import (
     ContextRelationshipCategory,
     ContextSelectionLimits,
     ContextSelectionResult,
     SelectedSnippet,
 )
-from deicide.context.pipeline import calculate_context_token_allowance, prepare_review_context
-from deicide.core.errors import BudgetExceededError, QuotaExhaustedError
-from deicide.core.models import (
+from polaris.context.pipeline import calculate_context_token_allowance, prepare_review_context
+from polaris.core.errors import BudgetExceededError, QuotaExhaustedError
+from polaris.core.models import (
     BudgetTracker,
     CandidateFinding,
     ExecutionBudget,
@@ -26,9 +26,9 @@ from deicide.core.models import (
     TokenUsage,
     estimate_token_count,
 )
-from deicide.core.registry import AnalysisModule
-from deicide.evaluation.baseline import baseline_process_candidates
-from deicide.evaluation.models import (
+from polaris.core.registry import AnalysisModule
+from polaris.evaluation.baseline import baseline_process_candidates
+from polaris.evaluation.models import (
     CaseDiagnostics,
     CaseEvaluationResult,
     CaseObservability,
@@ -42,11 +42,11 @@ from deicide.evaluation.models import (
     UnmatchedExpectedDiagnostic,
     UnmatchedFindingDiagnostic,
 )
-from deicide.git.analyzer import parse_unified_diff, retrieve_changed_file_context
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
-from deicide.intelligence.pipeline import FindingIntelligenceEngine
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.base import LLMProvider
+from polaris.git.analyzer import parse_unified_diff, retrieve_changed_file_context
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.intelligence.pipeline import FindingIntelligenceEngine
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.base import LLMProvider
 
 
 def _sanitize_error_message(msg: str, provider: LLMProvider | None = None) -> str:
@@ -216,7 +216,7 @@ def _prepare_production_parity_context(
     limits: ContextSelectionLimits,
 ) -> tuple[dict[str, FileContext], ContextSelectionResult | None]:
     """Materialize fixture AFTER sources and invoke the production context pipeline."""
-    with tempfile.TemporaryDirectory(prefix="deicide-eval-") as directory:
+    with tempfile.TemporaryDirectory(prefix="polaris-eval-") as directory:
         root = Path(directory)
         for relative_path, source in fixture.file_contents.items():
             destination = root / relative_path
@@ -259,8 +259,10 @@ def evaluate_case(
     active_budget = budget or ExecutionBudget()
     active_tracker = tracker or BudgetTracker(
         active_budget,
+        usage_store=getattr(provider, "usage_store", None),
         provider_name=provider.provider_name,
         model_name=provider.model_name,
+        quota_scope=getattr(provider, "quota_scope", "default"),
     )
     usage_before = active_tracker.usage
 
@@ -762,8 +764,10 @@ def evaluate_corpus(
     )
     active_tracker = shared_tracker or BudgetTracker(
         active_budget,
+        usage_store=getattr(provider, "usage_store", None),
         provider_name=provider.provider_name,
         model_name=provider.model_name,
+        quota_scope=getattr(provider, "quota_scope", "default"),
     )
 
     case_results: list[CaseEvaluationResult] = []

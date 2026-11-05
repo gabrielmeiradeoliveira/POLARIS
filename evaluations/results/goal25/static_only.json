@@ -1,0 +1,39 @@
+{
+  "configuration": "static_only",
+  "experiment": "goal25_nvidia_ab",
+  "preflight_requests_already_used": 1,
+  "provider": "fake-deterministic",
+  "sample_case_count": 12,
+  "sample_case_ids": [
+    "pos_auth_bypass",
+    "neg_auth_enforced",
+    "g23_pos_async_cancel_swallowed",
+    "g23_neg_service_discount_refactor",
+    "g24-api_auth-01",
+    "g24-orders_payments-02",
+    "g24-etl_replay-13",
+    "g24-async_workers-14",
+    "g24-orders_payments-37",
+    "g24-etl_replay-38",
+    "psh-pos-exception-swallowing",
+    "psh-neg-data-flow-tenant"
+  ],
+  "status": "completed",
+  "summary": {
+    "completion_rate": 1.0,
+    "f1": 1.0,
+    "fn": 0,
+    "fp": 0,
+    "negative_fp_rate": 0.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "total_latency_ms": 2,
+    "tp": 6,
+    "usage": {
+      "completion_tokens": 12,
+      "is_estimated": true,
+      "prompt_tokens": 10314,
+      "total_tokens": 10326
+    }
+  }
+}

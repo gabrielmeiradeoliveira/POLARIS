@@ -1,0 +1,76 @@
+HEAD: 586dcfc72f3963e4bc6b319c1bd1c90112a5c774
+Branch: feature/nvidia-benchmark
+
+Verbatim `git status --short` before the GOAL24 eligibility-inversion slice:
+ M AGENTS.md
+ M calculator.py
+ D context_test.py
+ M src/polaris/integrations/github/client.py
+ M src/polaris/modules/code_review.py
+ M src/polaris/modules/deterministic_rules.py
+ M tests/test_github_integration_goal19.py
+ M tests/test_github_pr_review_goal20.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? .pytest-goal11-15-final/
+?? .pytest-goal11-15-final2/
+?? .pytest-goal11-15-metrics/
+?? .pytest-goal11-15-release/
+?? .pytest-goal11-15-targeted/
+?? .pytest-goal11-15-timing/
+?? .pytest-goal11-15/
+?? .pytest-goal16-1-compat/
+?? .pytest-goal16-1-final/
+?? .pytest-goal16-1-full/
+?? .pytest-goal16-1-history-final/
+?? .pytest-goal16-1-release/
+?? .pytest-goal16-1-schema/
+?? .pytest-goal16-1/
+?? .pytest-goal22-final/
+?? .pytest-goal22-final2/
+?? .pytest-goal22-final3/
+?? .pytest-goal22-rules/
+?? .pytest-goal22-target/
+?? .pytest-goal24-alias-suite/
+?? .pytest-goal24-baseline/
+?? .pytest-goal24-current/
+?? .pytest-goal24-final-suite/
+?? .pytest-goal24-final-suite2/
+?? .pytest-goal24-github-invalid/
+?? .pytest-goal24-github-security-suite/
+?? .pytest-goal24-github/
+?? .pytest-goal24-holdout-suite/
+?? .pytest-goal24-large-patch/
+?? .pytest-goal24-release/
+?? .pytest-goal24-security-suite/
+?? .pytest-goal24-semantic-suite/
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/fixtures/goal24_holdout/
+?? evaluations/fixtures/goal24_rc1/
+?? evaluations/goal24_holdout_runner.py
+?? evaluations/goal24_runner.py
+?? evaluations/reports/GOAL24_1_VALIDATION_CLOSURE.md
+?? evaluations/reports/GOAL24_BASELINE.md
+?? evaluations/reports/GOAL24_COMPLEX_BENCHMARK.md
+?? evaluations/reports/GOAL24_FINAL_BENCHMARK.md
+?? evaluations/reports/GOAL24_FINAL_EFFICIENCY.md
+?? evaluations/reports/GOAL24_FINAL_ENGINEERING.md
+?? evaluations/reports/GOAL24_FINAL_RELEASE.md
+?? evaluations/reports/GOAL24_FINAL_SECURITY.md
+?? evaluations/reports/GOAL24_RC1_FINAL.md
+?? evaluations/reports/GOAL24_SECURITY.md
+?? evaluations/reports/GOAL24_TOKEN_EFFICIENCY.md
+?? evaluations/reports/baseline_mvp1_4_minimax_m3_1_flash.md
+?? evaluations/results/
+?? scratch/
+?? tests/test_goal24_benchmark_eligibility.py
+?? tests/test_goal24_benchmark_runner.py
+?? tests/test_goal24_complex_catalog.py
+?? tests/test_goal24_efficiency.py
+?? tests/test_goal24_filter_regression.py
+?? tests/test_goal24_post_recovery_holdout.py
+?? tests/test_goal24_prompt_redaction.py
+?? tests/test_goal24_provider_security.py
+?? tests/test_goal24_two_stage_reliability.py

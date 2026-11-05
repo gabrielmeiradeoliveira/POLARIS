@@ -2,17 +2,17 @@
 
 from pathlib import Path
 
-from deicide.context.context_models import ContextSelectionLimits
-from deicide.core.models import ExecutionBudget
-from deicide.evaluation.runner import (
+from polaris.context.context_models import ContextSelectionLimits
+from polaris.core.models import ExecutionBudget
+from polaris.evaluation.runner import (
     _prepare_production_parity_context,
     evaluate_corpus,
     load_fixtures_from_file,
 )
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import DiffBundle
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.fake import FakeProvider
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import DiffBundle
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.fake import FakeProvider
 
 FIXTURES = Path("evaluations/fixtures/end_to_end_context_benchmark.json")
 

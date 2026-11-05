@@ -1,4 +1,4 @@
-"""Integration tests for DEICIDE MVP 1.2 Phase 4: Context Engine Pipeline Integration.
+"""Integration tests for POLARIS MVP 1.2 Phase 4: Context Engine Pipeline Integration.
 
 Tests cover:
 1. End-to-end integration fixture with changed calculator.py and caller billing.py.
@@ -19,19 +19,19 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.context.context_models import ContextSelectionLimits
-from deicide.context.pipeline import prepare_review_context
-from deicide.core.config import DeicideConfig
-from deicide.core.errors import ExitCode
-from deicide.core.models import TokenUsage
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.core.registry import ModuleRegistry
-from deicide.git.analyzer import GitAnalyzer
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.base import ProviderRequest, ProviderResponse
-from deicide.providers.fake import FakeProvider
-from deicide.reporting.formatter import format_json_report, format_terminal_report
+from polaris.cli import app
+from polaris.context.context_models import ContextSelectionLimits
+from polaris.context.pipeline import prepare_review_context
+from polaris.core.config import PolarisConfig
+from polaris.core.errors import ExitCode
+from polaris.core.models import TokenUsage
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.core.registry import ModuleRegistry
+from polaris.git.analyzer import GitAnalyzer
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.base import ProviderRequest, ProviderResponse
+from polaris.providers.fake import FakeProvider
+from polaris.reporting.formatter import format_json_report, format_terminal_report
 from tests.conftest import run_git_cmd
 
 runner = CliRunner()
@@ -42,8 +42,8 @@ def _setup_two_file_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "repo_phase4"
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
-    run_git_cmd(repo, "config", "user.name", "Deicide Tester")
-    run_git_cmd(repo, "config", "user.email", "tester@deicide.local")
+    run_git_cmd(repo, "config", "user.name", "Polaris Tester")
+    run_git_cmd(repo, "config", "user.email", "tester@polaris.local")
 
     calc_file = repo / "calculator.py"
     calc_file.write_text(
@@ -86,7 +86,7 @@ def test_section_21_cross_file_caller_context_integration(tmp_path: Path) -> Non
         encoding="utf-8",
     )
 
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=True,
@@ -157,7 +157,7 @@ def test_context_disabled_via_config(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=False,
@@ -195,7 +195,7 @@ def test_context_budget_exhaustion_omits_snippets(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=True,
@@ -245,7 +245,7 @@ def test_prompt_injection_safety_in_supplementary_context(tmp_path: Path) -> Non
 
     git_analyzer = GitAnalyzer(repo)
     diff_bundle = git_analyzer.extract_diff()
-    budget = DeicideConfig(repo_path=repo).budget
+    budget = PolarisConfig(repo_path=repo).budget
 
     outcome = prepare_review_context(
         repo_root=repo,
@@ -305,7 +305,7 @@ def test_finding_validator_rejects_findings_on_supplementary_context_files(tmp_p
                 usage=TokenUsage(prompt_tokens=100, completion_tokens=50, total_tokens=150, is_estimated=True),
             )
 
-    config = DeicideConfig(repo_path=repo, provider="fake", context_enabled=True)
+    config = PolarisConfig(repo_path=repo, provider="fake", context_enabled=True)
     provider = MaliciousProvider()
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
@@ -355,7 +355,7 @@ def test_cli_review_context_flags(tmp_path: Path) -> None:
 
 def test_recoverable_fallback_on_unhandled_indexing_exception(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """When an unexpected non-security exception occurs during indexing, fallback occurs gracefully."""
-    import deicide.context.pipeline as pipeline_mod
+    import polaris.context.pipeline as pipeline_mod
 
     repo = _setup_two_file_repo(tmp_path)
     calc_file = repo / "calculator.py"
@@ -369,7 +369,7 @@ def test_recoverable_fallback_on_unhandled_indexing_exception(monkeypatch: pytes
 
     monkeypatch.setattr(pipeline_mod, "build_project_index", _mock_build_index)
 
-    config = DeicideConfig(repo_path=repo, provider="fake", context_enabled=True)
+    config = PolarisConfig(repo_path=repo, provider="fake", context_enabled=True)
     provider = FakeProvider(model_name="fake-deterministic-v1")
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
@@ -394,8 +394,8 @@ def test_security_violation_in_context_preparation_is_not_swallowed(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """SecurityViolationError during context preparation is never swallowed into fallback."""
-    import deicide.context.pipeline as pipeline_mod
-    from deicide.core.errors import SecurityViolationError
+    import polaris.context.pipeline as pipeline_mod
+    from polaris.core.errors import SecurityViolationError
 
     repo = _setup_two_file_repo(tmp_path)
     calc_file = repo / "calculator.py"
@@ -409,7 +409,7 @@ def test_security_violation_in_context_preparation_is_not_swallowed(
 
     monkeypatch.setattr(pipeline_mod, "build_project_index", _mock_security_violation)
 
-    config = DeicideConfig(repo_path=repo, provider="fake", context_enabled=True)
+    config = PolarisConfig(repo_path=repo, provider="fake", context_enabled=True)
     provider = FakeProvider(model_name="fake-deterministic-v1")
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
@@ -429,7 +429,7 @@ def test_context_status_no_python_changes(tmp_path: Path) -> None:
 
     readme.write_text("# Updated Documentation\n", encoding="utf-8")
 
-    config = DeicideConfig(repo_path=repo, provider="fake", context_enabled=True)
+    config = PolarisConfig(repo_path=repo, provider="fake", context_enabled=True)
     provider = FakeProvider(model_name="fake-deterministic-v1")
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
@@ -453,7 +453,7 @@ def test_context_status_no_changed_symbols_for_comment_only_changes(tmp_path: Pa
         encoding="utf-8",
     )
 
-    config = DeicideConfig(repo_path=repo, provider="fake", context_enabled=True)
+    config = PolarisConfig(repo_path=repo, provider="fake", context_enabled=True)
     provider = FakeProvider(model_name="fake-deterministic-v1")
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
@@ -468,12 +468,12 @@ def test_context_status_no_changed_symbols_for_comment_only_changes(tmp_path: Pa
 
 def test_context_limitations_diagnostics_rendered() -> None:
     """When context selection includes diagnostics, [CONTEXT LIMITATIONS] is rendered in prompt."""
-    from deicide.context.context_models import (
+    from polaris.context.context_models import (
         ContextRelationshipCategory,
         ContextSelectionResult,
         SelectedSnippet,
     )
-    from deicide.git.models import FileChangeStatus, FileDiff
+    from polaris.git.models import FileChangeStatus, FileDiff
 
     module = CodeReviewModule()
     file_diff = FileDiff(old_path="a.py", new_path="a.py", status=FileChangeStatus.MODIFIED)

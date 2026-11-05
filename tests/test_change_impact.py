@@ -1,8 +1,8 @@
 """Unit contracts for conservative primary-prompt overlap proofs."""
 
-from deicide.context.change_impact import primary_prompt_source_lines, prove_exact_primary_overlap
-from deicide.context.context_models import ContextRelationshipCategory, SelectedSnippet
-from deicide.git.models import ContextSnippet, FileContext
+from polaris.context.change_impact import primary_prompt_source_lines, prove_exact_primary_overlap
+from polaris.context.context_models import ContextRelationshipCategory, SelectedSnippet
+from polaris.git.models import ContextSnippet, FileContext
 
 
 def _changed_symbol(content: str = "10 | return value\n11 | raise ValueError(value)") -> SelectedSnippet:

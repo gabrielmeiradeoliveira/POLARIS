@@ -176,13 +176,13 @@ conservative deadline policy:
 
 Modify:
 
-- `src/deicide/providers/base.py`
-- `src/deicide/providers/nvidia.py`
-- `src/deicide/core/models.py`
-- `src/deicide/core/config.py`
-- `src/deicide/cli.py`
-- `src/deicide/evaluation/models.py`
-- `src/deicide/evaluation/runner.py`
+- `src/polaris/providers/base.py`
+- `src/polaris/providers/nvidia.py`
+- `src/polaris/core/models.py`
+- `src/polaris/core/config.py`
+- `src/polaris/cli.py`
+- `src/polaris/evaluation/models.py`
+- `src/polaris/evaluation/runner.py`
 - `tests/test_nvidia_failure_diagnostics.py`
 - `tests/test_evaluation_observability.py`
 - `tests/test_quota_and_usage.py`

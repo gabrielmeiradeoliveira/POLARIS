@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.context.context_budget import (
+from polaris.context.context_budget import (
     enforce_context_budget,
     estimate_snippet_tokens,
 )
-from deicide.context.context_models import (
+from polaris.context.context_models import (
     ContextCandidate,
     ContextSelectionLimits,
     ContextSelectionResult,
@@ -17,14 +17,14 @@ from deicide.context.context_models import (
     SelectedSnippet,
     relationship_precedence,
 )
-from deicide.context.context_ranker import ContextRanker
-from deicide.context.dependency_graph import DependencyGraph
-from deicide.context.models import ChangedSymbol
-from deicide.context.project_index import ProjectIndex
-from deicide.context.static_analysis import StaticAnalysisResult
-from deicide.context.static_relevance import prioritize_static_relevance
-from deicide.core.errors import SecurityViolationError
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.context.context_ranker import ContextRanker
+from polaris.context.dependency_graph import DependencyGraph
+from polaris.context.models import ChangedSymbol
+from polaris.context.project_index import ProjectIndex
+from polaris.context.static_analysis import StaticAnalysisResult
+from polaris.context.static_relevance import prioritize_static_relevance
+from polaris.core.errors import SecurityViolationError
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
 
 
 class SnippetExtractor:

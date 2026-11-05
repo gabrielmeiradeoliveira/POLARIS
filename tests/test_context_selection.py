@@ -1,10 +1,10 @@
-"""Deterministic offline tests for DEICIDE Context Engine Phase 3: Ranking, Snippets, and Budgeting."""
+"""Deterministic offline tests for POLARIS Context Engine Phase 3: Ranking, Snippets, and Budgeting."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.context.context_models import (
+from polaris.context.context_models import (
     ContextCandidate,
     ContextRelationshipCategory,
     ContextSelectionLimits,
@@ -12,18 +12,18 @@ from deicide.context.context_models import (
     ProvenanceRecord,
     SelectedSnippet,
 )
-from deicide.context.context_ranker import ContextRanker
-from deicide.context.dependency_graph import (
+from polaris.context.context_ranker import ContextRanker
+from polaris.context.dependency_graph import (
     build_dependency_graph,
 )
-from deicide.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
-from deicide.context.project_index import build_project_index
-from deicide.context.snippet_selector import (
+from polaris.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
+from polaris.context.project_index import build_project_index
+from polaris.context.snippet_selector import (
     SnippetExtractor,
     _deduplicate_and_merge_snippets,
     select_context,
 )
-from deicide.providers.base import estimate_token_count
+from polaris.providers.base import estimate_token_count
 
 
 def _make_dummy_changed_sym(

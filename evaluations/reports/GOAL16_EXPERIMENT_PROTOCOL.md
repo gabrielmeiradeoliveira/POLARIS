@@ -11,7 +11,7 @@ code to NVIDIA and may consume credits.
 | Item | Frozen value |
 |---|---|
 | Repository commit evaluated | `7bf19d038703fe27e1857814d370e6b5556a841c` |
-| DEICIDE version | `0.1.0` |
+| POLARIS version | `0.1.0` |
 | Provider / exact model | `nvidia` / `minimaxai/minimax-m3.1-flash` |
 | Positive corpus / SHA-256 | `real_world_verified_benchmark.json` / `17019e5f994b1bfc4ba4afe62992cf69bd829f509db3e075cf68ba9615759096` |
 | Evaluation mode | `--end-to-end --production-parity --strict-severity` |
@@ -45,7 +45,7 @@ selection flags, always with `--history-corpus-kind synthetic`.
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE = '1'
 $env:PYTHONPATH = 'src'
-.\.venv\Scripts\python.exe -m deicide evaluate `
+.\.venv\Scripts\python.exe -m polaris evaluate `
   --provider fake --model fake-deterministic-v1 `
   --fixtures evaluations\fixtures\real_world_verified_benchmark.json `
   --end-to-end --production-parity --strict-severity --no-behavioral-delta `
@@ -61,7 +61,7 @@ $env:PYTHONPATH = 'src'
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE = '1'
 $env:PYTHONPATH = 'src'
-.\.venv\Scripts\python.exe -m deicide evaluate `
+.\.venv\Scripts\python.exe -m polaris evaluate `
   --provider nvidia --model minimaxai/minimax-m3.1-flash `
   --fixtures evaluations\fixtures\real_world_verified_benchmark.json `
   --allow-external --end-to-end --production-parity --strict-severity `

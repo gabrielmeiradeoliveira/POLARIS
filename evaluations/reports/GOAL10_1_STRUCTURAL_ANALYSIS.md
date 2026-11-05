@@ -2,7 +2,7 @@
 
 ## Scope
 
-`deicide.context.static_analysis.PythonStaticAnalyzer` is a deterministic,
+`polaris.context.static_analysis.PythonStaticAnalyzer` is a deterministic,
 standard-library-AST-only intraprocedural evidence engine. It extracts classes,
 inheritance expressions, functions, async functions, imports, assignments,
 calls, returns, raises, exception handlers, decorators (through the existing

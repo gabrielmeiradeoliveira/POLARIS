@@ -51,7 +51,7 @@ run. Synthetic negatives must remain separate from real-model results.
 
 ## Evaluation and production paths
 
-`deicide review` analyzes a Git repository; `deicide evaluate
+`polaris review` analyzes a Git repository; `polaris evaluate
 --production-parity` materializes fixture sources and reuses production context
 preparation. Both share configuration, provider construction, budgets,
 selection flags, Finding Intelligence, and failure diagnostics. Evaluation adds

@@ -172,16 +172,16 @@
     "suitable_for_live_benchmark": false
   },
   {
-    "case_id": "real-deicide-03-clean-readme-docs",
+    "case_id": "real-polaris-03-clean-readme-docs",
     "description": "Clean documentation update for context engine CLI options",
-    "diff_text": "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1,2 +1,4 @@\n # DEICIDE\n+## Context Engine\n+DEICIDE includes an AST-powered context selection engine.\n",
+    "diff_text": "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1,2 +1,4 @@\n # POLARIS\n+## Context Engine\n+POLARIS includes an AST-powered context selection engine.\n",
     "file_contents": {
-      "README.md": "# DEICIDE\n## Context Engine\nDEICIDE includes an AST-powered context selection engine.\n"
+      "README.md": "# POLARIS\n## Context Engine\nPOLARIS includes an AST-powered context selection engine.\n"
     },
     "expected_findings": [],
     "candidate_findings": [],
     "supplementary_snippets": [],
-    "repository": "DEICIDE",
+    "repository": "POLARIS",
     "commit_id": "cfc826d",
     "is_clean": true,
     "fix_reference": "Commit cfc826d",

@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "mode": "static_offline_end_to_end_with_fake_provider",
+  "detector": "polaris.code_review.deterministic_rules",
+  "nvidia_used": false,
+  "upstream_code_executed": false,
+  "inputs": {
+    "positive_manifest": "evaluations/manifests/goal28_external_reproducibility.json",
+    "negative_manifest": "evaluations/manifests/goal29_external_negative_selection.json",
+    "positive_case_ids": [
+      "rw-requests-2023-proxy-authorization",
+      "rw-requests-jsondecodeerror-pickle",
+      "rw-urllib3-proxy-redirect-origin",
+      "rw-urllib3-port-zero",
+      "rw-urllib3-invalid-timeout-error"
+    ],
+    "negative_case_id": "rw-requests-comprehension-refactor",
+    "excluded_test_only_negatives": [
+      "rw-requests-chunked-upload-iterator",
+      "rw-requests-test-dict-loop"
+    ]
+  },
+  "integrity": {
+    "pinned_worktrees_verified": true,
+    "oracle_direction_verified": true,
+    "all_six_cases_documented_verified": true,
+    "negative_diff_source": "parent 2c6a8426aebd853966747f2c851f551c583cb21a to 89ab030cdb83a728a30e172bc65d27ba214d2eda",
+    "negative_changed_python_files": 7
+  },
+  "summary": {
+    "cases": 6,
+    "positive_cases": 5,
+    "negative_cases": 1,
+    "completed": 6,
+    "execution_failures": 0,
+    "tp": 3,
+    "fp": 0,
+    "fn": 2,
+    "tn": 1,
+    "precision": 1.0,
+    "recall": 0.6,
+    "f1": 0.75
+  },
+  "cases": [
+    {"case_id": "rw-requests-2023-proxy-authorization", "tp": 1, "fp": 0, "fn": 0, "status": "completed", "coverage": "one changed file selected"},
+    {"case_id": "rw-requests-jsondecodeerror-pickle", "tp": 1, "fp": 0, "fn": 0, "status": "completed", "coverage": "one changed file selected"},
+    {"case_id": "rw-urllib3-proxy-redirect-origin", "tp": 0, "fp": 0, "fn": 1, "status": "completed", "coverage": "one changed file selected; no candidate"},
+    {"case_id": "rw-urllib3-port-zero", "tp": 1, "fp": 0, "fn": 0, "status": "completed", "coverage": "one changed file selected"},
+    {"case_id": "rw-urllib3-invalid-timeout-error", "tp": 0, "fp": 0, "fn": 1, "status": "completed", "coverage": "one changed file selected; no candidate"},
+    {"case_id": "rw-requests-comprehension-refactor", "tp": 0, "fp": 0, "fn": 0, "tn": 1, "status": "completed", "coverage": "four source files, six snippets; bounded context truncated"}
+  ],
+  "comparison": {
+    "goal26": "Not aggregate-comparable: GOAL 26 scored eight positives and no production negative. This run is its eligible five-positive subset plus one negative under the same offline static protocol."
+  }
+}

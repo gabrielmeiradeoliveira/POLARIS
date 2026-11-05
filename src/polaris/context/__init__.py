@@ -1,23 +1,23 @@
-"""Context Engine package for DEICIDE: AST analysis, indexing, dependency graphs, and context selection."""
+"""Context Engine package for POLARIS: AST analysis, indexing, dependency graphs, and context selection."""
 
 from __future__ import annotations
 
-from deicide.context.behavioral_delta import (
+from polaris.context.behavioral_delta import (
     BehavioralDelta,
     BehavioralDeltaResult,
     BehavioralDeltaType,
     analyze_behavioral_deltas,
     serialize_behavioral_deltas,
 )
-from deicide.context.change_impact import ExactOverlapEvidence, primary_prompt_source_lines, prove_exact_primary_overlap
-from deicide.context.changed_symbols import identify_changed_symbols
-from deicide.context.context_budget import (
+from polaris.context.change_impact import ExactOverlapEvidence, primary_prompt_source_lines, prove_exact_primary_overlap
+from polaris.context.changed_symbols import identify_changed_symbols
+from polaris.context.context_budget import (
     enforce_context_budget,
     estimate_snippet_tokens,
     serialize_context_bundle,
     serialize_snippet_block,
 )
-from deicide.context.context_models import (
+from polaris.context.context_models import (
     ContextCandidate,
     ContextRelationshipCategory,
     ContextSelectionLimits,
@@ -27,9 +27,9 @@ from deicide.context.context_models import (
     ProvenanceRecord,
     SelectedSnippet,
 )
-from deicide.context.context_ranker import ContextRanker
-from deicide.context.context_relevance import HybridContextSelection, select_hybrid_supplementary_context
-from deicide.context.dependency_graph import (
+from polaris.context.context_ranker import ContextRanker
+from polaris.context.context_relevance import HybridContextSelection, select_hybrid_supplementary_context
+from polaris.context.dependency_graph import (
     CallerEvidence,
     ChangedSymbolImpact,
     DependencyGraph,
@@ -40,13 +40,13 @@ from deicide.context.dependency_graph import (
     GraphNodeKind,
     build_dependency_graph,
 )
-from deicide.context.import_resolver import (
+from polaris.context.import_resolver import (
     FileImportMap,
     ImportResolver,
     ResolvedImport,
     resolve_relative_module,
 )
-from deicide.context.models import (
+from polaris.context.models import (
     CallReference,
     ChangedSymbol,
     ChangedSymbolsResult,
@@ -60,18 +60,18 @@ from deicide.context.models import (
     Symbol,
     SymbolKind,
 )
-from deicide.context.project_index import (
+from polaris.context.project_index import (
     IndexLimits,
     ProjectIndex,
     build_project_index,
     file_path_to_module_name,
 )
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.context.snippet_selector import (
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.context.snippet_selector import (
     SnippetExtractor,
     select_context,
 )
-from deicide.context.static_analysis import (
+from polaris.context.static_analysis import (
     BehavioralSignal,
     ControlFlowEdge,
     ControlFlowNode,

@@ -1,6 +1,6 @@
-"""Terminal and JSON report formatting for DEICIDE."""
+"""Terminal and JSON report formatting for POLARIS."""
 
-from deicide.reporting.formatter import (
+from polaris.reporting.formatter import (
     format_json_report,
     format_terminal_report,
     format_usage_json,

@@ -1,4 +1,4 @@
-"""Deterministic Behavioral Delta Analysis Engine for DEICIDE.
+"""Deterministic Behavioral Delta Analysis Engine for POLARIS.
 
 Compares pre-change and post-change code across Git diff hunks using Python AST
 analysis, symbol extraction, and cross-file dependency graphs to surface structured
@@ -18,14 +18,14 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.context.changed_symbols import identify_changed_symbols
-from deicide.context.dependency_graph import DependencyGraph, build_dependency_graph
-from deicide.context.models import FileAnalysisStatus
-from deicide.context.project_index import ProjectIndex, file_path_to_module_name
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.core.models import Confidence, LineRange, estimate_token_count
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
-from deicide.git.models import DiffBundle, FileContext, FileDiff
+from polaris.context.changed_symbols import identify_changed_symbols
+from polaris.context.dependency_graph import DependencyGraph, build_dependency_graph
+from polaris.context.models import FileAnalysisStatus
+from polaris.context.project_index import ProjectIndex, file_path_to_module_name
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.core.models import Confidence, LineRange, estimate_token_count
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.git.models import DiffBundle, FileContext, FileDiff
 
 _MUTATING_METHODS: frozenset[str] = frozenset(
     {

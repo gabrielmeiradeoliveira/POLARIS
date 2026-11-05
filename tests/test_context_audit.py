@@ -1,4 +1,4 @@
-"""Comprehensive audit test suite for DEICIDE MVP 1.2 Context Engine.
+"""Comprehensive audit test suite for POLARIS MVP 1.2 Context Engine.
 
 Covers:
 - Audit 1: Token budget enforcement, baseline prompt tokens, pre-request checks, and quota integrity.
@@ -14,35 +14,36 @@ from pathlib import Path
 
 import pytest
 
-from deicide.context.context_budget import enforce_context_budget
-from deicide.context.context_models import (
+from polaris.context.context_budget import enforce_context_budget
+from polaris.context.context_models import (
     ContextRelationshipCategory,
     ContextSelectionLimits,
     OmissionReason,
     SelectedSnippet,
 )
-from deicide.context.context_ranker import ContextRanker
-from deicide.context.dependency_graph import build_dependency_graph
-from deicide.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
-from deicide.context.pipeline import prepare_review_context
-from deicide.context.project_index import IndexLimits, build_project_index
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.context.snippet_selector import select_context
-from deicide.core.config import DeicideConfig
-from deicide.core.errors import BudgetExceededError
-from deicide.core.models import (
+from polaris.context.context_ranker import ContextRanker
+from polaris.context.dependency_graph import build_dependency_graph
+from polaris.context.models import ChangedSymbol, OverlapClassification, SourceLocation, SymbolKind
+from polaris.context.pipeline import prepare_review_context
+from polaris.context.project_index import IndexLimits, build_project_index
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.context.snippet_selector import select_context
+from polaris.core.config import PolarisConfig
+from polaris.core.errors import BudgetExceededError
+from polaris.core.models import (
+    BudgetTracker,
     CandidateFinding,
     ExecutionBudget,
     TokenUsage,
 )
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.core.registry import ModuleRegistry
-from deicide.core.validation import validate_candidates
-from deicide.git.analyzer import GitAnalyzer, parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext, FileDiff
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.fake import FakeProvider
-from deicide.quota.store import UsageStore
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.core.registry import ModuleRegistry
+from polaris.core.validation import validate_candidates
+from polaris.git.analyzer import GitAnalyzer, parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, DiffHunk, FileChangeStatus, FileContext, FileDiff
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.fake import FakeProvider
+from polaris.quota.store import UsageStore
 from tests.conftest import run_git_cmd
 
 # =====================================================================
@@ -59,7 +60,7 @@ def test_audit_1_baseline_prompt_tokens_prevents_budget_exceeded(tmp_path: Path)
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     # Create caller file
     caller_file = repo / "caller.py"
@@ -86,13 +87,14 @@ def test_audit_1_baseline_prompt_tokens_prevents_budget_exceeded(tmp_path: Path)
     )
 
     # Configure a tight budget of 2500 tokens
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=True,
         budget=ExecutionBudget(max_total_tokens=2500),
     )
     provider = FakeProvider(model_name="fake-audit-v1")
+    provider.preserve_static_on_budget_skip = True
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
 
@@ -118,7 +120,7 @@ def test_audit_1_oversized_diff_alone_blocks_before_provider(tmp_path: Path) -> 
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     f = repo / "huge.py"
     f.write_text("def start(): pass\n", encoding="utf-8")
@@ -132,7 +134,7 @@ def test_audit_1_oversized_diff_alone_blocks_before_provider(tmp_path: Path) -> 
     )
 
     db_path = tmp_path / "audit_quota.sqlite3"
-    config = DeicideConfig(
+    config = PolarisConfig(
         repo_path=repo,
         provider="fake",
         context_enabled=True,
@@ -140,6 +142,7 @@ def test_audit_1_oversized_diff_alone_blocks_before_provider(tmp_path: Path) -> 
         usage_db_path=db_path,
     )
     provider = FakeProvider(model_name="fake-audit-v1")
+    provider.preserve_static_on_budget_skip = True
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
 
@@ -149,20 +152,49 @@ def test_audit_1_oversized_diff_alone_blocks_before_provider(tmp_path: Path) -> 
         registry=registry,
     )
 
-    with pytest.raises(BudgetExceededError) as exc_info:
-        orchestrator.run()
-
-    assert "Token budget exceeded before request" in str(exc_info.value)
+    report = orchestrator.run()
+    assert report.status == "incomplete"
+    assert report.findings == []
+    assert any(warning.code == "PROVIDER_SKIPPED_BUDGET" for warning in report.warnings)
     # Verify no attempts succeeded or were stored in usage database
     store = UsageStore(db_path)
     snap = store.get_snapshot(provider="fake", model="fake-audit-v1")
     assert snap.requests_today == 0
 
 
+def test_audit_1_out_of_range_hunk_is_observable_and_safe(tmp_path: Path) -> None:
+    """Malformed line metadata must not index past the checked-out file."""
+    repo = tmp_path / "out_of_range_hunk_repo"
+    repo.mkdir()
+    run_git_cmd(repo, "init")
+    run_git_cmd(repo, "config", "user.name", "Audit Tester")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
+    (repo / "module.py").write_text("value = 1\n", encoding="utf-8")
+    run_git_cmd(repo, "add", ".")
+    run_git_cmd(repo, "commit", "-m", "init")
+
+    bundle = DiffBundle(
+        repository_root=str(repo),
+        target_description="synthetic",
+        files=[
+            FileDiff(
+                new_path="module.py",
+                status=FileChangeStatus.MODIFIED,
+                hunks=[DiffHunk(old_start=4, old_count=1, new_start=4, new_count=1, lines=["+value = 2"])],
+            )
+        ],
+    )
+    tracker = BudgetTracker(ExecutionBudget())
+    contexts = GitAnalyzer(repo).retrieve_context(bundle, tracker=tracker)
+
+    assert contexts["module.py"].snippets == []
+    assert any(warning.code == "CONTEXT_HUNK_OUT_OF_RANGE" for warning in tracker.warnings)
+
+
 def test_audit_1_post_request_completion_token_budget_exceeded() -> None:
     """Audit 1: If provider completion tokens exceed the budget, complete_attempt enforces the limit."""
     budget = ExecutionBudget(max_total_tokens=1000)
-    from deicide.core.models import BudgetTracker
+    from polaris.core.models import BudgetTracker
 
     tracker = BudgetTracker(budget, provider_name="fake", model_name="fake-v1")
     res_id = tracker.reserve_attempt(estimated_prompt_tokens=400)
@@ -192,7 +224,7 @@ def test_audit_2_mixed_diff_nested_functions_and_classes(tmp_path: Path) -> None
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     service_file = repo / "service.py"
     service_file.write_text(
@@ -253,7 +285,7 @@ def test_audit_2_completely_deleted_symbol_regression(tmp_path: Path) -> None:
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     app_file = repo / "app.py"
     app_file.write_text(
@@ -271,7 +303,7 @@ def test_audit_2_completely_deleted_symbol_regression(tmp_path: Path) -> None:
 
     diff_bundle = GitAnalyzer(repo).extract_diff()
     analysis = PythonAstAnalyzer().analyze_file(repo, "app.py")
-    from deicide.context.changed_symbols import identify_changed_symbols
+    from polaris.context.changed_symbols import identify_changed_symbols
 
     res = identify_changed_symbols(diff_bundle.reviewable_files[0], analysis)
     # active_function was NOT changed
@@ -285,7 +317,7 @@ def test_audit_2_syntax_error_file_handled_gracefully(tmp_path: Path) -> None:
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     good_file = repo / "good.py"
     good_file.write_text("def work(): return 1\n", encoding="utf-8")
@@ -314,14 +346,14 @@ def test_audit_2_empty_diff_returns_empty_status(tmp_path: Path) -> None:
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
     run_git_cmd(repo, "config", "user.name", "Audit Tester")
-    run_git_cmd(repo, "config", "user.email", "audit@deicide.local")
+    run_git_cmd(repo, "config", "user.email", "audit@polaris.local")
 
     f = repo / "code.py"
     f.write_text("x = 1\n", encoding="utf-8")
     run_git_cmd(repo, "add", ".")
     run_git_cmd(repo, "commit", "-m", "init")
 
-    config = DeicideConfig(repo_path=repo, provider="fake")
+    config = PolarisConfig(repo_path=repo, provider="fake")
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
     orchestrator = AnalysisOrchestrator(

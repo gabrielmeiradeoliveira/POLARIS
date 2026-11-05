@@ -6,9 +6,9 @@ import difflib
 import json
 from pathlib import Path
 
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import ContextSnippet, FileContext
-from deicide.modules.deterministic_rules import deterministic_candidates
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import ContextSnippet, FileContext
+from polaris.modules.deterministic_rules import deterministic_candidates
 
 _CORPUS = Path(__file__).parents[1] / "evaluations" / "fixtures" / "goal21_adversarial" / "scenarios.json"
 
@@ -54,3 +54,78 @@ def test_goal22_clean_counterparts_do_not_trigger_deterministic_rules() -> None:
     for case in cases:
         if case["kind"] == "negative":
             assert _candidates(case) == []
+
+
+def test_redirect_host_stripping_requires_removed_host_set_and_pop() -> None:
+    before = """def redirect(headers):
+    new_headers = headers.copy()
+    headers_to_remove = {\"authorization\", 'host'}
+    for header in headers:
+        if header.lower() in headers_to_remove:
+            new_headers.pop(header, None)
+    return new_headers
+"""
+    multiline_before = before.replace(
+        "headers_to_remove = {\"authorization\", 'host'}",
+        "headers_to_remove = (\n        {\"Host\", \"authorization\"}\n    )",
+    )
+    after = """def redirect(headers):
+    new_headers = headers.copy()
+    for header in headers:
+        if header.lower() in {\"authorization\"}:
+            new_headers.pop(header, None)
+    return new_headers
+"""
+    for source in (before, multiline_before):
+        titles = _candidates({"file_path": "redirect.py", "before": source, "after": after})
+        assert any("DET-REDIRECT-HOST-STRIPPING-REMOVED" in title for title in titles)
+
+    retained = before.replace("headers_to_remove = {\"authorization\", 'host'}", "headers_to_remove = {\"host\"}")
+    no_host = before.replace("{\"authorization\", 'host'}", "{\"authorization\"}")
+    non_set_host = before.replace("{\"authorization\", 'host'}", "make_policy(\"host\")")
+    no_pop = after.replace("new_headers.pop(header, None)", "continue")
+    assert _candidates({"file_path": "redirect.py", "before": retained, "after": retained}) == []
+    assert _candidates({"file_path": "redirect.py", "before": no_host, "after": after}) == []
+    assert _candidates({"file_path": "redirect.py", "before": non_set_host, "after": after}) == []
+    no_pop_titles = _candidates({"file_path": "redirect.py", "before": before, "after": no_pop})
+    assert not any("DET-REDIRECT-HOST-STRIPPING-REMOVED" in title for title in no_pop_titles)
+
+
+def test_validation_after_resource_acquisition_requires_proven_local_linear_lifecycle() -> None:
+    before = """def check(value):
+    if not isinstance(value, int):
+        raise ValueError("invalid")
+    return value
+
+def process(value):
+    checked = check(value)
+    try:
+        resource = open_resource()
+        return use(resource, checked)
+    finally:
+        resource.close()
+"""
+    after = """def check(value):
+    if not isinstance(value, int):
+        raise ValueError("invalid")
+    return value
+
+def process(value):
+    try:
+        resource = open_resource()
+        checked = check(value)
+        return use(resource, checked)
+    finally:
+        resource.close()
+"""
+    titles = _candidates({"file_path": "lifecycle.py", "before": before, "after": after})
+    assert any("DET-VALIDATION-AFTER-RESOURCE-ACQUISITION" in title for title in titles)
+
+    reordered_safely = after.replace("resource = open_resource()\n        checked = check(value)", "checked = check(value)\n        resource = open_resource()")
+    external_validator = after.replace("def check(value):", "def _check(value):").replace("check(value)", "validate(value)")
+    handled = after.replace("    finally:", "    except ValueError:\n        return None\n    finally:")
+    no_cleanup = after.replace("        resource.close()\n", "")
+    duplicated_validation = after.replace("    try:\n", "    checked = check(value)\n    try:\n")
+    for source in (reordered_safely, external_validator, handled, no_cleanup, duplicated_validation):
+        case_titles = _candidates({"file_path": "lifecycle.py", "before": before, "after": source})
+        assert not any("DET-VALIDATION-AFTER-RESOURCE-ACQUISITION" in title for title in case_titles)

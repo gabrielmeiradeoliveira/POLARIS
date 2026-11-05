@@ -1,19 +1,19 @@
-"""Offline PR-to-DEICIDE bridge reusing the standard review module and validation pipeline."""
+"""Offline PR-to-POLARIS bridge reusing the standard review module and validation pipeline."""
 
 from __future__ import annotations
 
 import time
 
-from deicide.core.models import AnalysisReport, BudgetTracker, ExecutionBudget, ProviderInfo
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
-from deicide.integrations.github.adapter import GitHubReviewAdapter
-from deicide.integrations.github.client import GitHubClient
-from deicide.integrations.github.models import ChangedFile, ReviewSummary
-from deicide.integrations.github.publishing import SafePublisher
-from deicide.intelligence.pipeline import FindingIntelligenceEngine
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.base import LLMProvider
+from polaris.core.models import AnalysisReport, BudgetTracker, ExecutionBudget, ProviderInfo
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.integrations.github.adapter import GitHubReviewAdapter
+from polaris.integrations.github.client import GitHubClient
+from polaris.integrations.github.models import ChangedFile, ReviewSummary
+from polaris.integrations.github.publishing import SafePublisher
+from polaris.intelligence.pipeline import FindingIntelligenceEngine
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.base import LLMProvider
 
 
 def _unified_diff(files: list[ChangedFile]) -> str:

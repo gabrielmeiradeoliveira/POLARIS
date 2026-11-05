@@ -1,19 +1,21 @@
-"""Shared data models, schemas, and execution budget trackers for DEICIDE."""
+"""Shared data models, schemas, and execution budget trackers for POLARIS."""
 
 from __future__ import annotations
 
 import time
+import uuid
 from collections.abc import Callable
 from enum import StrEnum
+from threading import RLock
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from deicide.core.errors import BudgetExceededError
-from deicide.quota.store import RequestStatus
+from polaris.core.errors import BudgetExceededError
+from polaris.quota.store import RequestStatus
 
 if TYPE_CHECKING:
-    from deicide.quota.store import UsageStore
+    from polaris.quota.store import UsageStore
 
 
 class Severity(StrEnum):
@@ -195,6 +197,10 @@ class ExecutionBudget(BaseModel):
     max_diff_bytes: int = Field(default=300_000, ge=1024)
     max_requests: int = Field(default=3, ge=1)
     max_total_tokens: int = Field(default=8_000, ge=1)
+    max_input_tokens: int | None = Field(default=None, ge=1)
+    max_output_tokens: int | None = Field(default=None, ge=1)
+    max_input_tokens_per_request: int | None = Field(default=None, ge=1)
+    max_output_tokens_per_request: int | None = Field(default=None, ge=1)
     request_timeout_seconds: float = Field(default=60.0, gt=0.0, le=600.0)
     attempt_deadline_seconds: float | None = Field(default=None, gt=0.0, le=600.0)
     case_deadline_seconds: float | None = Field(default=None, gt=0.0, le=1800.0)
@@ -249,12 +255,12 @@ class ProviderInfo(BaseModel):
 
 
 class AnalysisReport(BaseModel):
-    """Top-level report returned by the DEICIDE analysis orchestrator."""
+    """Top-level report returned by the POLARIS analysis orchestrator."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     schema_version: str = Field(default="1.0")
-    platform: str = Field(default="DEICIDE")
+    platform: str = Field(default="POLARIS")
     repository_root: str
     base_revision: str | None = None
     target_description: str
@@ -298,6 +304,28 @@ class BudgetTracker:
         self.retries_performed: int = 0
         self.usage = TokenUsage()
         self.warnings: list[AnalysisWarning] = []
+        self._lock = RLock()
+        self._local_reservations: dict[str, TokenUsage] = {}
+
+    def _reserved_usage(self) -> TokenUsage:
+        result = TokenUsage()
+        for usage in self._local_reservations.values():
+            result = result.add(usage)
+        return result
+
+    def _check_token_caps(self, usage: TokenUsage, *, phase: str) -> None:
+        checks = (
+            (usage.total_tokens, self.budget.max_total_tokens, "total"),
+            (usage.prompt_tokens, self.budget.max_input_tokens, "input"),
+            (usage.completion_tokens, self.budget.max_output_tokens, "output"),
+        )
+        for used, ceiling, kind in checks:
+            if ceiling is not None and used > ceiling:
+                if kind == "total":
+                    raise BudgetExceededError(
+                        f"Token budget exceeded: used {used} tokens > budget of {ceiling} tokens"
+                    )
+                raise BudgetExceededError(f"{kind.title()} token budget exceeded {phase}: {used} > {ceiling}")
 
     @property
     def elapsed_seconds(self) -> float:
@@ -315,13 +343,8 @@ class BudgetTracker:
         if self.requests_made >= self.budget.max_requests:
             msg = f"Per-analysis request budget exceeded: {self.requests_made} >= {self.budget.max_requests}"
             raise BudgetExceededError(msg)
-        projected_tokens = self.usage.total_tokens + max(0, estimated_prompt_tokens)
-        if projected_tokens > self.budget.max_total_tokens:
-            msg = (
-                f"Token budget exceeded before request: projected {projected_tokens} tokens > "
-                f"budget of {self.budget.max_total_tokens} tokens"
-            )
-            raise BudgetExceededError(msg)
+        projected = self.usage.add(self._reserved_usage()).add(TokenUsage(prompt_tokens=max(0, estimated_prompt_tokens), total_tokens=max(0, estimated_prompt_tokens)))
+        self._check_token_caps(projected, phase="before request")
 
     def available_output_tokens(
         self,
@@ -342,7 +365,11 @@ class BudgetTracker:
         requested = max(0, int(requested_output_tokens))
         margin = max(0, int(safety_margin_tokens))
         minimum = max(1, int(minimum_output_tokens))
-        remaining = self.budget.max_total_tokens - self.usage.total_tokens
+        if self.budget.max_input_tokens_per_request is not None and prompt_tokens + margin > self.budget.max_input_tokens_per_request:
+            raise BudgetExceededError("Input token limit exceeded before request.")
+        if self.budget.max_output_tokens_per_request is not None:
+            requested = min(requested, self.budget.max_output_tokens_per_request)
+        remaining = self.budget.max_total_tokens - self.usage.total_tokens - self._reserved_usage().total_tokens
         available = remaining - prompt_tokens - margin
         if available < minimum:
             raise BudgetExceededError(
@@ -363,12 +390,16 @@ class BudgetTracker:
         is_retry: bool = False,
     ) -> str | None:
         """Check per-analysis and persistent quotas and atomically reserve 1 request attempt."""
-        reserved_total = (
-            max(0, int(estimated_prompt_tokens))
-            + max(0, int(reserved_output_tokens))
-            + max(0, int(safety_margin_tokens))
-        )
-        self.check_can_make_request(reserved_total)
+        prompt = max(0, int(estimated_prompt_tokens)) + max(0, int(safety_margin_tokens))
+        output = max(0, int(reserved_output_tokens))
+        if self.budget.max_input_tokens_per_request is not None and prompt > self.budget.max_input_tokens_per_request:
+            raise BudgetExceededError("Input token limit exceeded before request.")
+        if self.budget.max_output_tokens_per_request is not None and output > self.budget.max_output_tokens_per_request:
+            raise BudgetExceededError("Output token limit exceeded before request.")
+        reservation_usage = TokenUsage(prompt_tokens=prompt, completion_tokens=output, total_tokens=prompt + output, is_estimated=True)
+        with self._lock:
+            self.check_can_make_request(0)
+            self._check_token_caps(self.usage.add(self._reserved_usage()).add(reservation_usage), phase="before request")
         resolved_provider = (provider_name or self.provider_name).strip().lower()
         resolved_model = (model_name or self.model_name).strip()
 
@@ -378,17 +409,21 @@ class BudgetTracker:
                 provider=resolved_provider,
                 model=resolved_model,
                 quota_scope=self.quota_scope,
-                estimated_input_tokens=estimated_prompt_tokens,
+                estimated_input_tokens=prompt,
+                reserved_output_tokens=output,
                 attempt_number=self.requests_made + 1,
                 rate_limit_rpm=self.budget.rate_limit_rpm,
                 rate_limit_tpm=self.budget.rate_limit_tpm,
                 rate_limit_rpd=self.budget.rate_limit_rpd,
             )
 
-        self.requests_made += 1
-        if is_retry:
-            self.retries_performed += 1
-        return reservation_id
+        local_id = reservation_id or f"local-{uuid.uuid4().hex}"
+        with self._lock:
+            self._local_reservations[local_id] = reservation_usage
+            self.requests_made += 1
+            if is_retry:
+                self.retries_performed += 1
+        return local_id
 
     def complete_attempt(
         self,
@@ -396,7 +431,9 @@ class BudgetTracker:
         usage: TokenUsage,
     ) -> None:
         """Reconcile a reserved attempt with actual or estimated usage upon completion."""
-        if self.usage_store is not None and reservation_id is not None:
+        with self._lock:
+            self._local_reservations.pop(reservation_id or "", None)
+        if self.usage_store is not None and reservation_id is not None and not reservation_id.startswith("local-"):
             self.usage_store.reconcile(
                 reservation_id,
                 status=RequestStatus.SUCCEEDED,
@@ -406,14 +443,10 @@ class BudgetTracker:
                 is_estimated=usage.is_estimated,
             )
 
-        self.usage = self.usage.add(usage)
+        with self._lock:
+            self.usage = self.usage.add(usage)
         self.check_elapsed_time()
-        if self.usage.total_tokens > self.budget.max_total_tokens:
-            msg = (
-                f"Token budget exceeded: used {self.usage.total_tokens} tokens > "
-                f"budget of {self.budget.max_total_tokens} tokens"
-            )
-            raise BudgetExceededError(msg)
+        self._check_token_caps(self.usage, phase="after response")
 
     def fail_attempt(
         self,
@@ -423,6 +456,20 @@ class BudgetTracker:
         estimated_prompt_tokens: int,
     ) -> None:
         """Record a failed, rate-limited, or uncertain attempt conservatively without refunding."""
+        with self._lock:
+            reserved_usage = self._local_reservations.pop(reservation_id or "", None)
+        if status is RequestStatus.UNCERTAIN:
+            conservative_usage = reserved_usage or TokenUsage(
+                prompt_tokens=max(0, int(estimated_prompt_tokens)),
+                is_estimated=True,
+            )
+            if self.usage_store is not None and reservation_id is not None and not reservation_id.startswith("local-"):
+                self.usage_store.mark_uncertain(reservation_id)
+            with self._lock:
+                self.usage = self.usage.add(conservative_usage)
+            self._check_token_caps(self.usage, phase="after uncertain attempt")
+            return
+
         safe_in = max(0, int(estimated_prompt_tokens))
         conservative_usage = TokenUsage(
             prompt_tokens=safe_in,
@@ -430,7 +477,7 @@ class BudgetTracker:
             total_tokens=safe_in,
             is_estimated=True,
         )
-        if self.usage_store is not None and reservation_id is not None:
+        if self.usage_store is not None and reservation_id is not None and not reservation_id.startswith("local-"):
             self.usage_store.reconcile(
                 reservation_id,
                 status=status,
@@ -439,7 +486,9 @@ class BudgetTracker:
                 total_tokens=safe_in,
                 is_estimated=True,
             )
-        self.usage = self.usage.add(conservative_usage)
+        with self._lock:
+            self.usage = self.usage.add(conservative_usage)
+        self._check_token_caps(self.usage, phase="after failed attempt")
 
     def record_request(self, usage: TokenUsage, retries: int = 0) -> None:
         """Record a completed request directly when not using per-attempt reservations."""

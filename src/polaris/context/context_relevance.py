@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from deicide.context.change_impact import primary_prompt_source_lines, prove_exact_primary_overlap
-from deicide.context.context_budget import serialize_context_bundle
-from deicide.context.context_models import ContextRelationshipCategory, ContextSelectionResult, SelectedSnippet
-from deicide.core.models import estimate_token_count
-from deicide.git.models import FileContext
+from polaris.context.change_impact import primary_prompt_source_lines, prove_exact_primary_overlap
+from polaris.context.context_budget import serialize_context_bundle
+from polaris.context.context_models import ContextRelationshipCategory, ContextSelectionResult, SelectedSnippet
+from polaris.core.models import estimate_token_count
+from polaris.git.models import FileContext
 
 
 @dataclass(frozen=True)

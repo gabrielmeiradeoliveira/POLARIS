@@ -4,21 +4,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from deicide.core.errors import MissingCredentialsError, UnsupportedProviderError
-from deicide.providers.base import LLMProvider
-from deicide.providers.fake import FakeProvider
-from deicide.providers.nvidia import NvidiaProvider
-from deicide.quota.store import UsageStore
+from polaris.core.errors import MissingCredentialsError, UnsupportedProviderError
+from polaris.providers.base import LLMProvider
+from polaris.providers.fake import FakeProvider
+from polaris.providers.nvidia import NvidiaProvider
+from polaris.quota.store import UsageStore
 
 if TYPE_CHECKING:
-    from deicide.core.config import DeicideConfig
+    from polaris.core.config import PolarisConfig
 
 
 def create_provider(
-    config: DeicideConfig,
+    config: PolarisConfig,
     usage_store: UsageStore | None = None,
 ) -> LLMProvider:
-    """Instantiate an LLMProvider from a validated DeicideConfig."""
+    """Instantiate an LLMProvider from a validated PolarisConfig."""
     provider_name = config.provider.strip().lower()
     if provider_name == "fake":
         return FakeProvider(model_name=config.resolved_model)

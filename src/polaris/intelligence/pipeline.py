@@ -1,21 +1,21 @@
-"""Modular post-processing pipeline for the DEICIDE MVP 1.3 Finding Intelligence Engine."""
+"""Modular post-processing pipeline for the POLARIS MVP 1.3 Finding Intelligence Engine."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
 
-from deicide.core.models import AnalysisWarning, CandidateFinding, Finding
-from deicide.git.models import DiffBundle, FileContext
-from deicide.intelligence.deduplicator import deduplicate_findings_semantic
-from deicide.intelligence.evidence_validator import validate_and_assess_candidates
-from deicide.intelligence.models import (
+from polaris.core.models import AnalysisWarning, CandidateFinding, Finding
+from polaris.git.models import DiffBundle, FileContext
+from polaris.intelligence.deduplicator import deduplicate_findings_semantic
+from polaris.intelligence.evidence_validator import validate_and_assess_candidates
+from polaris.intelligence.models import (
     EvidenceAssessment,
     FindingIntelligenceResult,
     FindingIntelligenceSummary,
 )
-from deicide.intelligence.prioritizer import prioritize_findings
-from deicide.intelligence.severity_normalizer import normalize_findings
+from polaris.intelligence.prioritizer import prioritize_findings
+from polaris.intelligence.severity_normalizer import normalize_findings
 
 
 class FindingIntelligenceEngine:

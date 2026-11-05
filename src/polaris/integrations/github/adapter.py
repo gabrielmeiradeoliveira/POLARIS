@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from deicide.core.models import AnalysisReport
-from deicide.integrations.github.client import GitHubClient
-from deicide.integrations.github.mapping import map_findings
-from deicide.integrations.github.models import ChangedFile, PullRequestMetadata, ReviewSummary
-from deicide.integrations.github.publishing import SafePublisher
-from deicide.integrations.github.summary import build_summary
+from polaris.core.models import AnalysisReport
+from polaris.integrations.github.client import GitHubClient
+from polaris.integrations.github.mapping import map_findings
+from polaris.integrations.github.models import ChangedFile, PullRequestMetadata, ReviewSummary
+from polaris.integrations.github.publishing import SafePublisher
+from polaris.integrations.github.summary import build_summary
 
 
 class GitHubReviewAdapter:

@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from deicide.core.models import (
+from polaris.core.models import (
     AnalysisReport,
     Confidence,
     Finding,
@@ -16,10 +16,10 @@ from deicide.core.models import (
     Severity,
     TokenUsage,
 )
-from deicide.integrations.github.adapter import GitHubReviewAdapter
-from deicide.integrations.github.client import GitHubClient
-from deicide.integrations.github.mapping import map_finding, map_findings
-from deicide.integrations.github.models import (
+from polaris.integrations.github.adapter import GitHubReviewAdapter
+from polaris.integrations.github.client import GitHubClient
+from polaris.integrations.github.mapping import map_finding, map_findings
+from polaris.integrations.github.models import (
     ChangedFile,
     GitHubErrorCategory,
     GitHubIntegrationError,
@@ -28,8 +28,8 @@ from deicide.integrations.github.models import (
     PublishOperation,
     PullRequestMetadata,
 )
-from deicide.integrations.github.publishing import SafePublisher
-from deicide.integrations.github.summary import build_summary
+from polaris.integrations.github.publishing import SafePublisher
+from polaris.integrations.github.summary import build_summary
 
 
 class ScriptedTransport:
@@ -81,6 +81,36 @@ def test_timeout_network_and_invalid_payload_are_classified() -> None:
     assert raised.value.category == GitHubErrorCategory.INVALID_RESPONSE
 
 
+@pytest.mark.parametrize(
+    "payload",
+    (
+        {"filename": "src/app.py", "status": "modified"},
+        [{"filename": 7, "status": "modified", "patch": "@@ -1 +1 @@\n-a\n+b"}],
+        [{"filename": "src/app.py", "status": "unexpected", "patch": "@@ -1 +1 @@\n-a\n+b"}],
+    ),
+)
+def test_malformed_changed_file_payloads_are_rejected_before_review(payload: object) -> None:
+    with pytest.raises(GitHubIntegrationError) as raised:
+        GitHubClient(ScriptedTransport([response(200, payload)]), max_retries=0).list_changed_files(pr())
+    assert raised.value.category == GitHubErrorCategory.INVALID_RESPONSE
+
+
+def test_pagination_failure_is_classified_before_complete_file_list_is_returned() -> None:
+    link = '</repos/acme/demo/pulls/7/files?per_page=100&page=2>; rel="next"'
+    transport = ScriptedTransport(
+        [
+            response(200, [{"filename": "src/a.py", "status": "modified", "patch": "@@ -1 +1 @@\n-a\n+b"}], {"Link": link}),
+            response(500, {}),
+        ]
+    )
+
+    with pytest.raises(GitHubIntegrationError) as raised:
+        GitHubClient(transport, max_retries=0).list_changed_files(pr())
+
+    assert raised.value.category == GitHubErrorCategory.SERVER
+    assert len(transport.requests) == 2
+
+
 def test_mapping_multiple_hunks_renames_removed_and_outside_diff() -> None:
     changed = ChangedFile(path="src/new.py", previous_path="src/old.py", status="renamed", patch="@@ -2,2 +2,2 @@\n-old\n+new\n keep\n@@ -10 +10 @@\n-old2\n+new2")
     assert map_finding(finding("src/new.py", 10), [changed]).position is not None
@@ -90,7 +120,7 @@ def test_mapping_multiple_hunks_renames_removed_and_outside_diff() -> None:
 
 
 def test_dry_run_deduplicates_and_never_posts_or_exposes_token() -> None:
-    transport = ScriptedTransport([response(200, [{"body": "<!-- deicide:finding:finding-001 --> prior"}])])
+    transport = ScriptedTransport([response(200, [{"body": "<!-- polaris:finding:finding-001 --> prior"}])])
     publisher = SafePublisher(GitHubClient(transport, token="secret-token"), dry_run=True)
     operations = publisher.publish(pr(), [MappedComment(finding_id="finding-001", body="same"), MappedComment(finding_id="finding-002", body="next")])
     assert [operation.status for operation in operations] == ["duplicate", "dry_run"]

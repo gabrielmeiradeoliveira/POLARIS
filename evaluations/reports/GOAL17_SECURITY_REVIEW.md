@@ -26,5 +26,5 @@ NIM documentation lists token-counting endpoints, but does not establish hosted
 endpoint availability or billing semantics. See [hosted chat completions](https://docs.api.nvidia.com/nim/reference/meta-llama2-70b-infer)
 and [NIM API reference](https://docs.nvidia.com/nim/large-language-models/latest/reference/api-reference.html).
 
-DEICIDE uses a local estimate, a 256-token margin, and dynamic output reservation.
+POLARIS uses a local estimate, a 256-token margin, and dynamic output reservation.
 This reduces avoidable overspend but cannot prove an absolute 6,000-token cap.

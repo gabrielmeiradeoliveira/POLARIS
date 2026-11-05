@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "source_fixture": "evaluations/fixtures/real_world_verified_benchmark.json",
+  "matching": {
+    "file_path": "exact",
+    "line_range": "overlap",
+    "category": "primary_or_allowed_alternative",
+    "severity": "diagnostic_only_when_strict_severity_is_false"
+  },
+  "cache": {
+    "location": "C:/Users/gabri/AppData/Local/polaris/goal28-cache",
+    "execution": "not permitted; checkout and diff inspection only"
+  },
+  "accepted_positives": [
+    {"case_id": "rw-requests-2023-proxy-authorization", "repository": "psf/requests", "source_sha": "302225334678490ec66b3614a9dddb8a02c5f4fe", "fix_sha": "74ea7cf7a6a27a4eeb2ae24e162bcc942a6706d5", "direction": "fixture is inverse of upstream fix", "upstream_test_changed": true},
+    {"case_id": "rw-requests-jsondecodeerror-pickle", "repository": "psf/requests", "source_sha": "96b22fa18c00831656ee4b286bf1c9062459b00a", "fix_sha": "3ff3ff21dd45957c9e143cd500291959bb15f690", "direction": "fixture is a minimized inverse of upstream fix", "upstream_test_changed": true},
+    {"case_id": "rw-urllib3-proxy-redirect-origin", "repository": "urllib3/urllib3", "source_sha": "e349d97f2bf234b95d5dd9e689d056a521dfc3b0", "fix_sha": "01cd60b539f808a65e9c5aa93db1c48292432176", "direction": "fixture is a minimized inverse of upstream fix", "upstream_test_changed": true},
+    {"case_id": "rw-urllib3-port-zero", "repository": "urllib3/urllib3", "source_sha": "f4e4bc31f40f8c94c6a1f1685df28f97ff48c305", "fix_sha": "f5cf122346141b187cca0db6e6445297d336b610", "direction": "fixture is inverse of upstream fix", "upstream_test_changed": true},
+    {"case_id": "rw-urllib3-invalid-timeout-error", "repository": "urllib3/urllib3", "source_sha": "29ae1419530857dc43f5d28907da5d6fbc229739", "fix_sha": "9f1b31d7daab252962d3400f64c3574c0ccb122f", "direction": "fixture is inverse of upstream fix", "upstream_test_changed": true}
+  ],
+  "accepted_negatives": [],
+  "excluded_positives": [
+    {"case_id": "rw-requests-super-len-unicode", "reason": "fix commit has no upstream regression-test change"},
+    {"case_id": "rw-urllib3-cookie-cross-origin", "reason": "recorded fix SHA is unavailable from the upstream remote"},
+    {"case_id": "rw-werkzeug-debugger-trusted-host", "reason": "fix commit has no upstream regression-test change"}
+  ],
+  "negative_gap": "No independently sourced negative has a pinned SHA, proven behavior-preserving direction, and upstream test oracle."
+}

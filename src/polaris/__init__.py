@@ -1,4 +1,4 @@
-"""DEICIDE: Open-source, modular, AI-powered software assurance platform."""
+"""POLARIS: Open-source, modular, AI-powered software assurance platform."""
 
 __all__ = ["__version__"]
 

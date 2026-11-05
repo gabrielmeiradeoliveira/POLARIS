@@ -45,15 +45,15 @@
     "suitable_for_live_benchmark": true
   },
   {
-    "case_id": "bug-intro-02-deicide-budget-underflow",
+    "case_id": "bug-intro-02-polaris-budget-underflow",
     "description": "Boundary condition underflow: removed zero clamp when calculating available context tokens allowing negative token budget",
-    "diff_text": "diff --git a/src/deicide/modules/code_review.py b/src/deicide/modules/code_review.py\n--- a/src/deicide/modules/code_review.py\n+++ b/src/deicide/modules/code_review.py\n@@ -2,3 +2,3 @@ class CodeReviewModule:\n     def calculate_context_budget(self, max_context_tokens: int, baseline_tokens: int) -> int:\n-        return max(0, max_context_tokens - baseline_tokens)\n+        return max_context_tokens - baseline_tokens\n",
+    "diff_text": "diff --git a/src/polaris/modules/code_review.py b/src/polaris/modules/code_review.py\n--- a/src/polaris/modules/code_review.py\n+++ b/src/polaris/modules/code_review.py\n@@ -2,3 +2,3 @@ class CodeReviewModule:\n     def calculate_context_budget(self, max_context_tokens: int, baseline_tokens: int) -> int:\n-        return max(0, max_context_tokens - baseline_tokens)\n+        return max_context_tokens - baseline_tokens\n",
     "file_contents": {
-      "src/deicide/modules/code_review.py": "class CodeReviewModule:\n    def calculate_context_budget(self, max_context_tokens: int, baseline_tokens: int) -> int:\n        return max_context_tokens - baseline_tokens\n"
+      "src/polaris/modules/code_review.py": "class CodeReviewModule:\n    def calculate_context_budget(self, max_context_tokens: int, baseline_tokens: int) -> int:\n        return max_context_tokens - baseline_tokens\n"
     },
     "expected_findings": [
       {
-        "file_path": "src/deicide/modules/code_review.py",
+        "file_path": "src/polaris/modules/code_review.py",
         "line_range": {
           "start_line": 3,
           "end_line": 3
@@ -67,7 +67,7 @@
         "category": "boundary_condition",
         "severity": "high",
         "confidence": "high",
-        "file_path": "src/deicide/modules/code_review.py",
+        "file_path": "src/polaris/modules/code_review.py",
         "start_line": 3,
         "end_line": 3,
         "title": "Negative context token budget underflow",
@@ -77,7 +77,7 @@
       }
     ],
     "supplementary_snippets": [],
-    "repository": "deicide",
+    "repository": "polaris",
     "commit_id": "cfc826d",
     "is_clean": false,
     "fix_reference": "Reconstructed from fix for negative context token budget underflow",
@@ -201,7 +201,7 @@
       }
     ],
     "supplementary_snippets": [],
-    "repository": "deicide",
+    "repository": "polaris",
     "commit_id": null,
     "is_clean": false,
     "fix_reference": "Synthetic reconstruction of cross-module interface break",
@@ -237,7 +237,7 @@
     "expected_findings": [],
     "candidate_findings": [],
     "supplementary_snippets": [],
-    "repository": "deicide",
+    "repository": "polaris",
     "commit_id": null,
     "is_clean": true,
     "fix_reference": "Synthetic benchmark fixture modeling safe helper function extraction",
@@ -248,14 +248,14 @@
   {
     "case_id": "clean-neg-03-docstring-and-typing-docs",
     "description": "Documentation update: adds detailed docstrings and parameter descriptions to analysis runner function",
-    "diff_text": "diff --git a/src/deicide/runner.py b/src/deicide/runner.py\n--- a/src/deicide/runner.py\n+++ b/src/deicide/runner.py\n@@ -1,3 +1,7 @@\n def execute_analysis(module_name: str, timeout_seconds: float = 30.0) -> bool:\n+    # Execute code analysis pipeline for the selected module.\n+    # module_name: Unique registered identifier for the analysis module.\n+    # timeout_seconds: Per-module execution deadline in seconds.\n     return True\n",
+    "diff_text": "diff --git a/src/polaris/runner.py b/src/polaris/runner.py\n--- a/src/polaris/runner.py\n+++ b/src/polaris/runner.py\n@@ -1,3 +1,7 @@\n def execute_analysis(module_name: str, timeout_seconds: float = 30.0) -> bool:\n+    # Execute code analysis pipeline for the selected module.\n+    # module_name: Unique registered identifier for the analysis module.\n+    # timeout_seconds: Per-module execution deadline in seconds.\n     return True\n",
     "file_contents": {
-      "src/deicide/runner.py": "def execute_analysis(module_name: str, timeout_seconds: float = 30.0) -> bool:\n    # Execute code analysis pipeline for the selected module.\n    # module_name: Unique registered identifier for the analysis module.\n    # timeout_seconds: Per-module execution deadline in seconds.\n    return True\n"
+      "src/polaris/runner.py": "def execute_analysis(module_name: str, timeout_seconds: float = 30.0) -> bool:\n    # Execute code analysis pipeline for the selected module.\n    # module_name: Unique registered identifier for the analysis module.\n    # timeout_seconds: Per-module execution deadline in seconds.\n    return True\n"
     },
     "expected_findings": [],
     "candidate_findings": [],
     "supplementary_snippets": [],
-    "repository": "deicide",
+    "repository": "polaris",
     "commit_id": "cfc826d",
     "is_clean": true,
     "fix_reference": "Commit cfc826d documentation update",

@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.models import CandidateFinding, Confidence, FindingCategory, LineRange, Severity
-from deicide.evaluation.history import (
+from polaris.cli import app
+from polaris.core.models import CandidateFinding, Confidence, FindingCategory, LineRange, Severity
+from polaris.evaluation.history import (
     CorpusKind,
     DuplicateHistoryRunError,
     FindingValidationRecord,
@@ -25,9 +25,9 @@ from deicide.evaluation.history import (
     validation_metrics,
     write_trend_reports,
 )
-from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
-from deicide.evaluation.runner import evaluate_corpus
-from deicide.providers.fake import FakeProvider
+from polaris.evaluation.models import EvaluationFixture, ExpectedFindingSpec
+from polaris.evaluation.runner import evaluate_corpus
+from polaris.providers.fake import FakeProvider
 
 
 def _fixture() -> EvaluationFixture:

@@ -1,6 +1,6 @@
-"""Persistent SQLite usage tracking and quota reservation for DEICIDE."""
+"""Persistent SQLite usage tracking and quota reservation for POLARIS."""
 
-from deicide.quota.store import (
+from polaris.quota.store import (
     ACTIVE_QUOTA_STATUSES,
     QuotaSnapshot,
     RequestStatus,

@@ -51,6 +51,12 @@ class PullRequestMetadata(BaseModel):
     state: str = "open"
     head_sha: str = Field(min_length=1)
     base_sha: str = Field(min_length=1)
+    head_ref: str = ""
+    base_ref: str = ""
+    author_login: str = ""
+    is_fork: bool = False
+    merged: bool = False
+    html_url: str = ""
 
 
 class ChangedFile(BaseModel):
@@ -85,7 +91,7 @@ class DiffPosition(BaseModel):
 
 
 class MappedComment(BaseModel):
-    """A DEICIDE finding rendered as a safely placeable PR comment."""
+    """A POLARIS finding rendered as a safely placeable PR comment."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 

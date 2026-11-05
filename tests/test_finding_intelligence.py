@@ -1,18 +1,18 @@
-"""Comprehensive unit and integration tests for the DEICIDE MVP 1.3 Finding Intelligence Engine."""
+"""Comprehensive unit and integration tests for the POLARIS MVP 1.3 Finding Intelligence Engine."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from deicide.cli import build_default_registry
-from deicide.context.context_models import (
+from polaris.cli import build_default_registry
+from polaris.context.context_models import (
     ContextRelationshipCategory,
     ContextSelectionResult,
     SelectedSnippet,
 )
-from deicide.core.config import DeicideConfig
-from deicide.core.models import (
+from polaris.core.config import PolarisConfig
+from polaris.core.models import (
     CandidateFinding,
     Confidence,
     Finding,
@@ -20,10 +20,10 @@ from deicide.core.models import (
     LineRange,
     Severity,
 )
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
-from deicide.intelligence import (
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.intelligence import (
     ChangeRelevance,
     EvidenceAssessment,
     EvidenceQuality,
@@ -36,7 +36,7 @@ from deicide.intelligence import (
     prioritize_findings,
     validate_and_assess_candidates,
 )
-from deicide.providers.fake import FakeProvider
+from polaris.providers.fake import FakeProvider
 
 
 def _make_diff_and_context() -> tuple[DiffBundle, dict[str, FileContext]]:
@@ -631,7 +631,7 @@ def test_orchestrator_end_to_end_finding_intelligence_pipeline(temp_git_repo: Pa
     )
 
     provider = FakeProvider(scripted_responses=[scripted_payload])
-    config = DeicideConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
+    config = PolarisConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
     orchestrator = AnalysisOrchestrator(
         config=config,
         provider=provider,

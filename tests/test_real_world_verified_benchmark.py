@@ -2,13 +2,13 @@
 
 from pathlib import Path
 
-from deicide.core.models import CandidateFinding
-from deicide.evaluation.models import GroundTruthVerificationStatus
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import DiffBundle, FileContext
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.fake import FakeProvider
+from polaris.core.models import CandidateFinding
+from polaris.evaluation.models import GroundTruthVerificationStatus
+from polaris.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import DiffBundle, FileContext
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.fake import FakeProvider
 
 
 def test_real_world_port_zero_captured_candidate_survives_production_validation() -> None:

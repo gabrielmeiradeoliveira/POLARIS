@@ -1,18 +1,18 @@
-"""Module registration and typed contracts for DEICIDE analysis modules."""
+"""Module registration and typed contracts for POLARIS analysis modules."""
 
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from deicide.core.errors import ConfigurationError
-from deicide.core.models import BudgetTracker, CandidateFinding
-from deicide.git.models import DiffBundle, FileContext
-from deicide.providers.base import LLMProvider
+from polaris.core.errors import ConfigurationError
+from polaris.core.models import BudgetTracker, CandidateFinding
+from polaris.git.models import DiffBundle, FileContext
+from polaris.providers.base import LLMProvider
 
 
 @runtime_checkable
 class AnalysisModule(Protocol):
-    """Typed contract implemented by every DEICIDE analysis module."""
+    """Typed contract implemented by every POLARIS analysis module."""
 
     @property
     def module_id(self) -> str:
@@ -36,7 +36,7 @@ class AnalysisModule(Protocol):
 
 
 class ModuleRegistry:
-    """Registry managing available DEICIDE analysis modules by technical `module_id`."""
+    """Registry managing available POLARIS analysis modules by technical `module_id`."""
 
     def __init__(self) -> None:
         self._modules: dict[str, AnalysisModule] = {}

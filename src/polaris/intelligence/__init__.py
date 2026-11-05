@@ -1,8 +1,8 @@
-"""DEICIDE MVP 1.3 Finding Intelligence Engine package."""
+"""POLARIS MVP 1.3 Finding Intelligence Engine package."""
 
 from __future__ import annotations
 
-from deicide.intelligence.deduplicator import (
+from polaris.intelligence.deduplicator import (
     are_categories_compatible,
     are_findings_duplicates,
     deduplicate_findings_semantic,
@@ -12,7 +12,7 @@ from deicide.intelligence.deduplicator import (
     normalize_code_evidence,
     token_jaccard,
 )
-from deicide.intelligence.evidence_validator import (
+from polaris.intelligence.evidence_validator import (
     assess_evidence,
     classify_change_relevance,
     compute_finding_id,
@@ -21,7 +21,7 @@ from deicide.intelligence.evidence_validator import (
     strip_evidence_line_prefixes,
     validate_and_assess_candidates,
 )
-from deicide.intelligence.models import (
+from polaris.intelligence.models import (
     ChangeRelevance,
     DeduplicationGroup,
     EvidenceAssessment,
@@ -30,12 +30,12 @@ from deicide.intelligence.models import (
     FindingIntelligenceSummary,
     NormalizationAdjustment,
 )
-from deicide.intelligence.pipeline import FindingIntelligenceEngine
-from deicide.intelligence.prioritizer import (
+from polaris.intelligence.pipeline import FindingIntelligenceEngine
+from polaris.intelligence.prioritizer import (
     compute_finding_priority_key,
     prioritize_findings,
 )
-from deicide.intelligence.severity_normalizer import (
+from polaris.intelligence.severity_normalizer import (
     normalize_finding_severity,
     normalize_findings,
 )

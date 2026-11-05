@@ -7,13 +7,13 @@ import re
 import subprocess
 from pathlib import Path, PurePosixPath
 
-from deicide.core.errors import (
+from polaris.core.errors import (
     InvalidRevisionError,
     RepositoryError,
     SecurityViolationError,
 )
-from deicide.core.models import BudgetTracker, ExecutionBudget
-from deicide.git.models import (
+from polaris.core.models import BudgetTracker, ExecutionBudget
+from polaris.git.models import (
     ContextSnippet,
     DiffBundle,
     DiffHunk,
@@ -21,6 +21,8 @@ from deicide.git.models import (
     FileContext,
     FileDiff,
 )
+
+EMPTY_TREE_REVISION = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 _HUNK_HEADER_RE = re.compile(
     r"^@@ -(?P<old_start>\d+)(?:,(?P<old_count>\d+))? "
@@ -235,7 +237,7 @@ class GitAnalyzer:
 
     def _run_git(self, args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
         """Run a read-only git command safely without shell interpolation."""
-        cmd = ["git", "-C", str(self.requested_path), *args]
+        cmd = ["git", "-c", f"safe.directory={self.requested_path}", "-C", str(self.requested_path), *args]
         env = os.environ.copy()
         env["GIT_TERMINAL_PROMPT"] = "0"
         try:
@@ -305,7 +307,13 @@ class GitAnalyzer:
         Custom base behavior (`base_revision=<rev>`):
           - Validates `<rev>` and compares `<rev>` against the current working tree.
         """
-        if base_revision is not None:
+        if base_revision == EMPTY_TREE_REVISION:
+            target_desc = "full repository snapshot"
+            res = self._run_git(
+                ["diff", "--unified=3", "--find-renames", "--no-color", "--no-ext-diff", base_revision, "--"]
+            )
+            raw_diff = res.stdout
+        elif base_revision is not None:
             self.validate_revision(base_revision)
             target_desc = f"working tree vs {base_revision}"
             res = self._run_git(
@@ -444,6 +452,17 @@ class GitAnalyzer:
             windows: list[tuple[int, int]] = []
             for hunk in file_diff.hunks:
                 if hunk.new_start <= 0:
+                    continue
+                if hunk.new_start > total_lines:
+                    if tracker is not None:
+                        tracker.add_warning(
+                            code="CONTEXT_HUNK_OUT_OF_RANGE",
+                            message=(
+                                f"Hunk for '{file_diff.new_path}' starts at line {hunk.new_start}, "
+                                f"beyond file length {total_lines}; context was not read for that hunk."
+                            ),
+                            file_path=file_diff.new_path,
+                        )
                     continue
                 span = max(hunk.new_count, 1)
                 w_start = max(1, hunk.new_start - padding)

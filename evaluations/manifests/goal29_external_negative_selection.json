@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "source_manifest": "evaluations/manifests/goal28_external_reproducibility.json",
+  "selection": {
+    "repository_scope": ["psf/requests", "urllib3/urllib3", "pallets/werkzeug"],
+    "candidates_examined": 15,
+    "detector_executed": false,
+    "upstream_code_executed": false,
+    "cache": "C:/Users/gabri/AppData/Local/polaris/goal28-cache"
+  },
+  "matching": {
+    "file_path": "exact",
+    "line_range": "overlap",
+    "expected_findings": 0
+  },
+  "accepted_negatives": [
+    {
+      "case_id": "rw-requests-comprehension-refactor",
+      "repository": "psf/requests",
+      "sha": "89ab030cdb83a728a30e172bc65d27ba214d2eda",
+      "parent_sha": "2c6a8426aebd853966747f2c851f551c583cb21a",
+      "direction": "behavior-preserving syntax rewrite",
+      "oracle": "dict constructor/generator expressions become equivalent dict literals and comprehensions; no called operation or branch changes",
+      "upstream_tests": ["tests/test_requests.py", "tests/test_utils.py"],
+      "benchmark_scope": "production"
+    },
+    {
+      "case_id": "rw-requests-chunked-upload-iterator",
+      "repository": "psf/requests",
+      "sha": "35744c3e5d212f8841be3a5ab7de3e3b37dda5bb",
+      "parent_sha": "4bf88661720782670e14a0904a28ee897180b429",
+      "direction": "behavior-preserving test-fixture rewrite",
+      "oracle": "the fixed byte list yields the same ordered elements through either iterator form in test_chunked_upload",
+      "upstream_tests": ["tests/test_lowlevel.py::test_chunked_upload"],
+      "benchmark_scope": "supplemental_test_only"
+    },
+    {
+      "case_id": "rw-requests-test-dict-loop",
+      "repository": "psf/requests",
+      "sha": "66f5aebd3521810cfa1fa96d8d894dafc065f247",
+      "parent_sha": "f58d473d4e5b2b5463b34b9c2254a7ebf6a49007",
+      "direction": "behavior-preserving test-fixture rewrite",
+      "oracle": "the loop and dict comprehension iterate the same concrete __dict__.items() and assign identical key/value pairs",
+      "upstream_tests": ["tests/test_requests.py::TestGetConnection"],
+      "benchmark_scope": "supplemental_test_only"
+    }
+  ],
+  "rejected_candidates": [
+    {"repository": "psf/requests", "sha": "dfe46c1b7f55c9377caecba2119be14d3cce74e5", "reason": "production syntax rewrite but no relevant upstream test change"},
+    {"repository": "psf/requests", "sha": "99b3b492418d0751ca960178d274f89805095e4c", "reason": "proxy-resolution behavior changed"},
+    {"repository": "psf/requests", "sha": "cb0914407b6bb8153c8be5d52bc497e1d10b04ac", "reason": "parser accepts a new quoted-input case"},
+    {"repository": "psf/requests", "sha": "8000def20cf6fd61a7f311e2ea06636475b2bc6e", "reason": "byte/unicode conversion path changed without direct test evidence"},
+    {"repository": "psf/requests", "sha": "9a20afd6b5140da4b9f187a3c0c6ea7010baeee9", "reason": "public default parameters changed"},
+    {"repository": "psf/requests", "sha": "5481db22b5e2a3ad6b957454d830fded9cf43e39", "reason": "merge commit; no atomic oracle"},
+    {"repository": "psf/requests", "sha": "3d33f30436f75a5822d33b99d9db92555cac8c83", "reason": "merge commit; no atomic oracle"},
+    {"repository": "pallets/werkzeug", "sha": "665e760ca6325a348ce03e5cf780b17e4be01848", "reason": "merge commit; no atomic oracle"},
+    {"repository": "pallets/werkzeug", "sha": "a33190bffb7f6dd4c7084c08257b4542689b8c66", "reason": "merge commit; no atomic oracle"},
+    {"repository": "pallets/werkzeug", "sha": "54bb70e6cf15e7b90eecc8e479261d45a62fe883", "reason": "multi-file file-handling refactor; semantic equivalence not defensible statically"},
+    {"repository": "pallets/werkzeug", "sha": "96264fef56c59c3bb7a74de26c7ee253b7475d51", "reason": "cookie and client contract changed"},
+    {"repository": "pallets/werkzeug", "sha": "cf0102d6443e936f95b21b69e3deb65028d6fe3b", "reason": "documented compatibility and cookie-output changes"}
+  ],
+  "primary_benchmark_status": "blocked: one production negative is insufficient; supplemental test-only negatives must not inflate the aggregate"
+}

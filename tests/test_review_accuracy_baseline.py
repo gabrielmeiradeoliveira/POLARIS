@@ -1,4 +1,4 @@
-"""Tests for DEICIDE MVP 1.4 Review Accuracy Baseline evaluation infrastructure."""
+"""Tests for POLARIS MVP 1.4 Review Accuracy Baseline evaluation infrastructure."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from pathlib import Path
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.models import (
+from polaris.cli import app
+from polaris.core.models import (
     CandidateFinding,
     Confidence,
     ExecutionBudget,
@@ -19,14 +19,14 @@ from deicide.core.models import (
     LineRange,
     Severity,
 )
-from deicide.evaluation.models import (
+from polaris.evaluation.models import (
     ChangeType,
     EvaluationFixture,
     ExpectedFindingSpec,
 )
-from deicide.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
-from deicide.providers.fake import FakeProvider
-from deicide.providers.nvidia import NvidiaProvider
+from polaris.evaluation.runner import evaluate_case, evaluate_corpus, load_fixtures_from_file
+from polaris.providers.fake import FakeProvider
+from polaris.providers.nvidia import NvidiaProvider
 
 runner = CliRunner()
 
@@ -47,14 +47,14 @@ def test_provenance_classification_resolution() -> None:
     )
     assert positive_fixture.resolved_provenance == "fully_verified"
 
-    # 2. Authentic local DEICIDE fix
+    # 2. Authentic local POLARIS fix
     local_fixture = EvaluationFixture(
         case_id="local-test",
         description="Local fix",
         diff_text="diff --git a/a.py b/a.py\n--- a/a.py\n+++ b/a.py\n@@ -1,1 +1,1 @@\n-old\n+new\n",
         file_contents={"a.py": "new\n"},
         expected_findings=[],
-        repository="deicide",
+        repository="polaris",
         commit_id="cfc826d",
         is_clean=True,
         fix_reference="Commit cfc826d",
@@ -280,7 +280,7 @@ def test_real_provider_evaluation_with_mocked_nvidia_transport() -> None:
 
 
 def test_external_provider_requires_explicit_opt_in() -> None:
-    """Ensure deicide evaluate rejects external provider execution without --allow-external."""
+    """Ensure polaris evaluate rejects external provider execution without --allow-external."""
     # Running without --allow-external must fail with credentials/configuration error
     result = runner.invoke(
         app,

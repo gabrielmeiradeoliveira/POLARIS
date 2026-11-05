@@ -4,18 +4,18 @@ from __future__ import annotations
 
 import re
 
-from deicide.core.models import Finding, FindingCategory
-from deicide.intelligence.evidence_validator import (
+from polaris.core.models import Finding, FindingCategory
+from polaris.intelligence.evidence_validator import (
     normalize_ws,
     strip_evidence_line_prefixes,
 )
-from deicide.intelligence.models import (
+from polaris.intelligence.models import (
     ChangeRelevance,
     DeduplicationGroup,
     EvidenceAssessment,
     EvidenceQuality,
 )
-from deicide.intelligence.prioritizer import prioritize_findings
+from polaris.intelligence.prioritizer import prioritize_findings
 
 _CODE_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|==|!=|<=|>=|//|\*\*|[+\-*/%<>=]")
 _WORD_RE = re.compile(r"[a-z0-9_]+")

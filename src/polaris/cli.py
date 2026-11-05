@@ -1,4 +1,4 @@
-"""Command-line interface for DEICIDE."""
+"""Command-line interface for POLARIS."""
 
 from __future__ import annotations
 
@@ -8,23 +8,23 @@ from typing import Annotated
 
 import typer
 
-from deicide import __version__
-from deicide.core.config import DeicideConfig, OutputFormat
-from deicide.core.errors import DeicideError, ExitCode
-from deicide.core.models import ExecutionBudget
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.core.registry import ModuleRegistry
-from deicide.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.integrations.github.client import GitHubClient
-from deicide.integrations.github.fixture_transport import FixtureGitHubTransport
-from deicide.integrations.github.models import GitHubIntegrationError
-from deicide.integrations.github.review_engine import GitHubPullRequestReview
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.factory import create_provider
-from deicide.providers.fake import FakeProvider
-from deicide.quota.store import UsageStore
-from deicide.reporting.formatter import (
+from polaris import __version__
+from polaris.core.config import OutputFormat, PolarisConfig
+from polaris.core.errors import ExitCode, PolarisError
+from polaris.core.models import ExecutionBudget
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.core.registry import ModuleRegistry
+from polaris.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.integrations.github.client import GitHubClient
+from polaris.integrations.github.fixture_transport import FixtureGitHubTransport
+from polaris.integrations.github.models import GitHubIntegrationError
+from polaris.integrations.github.review_engine import GitHubPullRequestReview
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.factory import create_provider
+from polaris.providers.fake import FakeProvider
+from polaris.quota.store import UsageStore
+from polaris.reporting.formatter import (
     format_json_report,
     format_terminal_report,
     format_usage_json,
@@ -32,8 +32,8 @@ from deicide.reporting.formatter import (
 )
 
 app = typer.Typer(
-    name="deicide",
-    help="DEICIDE: Open-source, modular, AI-powered software assurance and code review CLI.",
+    name="polaris",
+    help="POLARIS: Open-source, modular, AI-powered software assurance and code review CLI.",
     add_completion=False,
     no_args_is_help=True,
 )
@@ -46,7 +46,7 @@ app.add_typer(github_app, name="github")
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"deicide {__version__}")
+        typer.echo(f"polaris {__version__}")
         raise typer.Exit(code=int(ExitCode.SUCCESS))
 
 
@@ -57,17 +57,17 @@ def main_callback(
         typer.Option(
             "--version",
             "-V",
-            help="Show the DEICIDE version and exit.",
+            help="Show the POLARIS version and exit.",
             callback=_version_callback,
             is_eager=True,
         ),
     ] = None,
 ) -> None:
-    """DEICIDE CLI root callback."""
+    """POLARIS CLI root callback."""
 
 
 def build_default_registry() -> ModuleRegistry:
-    """Create a ModuleRegistry populated with default DEICIDE modules."""
+    """Create a ModuleRegistry populated with default POLARIS modules."""
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
     return registry
@@ -130,7 +130,7 @@ def github_review_command(
     except ValueError as exc:
         typer.echo(f"Configuration error: {exc}", err=True)
         raise typer.Exit(code=int(ExitCode.CONFIGURATION_ERROR)) from exc
-    except DeicideError as exc:
+    except PolarisError as exc:
         typer.echo(f"Error: {exc.message}", err=True)
         raise typer.Exit(code=int(exc.exit_code)) from exc
 
@@ -150,7 +150,7 @@ def review_command(
         typer.Option(
             "--provider",
             "-p",
-            help="AI provider to use ('nvidia' or 'fake'). Defaults to DEICIDE_PROVIDER or 'nvidia'.",
+            help="AI provider to use ('nvidia' or 'fake'). Defaults to POLARIS_PROVIDER or 'nvidia'.",
         ),
     ] = None,
     model: Annotated[
@@ -277,7 +277,7 @@ def review_command(
 ) -> None:
     """Analyze local Git changes for correctness bugs."""
     try:
-        config = DeicideConfig.from_env_and_args(
+        config = PolarisConfig.from_env_and_args(
             repo_path=repo,
             base_revision=base,
             provider=provider,
@@ -300,6 +300,7 @@ def review_command(
             context_max_snippets=context_snippets,
         )
         llm_provider = create_provider(config)
+        llm_provider.preserve_static_on_budget_skip = True
         registry = build_default_registry()
         orchestrator = AnalysisOrchestrator(
             config=config,
@@ -315,7 +316,7 @@ def review_command(
 
         raise typer.Exit(code=int(ExitCode.SUCCESS))
 
-    except DeicideError as exc:
+    except PolarisError as exc:
         typer.echo(f"Error: {exc.message}", err=True)
         raise typer.Exit(code=int(exc.exit_code)) from exc
     except typer.Exit:
@@ -332,7 +333,7 @@ def usage_command(
         typer.Option(
             "--provider",
             "-p",
-            help="AI provider to inspect ('nvidia' or 'fake'). Defaults to DEICIDE_PROVIDER or 'nvidia'.",
+            help="AI provider to inspect ('nvidia' or 'fake'). Defaults to POLARIS_PROVIDER or 'nvidia'.",
         ),
     ] = None,
     model: Annotated[
@@ -368,7 +369,7 @@ def usage_command(
 ) -> None:
     """Display locally tracked persistent API usage and configured rate/daily limits."""
     try:
-        config = DeicideConfig.from_env_and_args(
+        config = PolarisConfig.from_env_and_args(
             provider=provider,
             model=model,
             output_format=output_format,
@@ -395,7 +396,7 @@ def usage_command(
             typer.echo(format_usage_terminal(snapshot))
 
         raise typer.Exit(code=int(ExitCode.SUCCESS))
-    except DeicideError as exc:
+    except PolarisError as exc:
         typer.echo(f"Error: {exc.message}", err=True)
         raise typer.Exit(code=int(exc.exit_code)) from exc
     except typer.Exit:
@@ -601,7 +602,7 @@ def evaluate_command(
 ) -> None:
     """Run the curated evaluation benchmark and report precision, recall, latency, and tokens."""
     try:
-        config = DeicideConfig.from_env_and_args(
+        config = PolarisConfig.from_env_and_args(
             provider=provider,
             model=model,
             allow_external_code=allow_external,
@@ -701,9 +702,9 @@ def evaluate_command(
         else:
             engine_label = "Baseline Validator" if baseline else "Finding Intelligence Engine"
             if end_to_end:
-                summary_title = f"DEICIDE Evaluation Summary (End-to-End {llm_provider.provider_name} + {engine_label})"
+                summary_title = f"POLARIS Evaluation Summary (End-to-End {llm_provider.provider_name} + {engine_label})"
             else:
-                summary_title = f"DEICIDE Evaluation Summary ({engine_label})"
+                summary_title = f"POLARIS Evaluation Summary ({engine_label})"
             typer.echo("=" * 72)
             typer.echo(summary_title)
             typer.echo("=" * 72)
@@ -857,11 +858,11 @@ def evaluate_command(
                         typer.echo(f"        Reason: {ue.reason}")
             typer.echo("=" * 72)
         raise typer.Exit(code=int(ExitCode.SUCCESS))
-    except DeicideError as exc:
+    except PolarisError as exc:
         typer.echo(f"Error: {exc.message}", err=True)
         raise typer.Exit(code=int(exc.exit_code)) from exc
 
 
 def main() -> None:
-    """Entrypoint for the `deicide` console script."""
+    """Entrypoint for the `polaris` console script."""
     app()
