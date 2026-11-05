@@ -192,7 +192,7 @@ def comparable_metrics(outcomes: tuple[ArmOutcome, ...]) -> dict[str, Any]:
     paired = sorted(
         case_id
         for case_id, off in by_arm.get("off", {}).items()
-        if off.status == "completed" and by_arm.get("on", {}).get(case_id, off).status == "completed"
+        if off.status == "completed" and case_id in by_arm.get("on", {}) and by_arm["on"][case_id].status == "completed"
     )
 
     def metrics(arm: str) -> dict[str, Any]:
@@ -251,14 +251,17 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
         max_context_tokens=manifest["context"]["max_context_tokens"],
         behavioral_delta_reserved_tokens=manifest["context"]["behavioral_delta_reserved_tokens"],
     )
-    outcomes: list[ArmOutcome] = []
-    stop = None
-    for arm in manifest["arms"]:
-        if stop:
-            break
-        results: list[CaseEvaluationResult] = []
-        failures = 0
-        for fixture in fixtures:
+    # Keep both arms adjacent for each fixture to minimize temporal provider drift.
+    # A partial pair is never included in comparative metrics.
+    outcomes_by_arm: dict[str, list[CaseEvaluationResult]] = {
+        arm: [] for arm in manifest["arms"]
+    }
+    failures = 0
+    stop: str | None = None
+    for fixture in fixtures:
+        for arm in manifest["arms"]:
+            if stop:
+                break
             result = evaluate_case(
                 fixture,
                 provider,
@@ -270,21 +273,24 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
                 context_limits=limits,
                 observability=True,
             )
-            results.append(result)
+            outcomes_by_arm[arm].append(result)
             if result.status == "budget_exhausted":
                 stop = "budget_or_quota_exhausted"
             elif result.status != "completed":
                 failures += 1
                 if failures >= manifest["execution"]["repeated_operational_failure_threshold"]:
                     stop = "repeated_operational_failure"
-            outcome = ArmOutcome(arm, tuple(results), stop)
-            if outcomes and outcomes[-1].arm == arm:
-                outcomes[-1] = outcome
-            else:
-                outcomes.append(outcome)
-            _write_partial(output_dir / "results.json", manifest, outcomes, tracker)
-            if stop:
-                break
+            snapshot = [
+                ArmOutcome(name, tuple(cases), stop)
+                for name, cases in outcomes_by_arm.items()
+            ]
+            _write_partial(output_dir / "results.json", manifest, snapshot, tracker)
+        if stop:
+            break
+    outcomes = [
+        ArmOutcome(name, tuple(cases), stop)
+        for name, cases in outcomes_by_arm.items()
+    ]
     return tuple(outcomes)
 
 
