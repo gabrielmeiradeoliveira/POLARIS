@@ -1,0 +1,30 @@
+name: GOAL 26 offline validation
+
+on:
+  pull_request:
+    paths:
+      - "evaluations/goal26_*"
+      - "evaluations/manifests/goal26-*"
+      - "tests/test_goal26_*"
+      - "src/**"
+      - "pyproject.toml"
+      - ".github/workflows/goal26-offline.yml"
+  workflow_dispatch:
+
+jobs:
+  goal26-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project and offline test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Validate imports and CLI
+        run: |
+          python -c "import polaris.cli; import polaris.evaluation.runner"
+          polaris --help
+      - name: Run GOAL 26 offline regression tests
+        run: python -m pytest tests/test_goal26_paired_protocol.py tests/test_goal26_nvidia_runner.py -q
