@@ -1,0 +1,12 @@
+{
+  "goal": "GOAL 26 Phase 3",
+  "corpus_manifest": "evaluations/manifests/goal26-phase1-evaluation.json",
+  "case_count": 20,
+  "arms": ["off", "on"],
+  "initial_execution_limit": 40,
+  "max_retries": 0,
+  "global_token_limit": 100000,
+  "comparison_policy": "Only cases completed in both arms are scored comparatively.",
+  "stop_conditions": ["global_token_limit", "execution_limit", "quota_exhausted", "deadline", "repeated_operational_failure"],
+  "external_execution_authorized": false
+}

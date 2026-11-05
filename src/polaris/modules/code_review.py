@@ -21,6 +21,7 @@ from deicide.core.models import (
     estimate_token_count,
 )
 from deicide.git.models import DiffBundle, FileContext, FileDiff
+from deicide.modules.deterministic_rules import deterministic_candidates
 from deicide.providers.base import LLMProvider, ProviderRequest
 from deicide.quota.store import RequestStatus
 
@@ -106,7 +107,10 @@ class CodeReviewModule:
         if not reviewable_files:
             return []
 
-        static_candidates = self._static_data_flow_candidates(reviewable_files, contexts)
+        static_candidates = [
+            *self._static_data_flow_candidates(reviewable_files, contexts),
+            *deterministic_candidates(reviewable_files, contexts),
+        ]
 
         user_prompt = self._build_user_prompt(reviewable_files, contexts, context_result=context_result)
         request = ProviderRequest(

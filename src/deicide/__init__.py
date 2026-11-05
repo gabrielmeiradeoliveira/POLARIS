@@ -1,5 +1,7 @@
-"""DEICIDE: Open-source, modular, AI-powered software assurance platform."""
+"""Compatibility namespace for legacy deicide imports."""
 
+from polaris import __version__
+import polaris as _polaris
+
+__path__ = _polaris.__path__
 __all__ = ["__version__"]
-
-__version__ = "0.1.0"

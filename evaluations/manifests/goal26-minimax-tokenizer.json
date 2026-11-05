@@ -1,0 +1,13 @@
+{
+  "repository": "MiniMaxAI/MiniMax-M3.1-Flash",
+  "revision": "4644d202ac129a244c6e039e273090c11257f22f",
+  "path": "evaluations/tokenizers/minimax-m3.1-flash-4644d20",
+  "files": {
+    "added_tokens.json": "63f277741fb061e615cb604286a845d971178ba4716732a59cf42b3752c0ce4e",
+    "chat_template.jinja": "d94e0127cbbc562c50a9a3758d39e74cf8f9d4b8cf9a5abe0df6243ddb668042",
+    "special_tokens_map.json": "401b624ec44507183d1dc65c74f7f3387699a77971aa19fa5a0cc57a3989ba97",
+    "tokenizer.json": "bb1f1626cf01448f1e3b6036d0a061ffc66c91d9046aada14ea23a5441b5ad6e",
+    "tokenizer_config.json": "15caca9f74fbce9b86dc014e9324cbefa56703d81ccd6d56020faa1c41d2eae5"
+  },
+  "serving_equivalence": "unverified"
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "goal": "GOAL 26 Phase 1",
+  "recorded_at": "2026-11-04",
+  "base_commit": "586dcfc72f3963e4bc6b319c1bd1c90112a5c774",
+  "corpora": {
+    "end_to_end_context": {
+      "path": "evaluations/fixtures/end_to_end_context_benchmark.json",
+      "sha256": "1901684d08c4b6cba33edeaa186782ec3b778fad9af7cf2f043eed91913e2357"
+    },
+    "real_world_verified": {
+      "path": "evaluations/fixtures/real_world_verified_benchmark.json",
+      "sha256": "c2cd0994d31d639d9571971ddece7ed99303ecb44ebde7d479c0f3cfac54071b"
+    }
+  },
+  "runner": {
+    "command": ".\\.venv\\Scripts\\python.exe -m polaris evaluate --provider fake --fixtures evaluations/fixtures/end_to_end_context_benchmark.json --end-to-end --format json",
+    "provider": "fake",
+    "mode": "end_to_end",
+    "behavioral_delta_enabled": true,
+    "external_network_authorized": false
+  },
+  "case_order": [
+    "e2e-ctx-01-return-contract-multiple-callers",
+    "e2e-ctx-02-shared-session-state",
+    "e2e-ctx-03-retry-leaks-resource",
+    "e2e-ctx-04-callback-exception-swallowed",
+    "e2e-ctx-05-null-plugin-result",
+    "e2e-ctx-06-page-boundary-callback",
+    "e2e-ctx-07-async-shared-callback",
+    "e2e-ctx-08-override-skips-validation",
+    "e2e-ctx-09-indirect-serializer-contract",
+    "e2e-ctx-10-unregisters-wrong-callback",
+    "e2e-ctx-11-permission-default-multiple-callers",
+    "e2e-ctx-12-generator-cleanup-after-yield",
+    "e2e-ctx-13-safe-signature-migration-three-callers",
+    "e2e-ctx-14-copy-on-write-session",
+    "e2e-ctx-15-context-manager-retry",
+    "e2e-ctx-16-narrow-exception-preserves-contract",
+    "e2e-ctx-17-null-guard-callback",
+    "e2e-ctx-18-boundary-clamp-pagination",
+    "e2e-ctx-19-locked-task-state",
+    "e2e-ctx-20-override-calls-super"
+  ],
+  "historical_artifacts": "Existing manifests and results are append-only evidence and are not rewritten by this record."
+}

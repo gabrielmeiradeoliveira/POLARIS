@@ -19,7 +19,11 @@ class SafePublisher:
     @staticmethod
     def _duplicates(comments: Iterable[MappedComment], existing: Iterable[dict[str, object]]) -> set[str]:
         bodies = [str(item.get("body", "")) for item in existing]
-        return {comment.finding_id for comment in comments if any(finding_marker(comment.finding_id) in body for body in bodies)}
+        return {
+            comment.finding_id
+            for comment in comments
+            if any(finding_marker(comment.finding_id) in body for body in bodies)
+        }
 
     def publish(self, pr: PullRequestMetadata, comments: Iterable[MappedComment]) -> list[PublishOperation]:
         """Plan all comments first; a single review request prevents per-comment partial publication."""
@@ -31,10 +35,19 @@ class SafePublisher:
         summaries: list[MappedComment] = []
         for comment in comment_list:
             if comment.finding_id in duplicates:
-                operations.append(PublishOperation(finding_id=comment.finding_id, action="review_comment", status="duplicate"))
+                operations.append(
+                    PublishOperation(finding_id=comment.finding_id, action="review_comment", status="duplicate")
+                )
             elif comment.position is None:
                 summaries.append(comment)
-                operations.append(PublishOperation(finding_id=comment.finding_id, action="summary", status="dry_run" if self.dry_run else "planned", detail=comment.reason or "No valid diff location."))
+                operations.append(
+                    PublishOperation(
+                        finding_id=comment.finding_id,
+                        action="summary",
+                        status="dry_run" if self.dry_run else "planned",
+                        detail=comment.reason or "No valid diff location.",
+                    )
+                )
             else:
                 publishable.append(comment)
 
@@ -42,15 +55,29 @@ class SafePublisher:
             return operations
         review_body = "DEICIDE automated review."
         if summaries:
-            review_body += "\n\nFindings without a valid diff location:\n" + "\n".join(f"- {item.body}" for item in summaries)
+            review_body += "\n\nFindings without a valid diff location:\n" + "\n".join(
+                f"- {item.body}" for item in summaries
+            )
         if self.dry_run:
-            operations.extend(PublishOperation(finding_id=item.finding_id, action="review_comment", status="dry_run") for item in publishable)
+            operations.extend(
+                PublishOperation(finding_id=item.finding_id, action="review_comment", status="dry_run")
+                for item in publishable
+            )
             return operations
-        payload = [{"path": item.position.path, "line": item.position.line, "side": item.position.side, "body": item.body} for item in publishable if item.position]
+        payload = [
+            {"path": item.position.path, "line": item.position.line, "side": item.position.side, "body": item.body}
+            for item in publishable
+            if item.position
+        ]
         try:
             self._client.create_review(pr, review_body, payload)
         except Exception as exc:
-            operations.append(PublishOperation(action="review", status="error", detail=f"Publication failed: {type(exc).__name__}"))
+            operations.append(
+                PublishOperation(action="review", status="error", detail=f"Publication failed: {type(exc).__name__}")
+            )
             return operations
-        operations.extend(PublishOperation(finding_id=item.finding_id, action="review_comment", status="published") for item in publishable)
+        operations.extend(
+            PublishOperation(finding_id=item.finding_id, action="review_comment", status="published")
+            for item in publishable
+        )
         return operations

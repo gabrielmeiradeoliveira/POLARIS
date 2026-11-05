@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -15,8 +16,13 @@ from deicide.core.orchestrator import AnalysisOrchestrator
 from deicide.core.registry import ModuleRegistry
 from deicide.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
 from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from deicide.integrations.github.client import GitHubClient
+from deicide.integrations.github.fixture_transport import FixtureGitHubTransport
+from deicide.integrations.github.models import GitHubIntegrationError
+from deicide.integrations.github.review_engine import GitHubPullRequestReview
 from deicide.modules.code_review import CodeReviewModule
 from deicide.providers.factory import create_provider
+from deicide.providers.fake import FakeProvider
 from deicide.quota.store import UsageStore
 from deicide.reporting.formatter import (
     format_json_report,
@@ -31,6 +37,11 @@ app = typer.Typer(
     add_completion=False,
     no_args_is_help=True,
 )
+github_app = typer.Typer(
+    help="Review local GitHub PR fixtures without network access or publishing.",
+    no_args_is_help=True,
+)
+app.add_typer(github_app, name="github")
 
 
 def _version_callback(value: bool) -> None:
@@ -60,6 +71,68 @@ def build_default_registry() -> ModuleRegistry:
     registry = ModuleRegistry()
     registry.register(CodeReviewModule())
     return registry
+
+
+@github_app.command("review")
+def github_review_command(
+    repository: Annotated[str, typer.Option("--repo", help="GitHub repository in OWNER/REPO form.")],
+    pull_request: Annotated[int, typer.Option("--pr", min=1, help="Pull request number in the local fixture.")],
+    fixture: Annotated[
+        Path, typer.Option("--fixture", exists=True, readable=True, help="Local GitHub API fixture JSON.")
+    ],
+    provider: Annotated[str, typer.Option("--provider", help="Offline provider; only 'fake' is supported.")] = "fake",
+    output_format: Annotated[str, typer.Option("--format", help="Output format: terminal or json.")] = "terminal",
+    max_requests: Annotated[
+        int | None, typer.Option("--max-requests", min=1, help="Maximum fake-provider requests.")
+    ] = None,
+    max_tokens: Annotated[int | None, typer.Option("--max-tokens", min=1, help="Maximum fake-provider tokens.")] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Required safe mode; no network or publishing is possible.")
+    ] = True,
+) -> None:
+    """Analyze a fixture PR end-to-end and simulate only review comments."""
+    try:
+        if provider.lower() != "fake":
+            raise ValueError("GitHub fixture review supports only the offline 'fake' provider.")
+        if output_format not in {OutputFormat.TERMINAL.value, OutputFormat.JSON.value}:
+            raise ValueError("--format must be 'terminal' or 'json'.")
+        if not dry_run:
+            raise ValueError("GitHub review publishing is disabled; --dry-run is required.")
+        owner, separator, repo_name = repository.partition("/")
+        if not separator or not owner or not repo_name or "/" in repo_name:
+            raise ValueError("--repo must use OWNER/REPO form.")
+
+        budget_values: dict[str, int] = {}
+        if max_requests is not None:
+            budget_values["max_requests"] = max_requests
+        if max_tokens is not None:
+            budget_values["max_total_tokens"] = max_tokens
+        engine = GitHubPullRequestReview(
+            GitHubClient(FixtureGitHubTransport.from_path(fixture)),
+            FakeProvider(),
+            budget=ExecutionBudget(**budget_values),
+        )
+        report, summary = engine.review(owner, repo_name, pull_request)
+        payload = {"report": report.model_dump(mode="json"), "summary": summary.model_dump(mode="json")}
+        if output_format == OutputFormat.JSON.value:
+            typer.echo(json.dumps(payload, indent=2, sort_keys=True))
+        else:
+            typer.echo(
+                f"GitHub fixture review: {repository}#{pull_request} | {summary.status} | "
+                f"files={summary.files_analyzed} findings={summary.findings} "
+                f"located={summary.findings_with_valid_location} "
+                f"proposed_comments={summary.new_comments} duplicates={summary.duplicate_comments}"
+            )
+        raise typer.Exit(code=int(ExitCode.SUCCESS))
+    except GitHubIntegrationError as exc:
+        typer.echo(f"GitHub fixture error [{exc.category.value}]: {exc}", err=True)
+        raise typer.Exit(code=int(ExitCode.GENERAL_ERROR)) from exc
+    except ValueError as exc:
+        typer.echo(f"Configuration error: {exc}", err=True)
+        raise typer.Exit(code=int(ExitCode.CONFIGURATION_ERROR)) from exc
+    except DeicideError as exc:
+        typer.echo(f"Error: {exc.message}", err=True)
+        raise typer.Exit(code=int(exc.exit_code)) from exc
 
 
 @app.command("review")
@@ -132,8 +205,12 @@ def review_command(
             help="Per-request timeout in seconds.",
         ),
     ] = None,
-    attempt_deadline: Annotated[float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")] = None,
-    case_deadline: Annotated[float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")] = None,
+    attempt_deadline: Annotated[
+        float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")
+    ] = None,
+    case_deadline: Annotated[
+        float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")
+    ] = None,
     allow_external: Annotated[
         bool | None,
         typer.Option(
@@ -395,7 +472,9 @@ def evaluate_command(
     ] = None,
     production_parity: Annotated[
         bool,
-        typer.Option("--production-parity", help="Materialize fixture sources and reuse production context preparation."),
+        typer.Option(
+            "--production-parity", help="Materialize fixture sources and reuse production context preparation."
+        ),
     ] = False,
     context_tokens: Annotated[
         int | None,
@@ -403,7 +482,9 @@ def evaluate_command(
     ] = None,
     behavioral_delta_reserved_tokens: Annotated[
         int | None,
-        typer.Option("--behavioral-delta-reserved-tokens", help="Fixed Behavioral Delta reservation inside context tokens."),
+        typer.Option(
+            "--behavioral-delta-reserved-tokens", help="Fixed Behavioral Delta reservation inside context tokens."
+        ),
     ] = None,
     max_requests: Annotated[
         int | None,
@@ -426,8 +507,12 @@ def evaluate_command(
             help="Per-request timeout in seconds for provider evaluation.",
         ),
     ] = None,
-    attempt_deadline: Annotated[float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")] = None,
-    case_deadline: Annotated[float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")] = None,
+    attempt_deadline: Annotated[
+        float | None, typer.Option("--attempt-deadline", help="Optional per-attempt deadline in seconds.")
+    ] = None,
+    case_deadline: Annotated[
+        float | None, typer.Option("--case-deadline", help="Optional per-case deadline in seconds.")
+    ] = None,
     max_retries: Annotated[
         int | None,
         typer.Option(
@@ -607,7 +692,9 @@ def evaluate_command(
             manifest_path = append_manifest(history_dir, manifest)
             trend_json, trend_markdown = write_trend_reports(history_dir, run_id=history_run_id)
             typer.echo(f"History Manifest    : {manifest_path}", err=config.output_format == OutputFormat.JSON)
-            typer.echo(f"History Trends      : {trend_json}, {trend_markdown}", err=config.output_format == OutputFormat.JSON)
+            typer.echo(
+                f"History Trends      : {trend_json}, {trend_markdown}", err=config.output_format == OutputFormat.JSON
+            )
 
         if config.output_format == OutputFormat.JSON:
             typer.echo(summary.model_dump_json(indent=2))

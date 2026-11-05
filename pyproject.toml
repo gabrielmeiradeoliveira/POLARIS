@@ -24,7 +24,8 @@ dev = [
 ]
 
 [project.scripts]
-deicide = "deicide.cli:main"
+deicide = "polaris.cli:main"
+polaris = "polaris.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
