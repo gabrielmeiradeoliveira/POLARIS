@@ -92,3 +92,17 @@ def test_manifest_is_json_without_credentials() -> None:
     serialized = json.dumps(load_manifest()).lower()
     assert "nvidia_api_key=" not in serialized
     assert '"authorization"' not in serialized
+
+
+def test_comparative_metrics_excludes_missing_on_arm() -> None:
+    off = ArmOutcome("off", (CaseEvaluationResult(case_id="only-off", true_positives=1),), None)
+    metrics = comparable_metrics((off,))
+    assert metrics["complete_pair_ids"] == []
+    assert metrics["off"]["tp"] == 0
+    assert metrics["on"]["tp"] == 0
+
+
+def test_comparative_metrics_excludes_missing_on_case() -> None:
+    off = ArmOutcome("off", (CaseEvaluationResult(case_id="a"), CaseEvaluationResult(case_id="b")), None)
+    on = ArmOutcome("on", (CaseEvaluationResult(case_id="a"),), None)
+    assert comparable_metrics((off, on))["complete_pair_ids"] == ["a"]
