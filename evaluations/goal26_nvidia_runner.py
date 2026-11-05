@@ -14,7 +14,7 @@ from pydantic import Field
 from polaris.context.context_models import ContextSelectionLimits
 from polaris.core.config import PolarisConfig
 from polaris.core.errors import BudgetExceededError
-from polaris.core.models import BudgetTracker, ExecutionBudget
+from polaris.core.models import BudgetTracker, ExecutionBudget, TokenUsage
 from polaris.evaluation.models import CaseEvaluationResult, EvaluationFixture
 from polaris.evaluation.runner import evaluate_case, load_fixtures_from_file
 from polaris.providers.base import LLMProvider, ProviderRequest
@@ -209,7 +209,7 @@ def comparable_metrics(outcomes: tuple[ArmOutcome, ...]) -> dict[str, Any]:
     return {"complete_pair_ids": paired, "off": metrics("off"), "on": metrics("on")}
 
 
-def _write_partial(destination: Path, manifest: dict[str, Any], outcomes: list[ArmOutcome], tracker: BudgetTracker) -> None:
+def _write_partial(destination: Path, manifest: dict[str, Any], outcomes: list[ArmOutcome], tracker: BudgetTracker, *, in_flight: dict[str, str] | None = None) -> None:
     payload = {
         "goal": manifest["goal"],
         "provider": manifest["provider"],
@@ -218,19 +218,26 @@ def _write_partial(destination: Path, manifest: dict[str, Any], outcomes: list[A
         "comparative_metrics": comparable_metrics(tuple(outcomes)),
         "global_usage": tracker.usage.model_dump(),
         "requests_made": tracker.requests_made,
+        "manifest_sha256": hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest(),
+        "checkpoint_cases": {outcome.arm: [case.model_dump(mode="json") for case in outcome.cases] for outcome in outcomes},
+        "in_flight": in_flight,
     }
     temporary = destination.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     temporary.replace(destination)
 
 
-def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, Any] | None = None) -> tuple[ArmOutcome, ...]:
+def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, Any] | None = None, *, resume: bool = False) -> tuple[ArmOutcome, ...]:
     """Run both arms with one tracker; an existing output path is never overwritten."""
     manifest = manifest or load_manifest()
     fixtures = validate_manifest(manifest)
-    if output_dir.exists():
-        raise FileExistsError(f"Refusing to overwrite existing campaign output: {output_dir}")
-    output_dir.mkdir(parents=True)
+    if resume:
+        if not output_dir.is_dir():
+            raise FileNotFoundError(output_dir)
+    else:
+        if output_dir.exists():
+            raise FileExistsError(f"Refusing to overwrite existing campaign output: {output_dir}")
+        output_dir.mkdir(parents=True)
     budget = campaign_budget(manifest)
     input_reservation = manifest["input_reservation"]
     tracker = BudgetTracker(
@@ -258,6 +265,38 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
     }
     failures = 0
     stop: str | None = None
+    start_index = 0
+    if resume:
+        checkpoint = json.loads((output_dir / "results.json").read_text(encoding="utf-8"))
+        expected = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
+        if checkpoint.get("manifest_sha256") != expected:
+            raise ValueError("Checkpoint manifest mismatch.")
+        if checkpoint.get("in_flight") is not None:
+            raise RuntimeError("Uncertain in-flight request; refusing duplicate execution.")
+        saved = checkpoint.get("checkpoint_cases")
+        if not isinstance(saved, dict) or set(saved) != set(manifest["arms"]):
+            raise ValueError("Missing full checkpoint case records.")
+        for arm in manifest["arms"]:
+            outcomes_by_arm[arm] = [CaseEvaluationResult.model_validate(item) for item in saved[arm]]
+        counts = [len(outcomes_by_arm[arm]) for arm in manifest["arms"]]
+        if len(set(counts)) != 1:
+            raise RuntimeError("Incomplete checkpoint pair; refusing replay.")
+        start_index = counts[0]
+        if start_index > len(fixtures):
+            raise ValueError("Checkpoint exceeds fixture count.")
+        for arm in manifest["arms"]:
+            if [case.case_id for case in outcomes_by_arm[arm]] != [fixture.case_id for fixture in fixtures[:start_index]]:
+                raise ValueError("Checkpoint fixture order mismatch.")
+        tracker.requests_made = int(checkpoint["requests_made"])
+        tracker.usage = TokenUsage.model_validate(checkpoint["global_usage"])
+        if tracker.requests_made < 0 or tracker.requests_made > budget.max_requests or tracker.usage.total_tokens > budget.max_total_tokens:
+            raise ValueError("Checkpoint budget invalid.")
+        failures = sum(case.status != "completed" for cases in outcomes_by_arm.values() for case in cases)
+        if any(case.status == "budget_exhausted" for cases in outcomes_by_arm.values() for case in cases):
+            raise RuntimeError("Cannot resume budget-exhausted campaign.")
+        if failures >= manifest["execution"]["repeated_operational_failure_threshold"]:
+            raise RuntimeError("Cannot resume after failure threshold.")
+
     # Admit an entire pair before either external request. Use a conservative
     # UTF-8 wire-byte upper bound plus frozen tokenizer overhead for each arm;
     # the NVIDIA provider still owns the actual per-attempt reservation.
@@ -266,7 +305,7 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
         + input_reservation["provider_tokenizer_overhead_tokens"]
         + manifest["inference"]["max_output_tokens"]
     )
-    for fixture in fixtures:
+    for fixture in fixtures[start_index:]:
         if (
             tracker.requests_made + len(manifest["arms"]) > budget.max_requests
             or tracker.usage.total_tokens + len(manifest["arms"]) * per_arm_ceiling > budget.max_total_tokens
@@ -281,6 +320,7 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
         for arm in manifest["arms"]:
             if stop:
                 break
+            _write_partial(output_dir / "results.json", manifest, [ArmOutcome(name, tuple(cases), stop) for name, cases in outcomes_by_arm.items()], tracker, in_flight={"case_id": fixture.case_id, "arm": arm})
             result = evaluate_case(
                 fixture,
                 provider,
@@ -335,10 +375,11 @@ def create_live_provider(manifest: dict[str, Any]) -> LLMProvider:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     manifest = load_manifest()
     validate_manifest(manifest)
-    run_campaign(create_live_provider(manifest), args.output_dir, manifest)
+    run_campaign(create_live_provider(manifest), args.output_dir, manifest, resume=args.resume)
 
 
 if __name__ == "__main__":
