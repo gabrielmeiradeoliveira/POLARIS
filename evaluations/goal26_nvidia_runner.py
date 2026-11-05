@@ -258,7 +258,26 @@ def run_campaign(provider: LLMProvider, output_dir: Path, manifest: dict[str, An
     }
     failures = 0
     stop: str | None = None
+    # Admit an entire pair before either external request. Use a conservative
+    # UTF-8 wire-byte upper bound plus frozen tokenizer overhead for each arm;
+    # the NVIDIA provider still owns the actual per-attempt reservation.
+    per_arm_ceiling = (
+        input_reservation["max_wire_payload_bytes"]
+        + input_reservation["provider_tokenizer_overhead_tokens"]
+        + manifest["inference"]["max_output_tokens"]
+    )
     for fixture in fixtures:
+        if (
+            tracker.requests_made + len(manifest["arms"]) > budget.max_requests
+            or tracker.usage.total_tokens + len(manifest["arms"]) * per_arm_ceiling > budget.max_total_tokens
+        ):
+            stop = "insufficient_capacity_for_complete_pair"
+            snapshot = [
+                ArmOutcome(name, tuple(cases), stop)
+                for name, cases in outcomes_by_arm.items()
+            ]
+            _write_partial(output_dir / "results.json", manifest, snapshot, tracker)
+            break
         for arm in manifest["arms"]:
             if stop:
                 break
