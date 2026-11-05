@@ -106,3 +106,43 @@ def test_comparative_metrics_excludes_missing_on_case() -> None:
     off = ArmOutcome("off", (CaseEvaluationResult(case_id="a"), CaseEvaluationResult(case_id="b")), None)
     on = ArmOutcome("on", (CaseEvaluationResult(case_id="a"),), None)
     assert comparable_metrics((off, on))["complete_pair_ids"] == ["a"]
+
+def test_resume_rejects_ambiguous_inflight_without_provider_calls(tmp_path) -> None:
+    import hashlib
+    from evaluations.goal26_nvidia_runner import _write_partial
+
+    manifest = load_manifest()
+    output = tmp_path / "campaign"
+    output.mkdir()
+    tracker = BudgetTracker(campaign_budget(manifest))
+    _write_partial(
+        output / "results.json",
+        manifest,
+        [ArmOutcome("off", (), None), ArmOutcome("on", (), None)],
+        tracker,
+        in_flight={"case_id": manifest["case_order"][0], "arm": "off"},
+    )
+    provider = FakeProvider()
+    with pytest.raises(RuntimeError, match="in-flight"):
+        run_campaign(provider, output, manifest, resume=True)
+    assert provider.requests == []
+
+
+def test_resume_rejects_modified_manifest_without_provider_calls(tmp_path) -> None:
+    from evaluations.goal26_nvidia_runner import _write_partial
+
+    manifest = load_manifest()
+    output = tmp_path / "campaign"
+    output.mkdir()
+    tracker = BudgetTracker(campaign_budget(manifest))
+    _write_partial(
+        output / "results.json",
+        manifest,
+        [ArmOutcome("off", (), None), ArmOutcome("on", (), None)],
+        tracker,
+    )
+    changed = {**manifest, "goal": "changed"}
+    provider = FakeProvider()
+    with pytest.raises(ValueError, match="manifest mismatch"):
+        run_campaign(provider, output, changed, resume=True)
+    assert provider.requests == []
