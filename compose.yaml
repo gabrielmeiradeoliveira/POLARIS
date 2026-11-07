@@ -52,17 +52,5 @@ services:
       timeout: 5s
       retries: 12
     restart: unless-stopped
-  frontend:
-    build: { context: ., dockerfile: web/Dockerfile }
-    depends_on: { api: { condition: service_healthy } }
-    ports: ["127.0.0.1:3000:8080"]
-    read_only: true
-    tmpfs: [/tmp, /var/cache/nginx, /var/run]
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-    restart: unless-stopped
 volumes:
   postgres_data:

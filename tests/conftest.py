@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
+import stat
 import subprocess
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -30,7 +33,7 @@ def run_git_cmd(repo: Path, *args: str) -> str:
 
 
 @pytest.fixture
-def temp_git_repo(tmp_path: Path) -> Path:
+def temp_git_repo(tmp_path: Path) -> Generator[Path, None, None]:
     """Create an initialized Git repository with one initial commit."""
     repo = tmp_path / "sample_repo"
     repo.mkdir(parents=True, exist_ok=True)
@@ -46,4 +49,12 @@ def temp_git_repo(tmp_path: Path) -> Path:
     )
     run_git_cmd(repo, "add", ".")
     run_git_cmd(repo, "commit", "-m", "Initial commit")
-    return repo
+    yield repo
+    if os.name == "nt":
+        for root, dirs, files in os.walk(repo):
+            for name in files:
+                with contextlib.suppress(OSError):
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)
+            for name in dirs:
+                with contextlib.suppress(OSError):
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)
