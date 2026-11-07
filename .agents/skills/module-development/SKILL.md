@@ -1,6 +1,6 @@
 ---
 name: module-development
-description: Implement or extend a DEICIDE analysis module through typed contracts and evidence-backed findings.
+description: Implement or extend a POLARIS analysis module through typed contracts and evidence-backed findings.
 ---
 # Module development
 

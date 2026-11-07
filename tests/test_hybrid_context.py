@@ -1,16 +1,16 @@
 """Regression coverage for opt-in hybrid supplementary-context selection."""
 
-from deicide.context.context_budget import serialize_context_bundle
-from deicide.context.context_models import (
+from polaris.context.context_budget import serialize_context_bundle
+from polaris.context.context_models import (
     ContextRelationshipCategory,
     ContextSelectionLimits,
     ContextSelectionResult,
     SelectedSnippet,
 )
-from deicide.context.context_relevance import select_hybrid_supplementary_context
-from deicide.core.config import DeicideConfig
-from deicide.git.models import ContextSnippet, DiffHunk, FileChangeStatus, FileContext, FileDiff
-from deicide.modules.code_review import CodeReviewModule
+from polaris.context.context_relevance import select_hybrid_supplementary_context
+from polaris.core.config import PolarisConfig
+from polaris.git.models import ContextSnippet, DiffHunk, FileChangeStatus, FileContext, FileDiff
+from polaris.modules.code_review import CodeReviewModule
 
 
 def _snippet(
@@ -66,7 +66,7 @@ def test_hybrid_selection_is_disabled_by_default() -> None:
     assert selection.suppressed_snippet_ids == ()
     assert selection.serialized_text == result.serialized_text
     assert selection.saved_tokens == 0
-    assert DeicideConfig(repo_path=".", provider="fake").hybrid_static_selection_enabled is False
+    assert PolarisConfig(repo_path=".", provider="fake").hybrid_static_selection_enabled is False
 
 
 def test_hybrid_selection_removes_only_proved_changed_symbol_duplicate_and_keeps_indirect_context() -> None:

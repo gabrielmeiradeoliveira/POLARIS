@@ -1,0 +1,26 @@
+Purpose: verbatim Git status baseline captured before the GOAL 08.3 authorized external A/B result artifacts.
+
+ M AGENTS.md
+ M calculator.py
+ D context_test.py
+ M src/polaris/cli.py
+ M src/polaris/context/__init__.py
+ M src/polaris/context/context_models.py
+ M src/polaris/core/config.py
+ M src/polaris/evaluation/runner.py
+ M src/polaris/modules/code_review.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/reports/GOAL08_1_TOKEN_AUDIT.md
+?? evaluations/reports/GOAL08_2_HYBRID_ARCHITECTURE.md
+?? evaluations/reports/GOAL08_3_TOKEN_EFFICIENCY_AB.md
+?? evaluations/reports/baseline_mvp1_4_minimax_m3_1_flash.md
+?? evaluations/results/
+?? scratch/
+?? src/polaris/context/change_impact.py
+?? src/polaris/context/context_relevance.py
+?? tests/test_change_impact.py
+?? tests/test_hybrid_context.py

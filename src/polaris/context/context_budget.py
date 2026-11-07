@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from deicide.context.context_models import (
+from polaris.context.context_models import (
     ContextSelectionLimits,
     OmissionReason,
     OmittedCandidate,
     SelectedSnippet,
     relationship_precedence,
 )
-from deicide.core.models import estimate_token_count
+from polaris.core.models import estimate_token_count
 
 
 def serialize_snippet_block(snippet: SelectedSnippet) -> str:

@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from deicide.evaluation.fixture_integrity import FixtureIntegrityError, validate_fixture_diff
-from deicide.evaluation.runner import load_fixtures_from_file
+from polaris.evaluation.fixture_integrity import FixtureIntegrityError, validate_fixture_diff
+from polaris.evaluation.runner import load_fixtures_from_file
 
 
 def test_real_world_fixture_diffs_round_trip() -> None:

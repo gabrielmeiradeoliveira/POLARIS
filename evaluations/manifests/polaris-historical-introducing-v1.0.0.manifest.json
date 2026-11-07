@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
-  "release_id": "deicide-historical-introducing-v1.0.0",
+  "release_id": "polaris-historical-introducing-v1.0.0",
   "status": "payload_frozen_pending_release_tag",
   "source_tree": {
     "base_commit": "bdaf572e7cce621a02dee76b825fdc5d64e7021d",
     "evaluated_payload_commit": "52618449b4db2c07860f711330d3cf510daf463d",
-    "release_tag": "deicide-historical-introducing-v1.0.0",
+    "release_tag": "polaris-historical-introducing-v1.0.0",
     "requirements_lock": "requirements-lock.txt",
     "requirements_lock_sha256": "f50cfb9f45af0c638928a6454bbb33533cf53ee1579ece33bf3c3be4418f729f"
   },
@@ -32,11 +32,11 @@
     "limitation": "Fixtures are minimized historical excerpts, not complete executable upstream checkouts."
   },
   "evaluator_components": {
-    "src/deicide/evaluation/fixture_integrity.py": "6a19e0e7a1484274c748259496bcc47b632392845e0327e64328c4ce0e7fecbc",
-    "src/deicide/evaluation/runner.py": "895b5bcf0e128c083c07a601417fc79edd05b7dad05e0aadb2aaf2571ebc524c",
-    "src/deicide/evaluation/models.py": "2a6e10744c8bef6ad5ffda7b68a34c60b8c9472b008b4d950620a517a64d3761",
-    "src/deicide/intelligence/evidence_validator.py": "b3e157850f6a65f7b66449f60a4913ee349cd2f789083574e830aa9c9fc2dd5d",
-    "src/deicide/modules/code_review.py": "a5118398f3d755c28bf2d3a3595354e13bfc628e105e009c48f346d711760472"
+    "src/polaris/evaluation/fixture_integrity.py": "6a19e0e7a1484274c748259496bcc47b632392845e0327e64328c4ce0e7fecbc",
+    "src/polaris/evaluation/runner.py": "895b5bcf0e128c083c07a601417fc79edd05b7dad05e0aadb2aaf2571ebc524c",
+    "src/polaris/evaluation/models.py": "2a6e10744c8bef6ad5ffda7b68a34c60b8c9472b008b4d950620a517a64d3761",
+    "src/polaris/intelligence/evidence_validator.py": "b3e157850f6a65f7b66449f60a4913ee349cd2f789083574e830aa9c9fc2dd5d",
+    "src/polaris/modules/code_review.py": "a5118398f3d755c28bf2d3a3595354e13bfc628e105e009c48f346d711760472"
   },
   "planned_experiment": {
     "provider": "nvidia",

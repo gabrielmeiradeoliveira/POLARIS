@@ -1,4 +1,4 @@
-"""Exact baseline finding validation and deduplication from DEICIDE prior to MVP 1.3.
+"""Exact baseline finding validation and deduplication from POLARIS prior to MVP 1.3.
 
 Preserved verbatim for reproducible, scientific side-by-side quality evaluations.
 """
@@ -9,15 +9,15 @@ import hashlib
 import re
 from pathlib import Path
 
-from deicide.core.errors import SecurityViolationError
-from deicide.core.models import (
+from polaris.core.errors import SecurityViolationError
+from polaris.core.models import (
     AnalysisWarning,
     CandidateFinding,
     Finding,
     LineRange,
 )
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
-from deicide.git.models import DiffBundle, FileContext, FileDiff
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.git.models import DiffBundle, FileContext, FileDiff
 
 _WHITESPACE_RE = re.compile(r"\s+")
 _STYLE_NITPICK_RE = re.compile(

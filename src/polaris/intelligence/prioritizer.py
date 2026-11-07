@@ -1,9 +1,9 @@
-"""Deterministic prioritization and sorting of validated DEICIDE findings."""
+"""Deterministic prioritization and sorting of validated POLARIS findings."""
 
 from __future__ import annotations
 
-from deicide.core.models import Finding
-from deicide.intelligence.models import (
+from polaris.core.models import Finding
+from polaris.intelligence.models import (
     ChangeRelevance,
     EvidenceAssessment,
     EvidenceQuality,

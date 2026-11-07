@@ -1,0 +1,17 @@
+{
+  "configuration": "static_plus_nvidia",
+  "experiment": "goal25_nvidia_ab",
+  "preflight_requests_already_used": 1,
+  "provider": "nvidia",
+  "status": "unverified_observability_failure",
+  "summary": null,
+  "telemetry": {
+    "attempted_processes": 1,
+    "additional_request_count": "unknown",
+    "provider_reported_usage": "unknown",
+    "latency_ms": "unknown",
+    "reason": "The process returned no verifiable telemetry payload or completed result summary."
+  },
+  "scoring": "not_scoreable; no TP, FP, FN, or derived metric is asserted",
+  "safety_action": "No retry was submitted because unknown prior consumption could violate the approved cumulative budget."
+}

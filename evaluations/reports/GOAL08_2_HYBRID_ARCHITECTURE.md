@@ -9,7 +9,7 @@ ground truth, results, commits, or tags.
 
 The original context behavior remains the default. The new control is disabled
 unless explicitly enabled with `--hybrid-static-selection` or
-`DEICIDE_HYBRID_STATIC_SELECTION_ENABLED=true`.
+`POLARIS_HYBRID_STATIC_SELECTION_ENABLED=true`.
 
 ## Design
 
@@ -51,8 +51,8 @@ such snippets. The operation is conservative:
 
 New modules:
 
-- `src/deicide/context/change_impact.py`
-- `src/deicide/context/context_relevance.py`
+- `src/polaris/context/change_impact.py`
+- `src/polaris/context/context_relevance.py`
 
 Updated integration points:
 
@@ -61,7 +61,7 @@ Updated integration points:
 - code-review prompt construction, where filtering is applied;
 - context public exports.
 
-The new control is propagated through `DeicideConfig` to the existing context
+The new control is propagated through `PolarisConfig` to the existing context
 limits. Behavioral Delta remains independently disabled by default.
 
 ## Tests and checks
@@ -74,7 +74,7 @@ prompt.
 Executed after implementation:
 
 ```text
-python -m pytest -p no:cacheprovider --basetemp C:\Users\gabri\AppData\Local\Temp\deicide-goal08-testing -q \
+python -m pytest -p no:cacheprovider --basetemp C:\Users\gabri\AppData\Local\Temp\polaris-goal08-testing -q \
   tests\test_change_impact.py tests\test_hybrid_context.py \
   tests\test_config_and_validation.py tests\test_context_pipeline_integration.py \
   tests\test_production_parity_evaluation.py tests\test_cli_and_reporting.py \

@@ -1,14 +1,14 @@
-"""Deterministic offline tests for DEICIDE Context Engine Phase 2: Cross-File Dependency Graph."""
+"""Deterministic offline tests for POLARIS Context Engine Phase 2: Cross-File Dependency Graph."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from deicide.context.dependency_graph import (
+from polaris.context.dependency_graph import (
     build_dependency_graph,
 )
-from deicide.context.import_resolver import ImportResolver, resolve_relative_module
-from deicide.context.project_index import (
+from polaris.context.import_resolver import ImportResolver, resolve_relative_module
+from polaris.context.project_index import (
     IndexLimits,
     build_project_index,
     file_path_to_module_name,
@@ -460,7 +460,7 @@ def test_19_changed_symbol_impact_and_unchanged_caller_discovery(tmp_path: Path)
 
     calc_sym = next(s for s in index.symbols_by_id.values() if s.name == "calculate_average")
 
-    from deicide.context.models import ChangedSymbol, OverlapClassification
+    from polaris.context.models import ChangedSymbol, OverlapClassification
 
     changed_sym = ChangedSymbol(
         symbol_id=calc_sym.id,

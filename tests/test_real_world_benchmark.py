@@ -1,4 +1,4 @@
-"""Automated tests for the DEICIDE MVP 1.3 Real-World Quality Benchmark."""
+"""Automated tests for the POLARIS MVP 1.3 Real-World Quality Benchmark."""
 
 from __future__ import annotations
 
@@ -6,11 +6,11 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.evaluation.models import EvaluationSummary
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.providers.fake import FakeProvider
+from polaris.cli import app
+from polaris.evaluation.models import EvaluationSummary
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.providers.fake import FakeProvider
 
 
 def test_real_world_benchmark_corpus_integrity() -> None:
@@ -176,18 +176,18 @@ def test_real_world_benchmark_cli_execution() -> None:
     # 1. Standard Post-Processing with Finding Intelligence
     result = runner.invoke(app, ["evaluate", "--fixtures", corpus_file])
     assert result.exit_code == 0
-    assert "DEICIDE Evaluation Summary (Finding Intelligence Engine)" in result.stdout
+    assert "POLARIS Evaluation Summary (Finding Intelligence Engine)" in result.stdout
     assert "Dataset Size        : 33" in result.stdout
 
     # 2. Baseline Comparison
     result_base = runner.invoke(app, ["evaluate", "--fixtures", corpus_file, "--baseline"])
     assert result_base.exit_code == 0
-    assert "DEICIDE Evaluation Summary (Baseline Validator)" in result_base.stdout
+    assert "POLARIS Evaluation Summary (Baseline Validator)" in result_base.stdout
 
     # 3. End-to-End mode flag
     result_e2e = runner.invoke(app, ["evaluate", "--fixtures", corpus_file, "--end-to-end"])
     assert result_e2e.exit_code == 0
-    assert "DEICIDE Evaluation Summary (End-to-End fake + Finding Intelligence Engine)" in result_e2e.stdout
+    assert "POLARIS Evaluation Summary (End-to-End fake + Finding Intelligence Engine)" in result_e2e.stdout
 
     # 4. Strict severity flag
     result_strict = runner.invoke(app, ["evaluate", "--fixtures", corpus_file, "--strict-severity"])

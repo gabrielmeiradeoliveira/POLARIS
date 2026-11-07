@@ -6,7 +6,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.core.models import LineRange
+from polaris.core.models import LineRange
 
 
 class FileChangeStatus(StrEnum):

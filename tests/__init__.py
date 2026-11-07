@@ -1,1 +1,1 @@
-"""Test suite for DEICIDE."""
+"""Test suite for POLARIS."""

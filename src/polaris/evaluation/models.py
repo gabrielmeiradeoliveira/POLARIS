@@ -1,4 +1,4 @@
-"""Data models for measuring DEICIDE finding quality, precision, recall, latency, and tokens."""
+"""Data models for measuring POLARIS finding quality, precision, recall, latency, and tokens."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.core.models import (
+from polaris.core.models import (
     CandidateFinding,
     Finding,
     FindingCategory,
@@ -15,7 +15,7 @@ from deicide.core.models import (
     Severity,
     TokenUsage,
 )
-from deicide.providers.base import ProviderAttempt
+from polaris.providers.base import ProviderAttempt
 
 
 class ChangeType(StrEnum):

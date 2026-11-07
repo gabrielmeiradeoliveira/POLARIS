@@ -7,8 +7,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.errors import ExitCode
+from polaris.cli import app
+from polaris.core.errors import ExitCode
 from tests.conftest import run_git_cmd
 
 runner = CliRunner()
@@ -17,12 +17,12 @@ runner = CliRunner()
 def test_cli_help_and_version() -> None:
     res_help = runner.invoke(app, ["--help"])
     assert res_help.exit_code == 0
-    assert "DEICIDE" in res_help.stdout
+    assert "POLARIS" in res_help.stdout
     assert "review" in res_help.stdout
 
     res_ver = runner.invoke(app, ["--version"])
     assert res_ver.exit_code == 0
-    assert "deicide 0.1.0" in res_ver.stdout
+    assert "polaris 0.1.0" in res_ver.stdout
 
     # Verify subcommands do not advertise Gemini
     for cmd in [["review", "--help"], ["usage", "--help"], ["evaluate", "--help"]]:
@@ -44,7 +44,7 @@ def test_cli_review_fake_terminal_and_json(temp_git_repo: Path) -> None:
         ["review", "--provider", "fake", "--repo", str(temp_git_repo)],
     )
     assert res_term.exit_code == int(ExitCode.SUCCESS)
-    assert "DEICIDE Code Review Report" in res_term.stdout
+    assert "POLARIS Code Review Report" in res_term.stdout
     assert "Division or modulo by zero" in res_term.stdout
 
     res_json = runner.invoke(
@@ -53,7 +53,7 @@ def test_cli_review_fake_terminal_and_json(temp_git_repo: Path) -> None:
     )
     assert res_json.exit_code == int(ExitCode.SUCCESS)
     payload = json.loads(res_json.stdout)
-    assert payload["platform"] == "DEICIDE"
+    assert payload["platform"] == "POLARIS"
     assert payload["status"] == "completed"
     assert payload["provider"]["provider_name"] == "fake"
     assert len(payload["findings"]) == 1
@@ -93,7 +93,7 @@ def test_cli_review_with_base_revision(temp_git_repo: Path) -> None:
 
 def test_cli_error_exit_codes(temp_git_repo: Path, tmp_path: Path, monkeypatch) -> None:
     monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
-    monkeypatch.delenv("DEICIDE_API_KEY", raising=False)
+    monkeypatch.delenv("POLARIS_API_KEY", raising=False)
 
     # Missing API credentials -> CONFIGURATION_ERROR (2)
     res_creds = runner.invoke(
@@ -133,7 +133,7 @@ def test_cli_error_exit_codes(temp_git_repo: Path, tmp_path: Path, monkeypatch) 
     )
     assert res_rev.exit_code == int(ExitCode.REPOSITORY_ERROR)
 
-    # Exceeded token budget -> BUDGET_EXCEEDED (5)
+    # Provider preflight preserves static analysis and exposes partial status.
     calc_file = temp_git_repo / "src" / "calc.py"
     calc_file.write_text("x = 1 / 0\n" * 40, encoding="utf-8")
     res_budget = runner.invoke(
@@ -144,11 +144,16 @@ def test_cli_error_exit_codes(temp_git_repo: Path, tmp_path: Path, monkeypatch) 
             "fake",
             "--max-tokens",
             "100",
+            "--format",
+            "json",
             "--repo",
             str(temp_git_repo),
         ],
     )
-    assert res_budget.exit_code == int(ExitCode.BUDGET_EXCEEDED)
+    assert res_budget.exit_code == int(ExitCode.SUCCESS)
+    budget_payload = json.loads(res_budget.stdout)
+    assert budget_payload["status"] == "incomplete"
+    assert any(warning["code"] == "PROVIDER_SKIPPED_BUDGET" for warning in budget_payload["warnings"])
 
 
 def test_cli_review_context_options(temp_git_repo: Path) -> None:
@@ -184,15 +189,15 @@ def test_cli_evaluate_help_exposes_max_elapsed_seconds() -> None:
 def test_cli_evaluate_max_elapsed_seconds_propagation_and_default(monkeypatch) -> None:
     captured_budgets = []
 
-    import deicide.cli
+    import polaris.cli
 
-    orig_evaluate_corpus = deicide.cli.evaluate_corpus
+    orig_evaluate_corpus = polaris.cli.evaluate_corpus
 
     def mock_evaluate_corpus(*args, **kwargs):
         captured_budgets.append(kwargs.get("budget"))
         return orig_evaluate_corpus(*args, **kwargs)
 
-    monkeypatch.setattr(deicide.cli, "evaluate_corpus", mock_evaluate_corpus)
+    monkeypatch.setattr(polaris.cli, "evaluate_corpus", mock_evaluate_corpus)
 
     # 1. Omitting the option preserves default (eval_budget is None, evaluate_corpus uses default 360.0)
     res_default = runner.invoke(app, ["evaluate", "--provider", "fake"])
@@ -262,15 +267,15 @@ def test_cli_evaluate_max_elapsed_seconds_validation() -> None:
 def test_cli_deadline_options_validate_and_propagate(monkeypatch) -> None:
     captured_budgets = []
 
-    import deicide.cli
+    import polaris.cli
 
-    original = deicide.cli.evaluate_corpus
+    original = polaris.cli.evaluate_corpus
 
     def capture(*args, **kwargs):
         captured_budgets.append(kwargs.get("budget"))
         return original(*args, **kwargs)
 
-    monkeypatch.setattr(deicide.cli, "evaluate_corpus", capture)
+    monkeypatch.setattr(polaris.cli, "evaluate_corpus", capture)
     success = runner.invoke(
         app,
         [
@@ -298,15 +303,15 @@ def test_cli_evaluate_tracker_receives_configured_max_elapsed(monkeypatch) -> No
     """End-to-end verification that the active BudgetTracker receives the configured max_elapsed_seconds."""
     tracker_budgets = []
 
-    import deicide.evaluation.runner
+    import polaris.evaluation.runner
 
-    orig_init = deicide.evaluation.runner.BudgetTracker.__init__
+    orig_init = polaris.evaluation.runner.BudgetTracker.__init__
 
     def spy_init(self, budget, *args, **kwargs):
         tracker_budgets.append(budget)
         return orig_init(self, budget, *args, **kwargs)
 
-    monkeypatch.setattr(deicide.evaluation.runner.BudgetTracker, "__init__", spy_init)
+    monkeypatch.setattr(polaris.evaluation.runner.BudgetTracker, "__init__", spy_init)
 
     # When explicit --max-elapsed-seconds is provided
     res = runner.invoke(app, ["evaluate", "--provider", "fake", "--max-elapsed-seconds", "540"])

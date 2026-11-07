@@ -15,7 +15,7 @@ from typing import Any
 
 from pydantic import SecretStr
 
-from deicide.core.errors import (
+from polaris.core.errors import (
     BudgetExceededError,
     ConfigurationError,
     MissingCredentialsError,
@@ -23,15 +23,15 @@ from deicide.core.errors import (
     QuotaExhaustedError,
     RateLimitError,
 )
-from deicide.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, ExecutionBudget, TokenUsage
-from deicide.providers.base import (
+from polaris.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, ExecutionBudget, TokenUsage
+from polaris.providers.base import (
     ProviderAttempt,
     ProviderFailureCategory,
     ProviderRequest,
     ProviderResponse,
     estimate_token_count,
 )
-from deicide.quota.store import RequestStatus, UsageStore
+from polaris.quota.store import RequestStatus, UsageStore
 
 DEFAULT_NVIDIA_MODEL = "z-ai/glm-5.3-flash"
 DEFAULT_NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
@@ -82,7 +82,7 @@ class NvidiaProvider:
         raw_key = api_key.get_secret_value().strip() if api_key else ""
         if not raw_key:
             raise MissingCredentialsError(
-                "NvidiaProvider requires a non-empty API key (NVIDIA_API_KEY or DEICIDE_API_KEY)."
+                "NvidiaProvider requires a non-empty API key (NVIDIA_API_KEY or POLARIS_API_KEY)."
             )
         cleaned_base = base_url.strip().rstrip("/") if base_url else DEFAULT_NVIDIA_BASE_URL
         if not cleaned_base.startswith("https://"):
@@ -213,6 +213,7 @@ class NvidiaProvider:
             error_category: str | None = None
             http_status: int | None = None
             active_request = request
+            transport_dispatched = False
             if active_tracker is not None:
                 permitted_output = active_tracker.available_output_tokens(
                     estimated_in,
@@ -220,6 +221,16 @@ class NvidiaProvider:
                     safety_margin_tokens=TOKEN_ESTIMATION_SAFETY_MARGIN,
                 )
                 active_request = request.model_copy(update={"max_output_tokens": permitted_output})
+
+            payload_bytes = self._build_payload(active_request)
+            http_req = urllib.request.Request(  # noqa: S310
+                url=url,
+                data=payload_bytes,
+                headers=headers,
+                method="POST",
+            )
+
+            if active_tracker is not None:
                 reservation_id = active_tracker.reserve_attempt(
                     estimated_in,
                     reserved_output_tokens=permitted_output,
@@ -228,15 +239,6 @@ class NvidiaProvider:
                     model_name=self._model_name,
                     is_retry=(attempt > 0),
                 )
-
-            payload_bytes = self._build_payload(active_request)
-
-            http_req = urllib.request.Request(  # noqa: S310
-                url=url,
-                data=payload_bytes,
-                headers=headers,
-                method="POST",
-            )
             try:
                 attempt_timeout = self.timeout_seconds
                 if self.budget is not None and self.budget.attempt_deadline_seconds is not None:
@@ -244,6 +246,7 @@ class NvidiaProvider:
                 configured_attempt_timeout = attempt_timeout
                 transport_started = time.perf_counter_ns()
                 try:
+                    transport_dispatched = True
                     status, resp_headers, resp_body = self._transport_fn(http_req, attempt_timeout)
                 finally:
                     transport_duration_ms = max(0, int((time.perf_counter_ns() - transport_started) / 1_000_000))
@@ -406,23 +409,42 @@ class NvidiaProvider:
                     )
                 raise ProviderError("Unexpected NVIDIA provider failure.") from exc
             finally:
-                self.last_attempts.append(
-                    ProviderAttempt(
-                        attempt_number=attempt + 1,
-                        latency_ms=max(0, int((time.perf_counter_ns() - attempt_started) / 1_000_000)),
-                        prompt_hash=prompt_hash,
-                        response_hash=response_hash,
-                        retry_reason=retry_reason,
-                        error_category=error_category,
-                        http_status=http_status,
-                        usage=attempt_usage,
-                        transport_duration_ms=transport_duration_ms,
-                        configured_attempt_timeout_seconds=configured_attempt_timeout,
-                        termination_reason=(
-                            "completed" if response_hash is not None else (error_category.value if error_category else None)
-                        ),
-                    )
+                provider_attempt = ProviderAttempt(
+                    attempt_number=attempt + 1,
+                    latency_ms=max(0, int((time.perf_counter_ns() - attempt_started) / 1_000_000)),
+                    prompt_hash=prompt_hash,
+                    response_hash=response_hash,
+                    retry_reason=retry_reason,
+                    error_category=error_category,
+                    http_status=http_status,
+                    usage=attempt_usage,
+                    transport_duration_ms=transport_duration_ms,
+                    configured_attempt_timeout_seconds=configured_attempt_timeout,
+                    termination_reason=(
+                        "completed" if response_hash is not None else (error_category.value if error_category else None)
+                    ),
                 )
+                self.last_attempts.append(provider_attempt)
+                diagnostic_store = active_tracker.usage_store if active_tracker is not None else self.usage_store
+                if diagnostic_store is not None and reservation_id is not None and not reservation_id.startswith("local-"):
+                    if transport_dispatched and provider_attempt.error_category in {
+                        ProviderFailureCategory.TIMEOUT,
+                        ProviderFailureCategory.CONNECTION_ERROR,
+                    }:
+                        diagnostic_store.mark_uncertain(reservation_id)
+                    diagnostic_store.record_attempt_diagnostic(
+                        reservation_id,
+                        attempt_number=provider_attempt.attempt_number,
+                        latency_ms=provider_attempt.latency_ms,
+                        prompt_hash=provider_attempt.prompt_hash,
+                        response_hash=provider_attempt.response_hash,
+                        retry_reason=provider_attempt.retry_reason,
+                        error_category=(provider_attempt.error_category.value if provider_attempt.error_category else None),
+                        http_status=provider_attempt.http_status,
+                        transport_duration_ms=provider_attempt.transport_duration_ms,
+                        configured_attempt_timeout_seconds=provider_attempt.configured_attempt_timeout_seconds,
+                        termination_reason=provider_attempt.termination_reason,
+                    )
 
         raise ProviderError(f"NVIDIA API request failed after {retries} retries.")
 

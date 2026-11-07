@@ -1,0 +1,628 @@
+{
+  "dataset_size": 8,
+  "positive_cases": 8,
+  "negative_cases": 0,
+  "successful_cases": 1,
+  "failed_cases": 7,
+  "api_failed_cases": 7,
+  "budget_exhausted_cases": 0,
+  "skipped_cases": 0,
+  "true_positives": 1,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "category_mismatch_detections": 0,
+  "undetected_expected_defects": 0,
+  "detection_precision": 1.0,
+  "detection_recall": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "false_positive_rate": null,
+  "duplicates_reduced": 0,
+  "legitimate_rejected": 0,
+  "severity_mismatches": 1,
+  "evaluation_mode": "end_to_end",
+  "total_latency_ms": 593258,
+  "average_latency_ms": 593258.0,
+  "usage": {
+    "prompt_tokens": 14539,
+    "completion_tokens": 487,
+    "total_tokens": 15026,
+    "is_estimated": true,
+    "estimated_cost_usd": null
+  },
+  "verified_cases": 0,
+  "documented_verified_cases": 8,
+  "reference_modeled_cases": 0,
+  "unverified_cases": 0,
+  "budget_exhausted": false,
+  "max_cases_applied": null,
+  "case_results": [
+    {
+      "case_id": "rw-requests-2023-proxy-authorization",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81586,
+      "usage": {
+        "prompt_tokens": 2248,
+        "completion_tokens": 0,
+        "total_tokens": 2248,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41275,
+            "prompt_hash": "48101497b966332ae0caa8a9dec8b37561da11a1cf626ee14efe0b9fd96b7ea3",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40294,
+            "prompt_hash": "48101497b966332ae0caa8a9dec8b37561da11a1cf626ee14efe0b9fd96b7ea3",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 275,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-jsondecodeerror-pickle",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81571,
+      "usage": {
+        "prompt_tokens": 1888,
+        "completion_tokens": 0,
+        "total_tokens": 1888,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41275,
+            "prompt_hash": "999b1688c825816d2de43ba0b18e27e187dbf620b43c490b83880dd8295b5b77",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40281,
+            "prompt_hash": "999b1688c825816d2de43ba0b18e27e187dbf620b43c490b83880dd8295b5b77",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 132,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-requests-super-len-unicode",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 1,
+      "latency_ms": 21675,
+      "usage": {
+        "prompt_tokens": 1017,
+        "completion_tokens": 487,
+        "total_tokens": 1504,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-856f94a7a2c6",
+          "module_id": "code_review",
+          "category": "correctness",
+          "severity": "high",
+          "confidence": "high",
+          "file_path": "src/requests/utils.py",
+          "line_range": {
+            "start_line": 4,
+            "end_line": 5
+          },
+          "title": "super_len no longer accounts for UTF-8 byte length of strings",
+          "description": "The removed code encoded `str` objects to UTF-8 before measuring their length. Without it, `len(o)` for a string returns the number of characters rather than the number of bytes that will actually be transmitted. For any non-ASCII text (e.g. \"\u00e9\" is 1 character but 2 UTF-8 bytes), `super_len` now under-reports the payload size. Callers that use this value to set `Content-Length` will send a header smaller than the actual body, causing servers to read only part of the body or reject the request as malformed.",
+          "evidence": "if hasattr(o, \"__len__\"):\n        total_length = len(o)",
+          "suggested_remediation": "Restore the string handling before the length calculation, e.g. `if isinstance(o, str): o = o.encode(\"utf-8\")`, so that the reported length matches the encoded byte length of the request body."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "correctness",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "src/requests/utils.py",
+            "start_line": 4,
+            "end_line": 5,
+            "title": "super_len no longer accounts for UTF-8 byte length of strings",
+            "description": "The removed code encoded `str` objects to UTF-8 before measuring their length. Without it, `len(o)` for a string returns the number of characters rather than the number of bytes that will actually be transmitted. For any non-ASCII text (e.g. \"\u00e9\" is 1 character but 2 UTF-8 bytes), `super_len` now under-reports the payload size. Callers that use this value to set `Content-Length` will send a header smaller than the actual body, causing servers to read only part of the body or reject the request as malformed.",
+            "evidence": "if hasattr(o, \"__len__\"):\n        total_length = len(o)",
+            "suggested_remediation": "Restore the string handling before the length calculation, e.g. `if isinstance(o, str): o = o.encode(\"utf-8\")`, so that the reported length matches the encoded byte length of the request body."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-856f94a7a2c6",
+            "module_id": "code_review",
+            "category": "correctness",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "src/requests/utils.py",
+            "line_range": {
+              "start_line": 4,
+              "end_line": 5
+            },
+            "title": "super_len no longer accounts for UTF-8 byte length of strings",
+            "description": "The removed code encoded `str` objects to UTF-8 before measuring their length. Without it, `len(o)` for a string returns the number of characters rather than the number of bytes that will actually be transmitted. For any non-ASCII text (e.g. \"\u00e9\" is 1 character but 2 UTF-8 bytes), `super_len` now under-reports the payload size. Callers that use this value to set `Content-Length` will send a header smaller than the actual body, causing servers to read only part of the body or reject the request as malformed.",
+            "evidence": "if hasattr(o, \"__len__\"):\n        total_length = len(o)",
+            "suggested_remediation": "Restore the string handling before the length calculation, e.g. `if isinstance(o, str): o = o.encode(\"utf-8\")`, so that the reported length matches the encoded byte length of the request body."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-856f94a7a2c6",
+            "file_path": "src/requests/utils.py",
+            "line_range": {
+              "start_line": 4,
+              "end_line": 5
+            },
+            "category": "correctness",
+            "severity": "high",
+            "title": "super_len no longer accounts for UTF-8 byte length of strings",
+            "expected_file_path": "src/requests/utils.py",
+            "expected_line_range": {
+              "start_line": 1,
+              "end_line": 5
+            },
+            "expected_category": "boundary_condition",
+            "expected_allowed_categories": [
+              "boundary_condition",
+              "type_mismatch",
+              "correctness"
+            ],
+            "severity_match": false
+          }
+        ],
+        "category_mismatches": [],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      },
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 21659,
+            "prompt_hash": "ad22f34a8b99005ed7c805d599b1015c301ece8a5a43a96a2a7662d948b72fe9",
+            "response_hash": "39747e8ece90ebe5f25409af0c5dea860a1fdc6824f5844b67a6a5171565e3d0",
+            "retry_reason": null,
+            "error_category": null,
+            "http_status": null,
+            "usage": {
+              "prompt_tokens": 1017,
+              "completion_tokens": 487,
+              "total_tokens": 1504,
+              "is_estimated": false,
+              "estimated_cost_usd": null
+            }
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 110,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-cookie-cross-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81921,
+      "usage": {
+        "prompt_tokens": 1708,
+        "completion_tokens": 0,
+        "total_tokens": 1708,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41273,
+            "prompt_hash": "d1d345e7360a4ad1a9aa525028fe6d7897cde784aba884f8f8c8d139fbbe1d35",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40623,
+            "prompt_hash": "d1d345e7360a4ad1a9aa525028fe6d7897cde784aba884f8f8c8d139fbbe1d35",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 93,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-proxy-redirect-origin",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81811,
+      "usage": {
+        "prompt_tokens": 2162,
+        "completion_tokens": 0,
+        "total_tokens": 2162,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41423,
+            "prompt_hash": "06223ff5898f0e186020ea3331ca6bde48208515a81b4c68e7fa451c27bf3f44",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40373,
+            "prompt_hash": "06223ff5898f0e186020ea3331ca6bde48208515a81b4c68e7fa451c27bf3f44",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 164,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-port-zero",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81537,
+      "usage": {
+        "prompt_tokens": 1760,
+        "completion_tokens": 0,
+        "total_tokens": 1760,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41257,
+            "prompt_hash": "dcff360d0593767524b4d87298128c166f7c67e7c0203c11ddda919e2953edc3",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40272,
+            "prompt_hash": "dcff360d0593767524b4d87298128c166f7c67e7c0203c11ddda919e2953edc3",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 123,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-urllib3-invalid-timeout-error",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81568,
+      "usage": {
+        "prompt_tokens": 1916,
+        "completion_tokens": 0,
+        "total_tokens": 1916,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41264,
+            "prompt_hash": "49a973df23aacce57facbeefb8666ad6ce41d4d7ea41a484864f302b78d7b439",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40287,
+            "prompt_hash": "49a973df23aacce57facbeefb8666ad6ce41d4d7ea41a484864f302b78d7b439",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 173,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "case_id": "rw-werkzeug-debugger-trusted-host",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "category_mismatch_detections": 0,
+      "undetected_expected_defects": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 81589,
+      "usage": {
+        "prompt_tokens": 1840,
+        "completion_tokens": 0,
+        "total_tokens": 1840,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "External provider timeout; details redacted.",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "documented_verified",
+      "change_type": "defect_introduction",
+      "diagnostics": null,
+      "observability": {
+        "provider": "nvidia",
+        "model": "minimaxai/minimax-m3.1-flash",
+        "attempts": [
+          {
+            "attempt_number": 1,
+            "latency_ms": 41298,
+            "prompt_hash": "aec71aee110c6cf06de52725b56f94de46820d4bde696cf61d7d0d31f378c60f",
+            "response_hash": null,
+            "retry_reason": "timeout",
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          },
+          {
+            "attempt_number": 2,
+            "latency_ms": 40273,
+            "prompt_hash": "aec71aee110c6cf06de52725b56f94de46820d4bde696cf61d7d0d31f378c60f",
+            "response_hash": null,
+            "retry_reason": null,
+            "error_category": "timeout",
+            "http_status": null,
+            "usage": null
+          }
+        ],
+        "context": {
+          "selected_files": 1,
+          "selected_snippets": 1,
+          "omitted_snippets": 0,
+          "estimated_tokens": 167,
+          "max_allowed_tokens": 2000,
+          "behavioral_deltas": 0,
+          "truncated": false,
+          "diagnostics": []
+        }
+      }
+    }
+  ]
+}

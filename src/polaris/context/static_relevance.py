@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from deicide.context.context_models import ContextCandidate, ContextRelationshipCategory
-from deicide.context.models import ChangedSymbol
-from deicide.context.static_analysis import ProcedureAnalysis, StaticAnalysisResult
+from polaris.context.context_models import ContextCandidate, ContextRelationshipCategory
+from polaris.context.models import ChangedSymbol
+from polaris.context.static_analysis import ProcedureAnalysis, StaticAnalysisResult
 
 _CONTROL_RELEVANT_SIGNALS = frozenset({"condition", "exception", "exception_handler", "return"})
 

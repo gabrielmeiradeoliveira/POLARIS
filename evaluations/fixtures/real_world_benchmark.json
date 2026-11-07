@@ -935,15 +935,15 @@
     "fix_reference": "Clean version fallback"
   },
   {
-    "case_id": "real-deicide-01-budget-negative-underflow",
+    "case_id": "real-polaris-01-budget-negative-underflow",
     "description": "Negative context token budget underflow when baseline prompt exceeds limit",
-    "diff_text": "diff --git a/src/deicide/modules/code_review.py b/src/deicide/modules/code_review.py\n--- a/src/deicide/modules/code_review.py\n+++ b/src/deicide/modules/code_review.py\n@@ -2,3 +2,3 @@ class CodeReviewModule:\n-        available_context_tokens = budget.max_context_tokens - baseline_tokens\n+        available_context_tokens = max(0, budget.max_context_tokens - baseline_tokens)\n",
+    "diff_text": "diff --git a/src/polaris/modules/code_review.py b/src/polaris/modules/code_review.py\n--- a/src/polaris/modules/code_review.py\n+++ b/src/polaris/modules/code_review.py\n@@ -2,3 +2,3 @@ class CodeReviewModule:\n-        available_context_tokens = budget.max_context_tokens - baseline_tokens\n+        available_context_tokens = max(0, budget.max_context_tokens - baseline_tokens)\n",
     "file_contents": {
-      "src/deicide/modules/code_review.py": "class CodeReviewModule:\n    def calculate_budget(self, budget, baseline_tokens):\n        available_context_tokens = max(0, budget.max_context_tokens - baseline_tokens)\n        return available_context_tokens\n"
+      "src/polaris/modules/code_review.py": "class CodeReviewModule:\n    def calculate_budget(self, budget, baseline_tokens):\n        available_context_tokens = max(0, budget.max_context_tokens - baseline_tokens)\n        return available_context_tokens\n"
     },
     "expected_findings": [
       {
-        "file_path": "src/deicide/modules/code_review.py",
+        "file_path": "src/polaris/modules/code_review.py",
         "line_range": {
           "start_line": 3,
           "end_line": 3
@@ -957,7 +957,7 @@
         "category": "boundary_condition",
         "severity": "high",
         "confidence": "high",
-        "file_path": "src/deicide/modules/code_review.py",
+        "file_path": "src/polaris/modules/code_review.py",
         "start_line": 3,
         "end_line": 3,
         "title": "Negative context token budget calculation underflow",
@@ -967,21 +967,21 @@
       }
     ],
     "supplementary_snippets": [],
-    "repository": "DEICIDE",
+    "repository": "POLARIS",
     "commit_id": "a76d89b",
     "is_clean": false,
     "fix_reference": "Local fix commit a76d89b"
   },
   {
-    "case_id": "real-deicide-02-deletion-diff-symbol-miss",
+    "case_id": "real-polaris-02-deletion-diff-symbol-miss",
     "description": "Symbol extraction returns zero symbols on deletion-only diffs",
-    "diff_text": "diff --git a/src/deicide/context/python_ast.py b/src/deicide/context/python_ast.py\n--- a/src/deicide/context/python_ast.py\n+++ b/src/deicide/context/python_ast.py\n@@ -3,3 +3,5 @@ class PythonAstAnalyzer:\n         for hunk in file_diff.hunks:\n+            # Inspect deleted lines to detect affected symbols in deletions\n+            for old_line in range(hunk.old_start, hunk.old_start + hunk.old_count):\n+                affected_lines.add(old_line)\n",
+    "diff_text": "diff --git a/src/polaris/context/python_ast.py b/src/polaris/context/python_ast.py\n--- a/src/polaris/context/python_ast.py\n+++ b/src/polaris/context/python_ast.py\n@@ -3,3 +3,5 @@ class PythonAstAnalyzer:\n         for hunk in file_diff.hunks:\n+            # Inspect deleted lines to detect affected symbols in deletions\n+            for old_line in range(hunk.old_start, hunk.old_start + hunk.old_count):\n+                affected_lines.add(old_line)\n",
     "file_contents": {
-      "src/deicide/context/python_ast.py": "class PythonAstAnalyzer:\n    def extract_affected_lines(self, file_diff):\n        affected_lines = set()\n        for hunk in file_diff.hunks:\n            # Inspect deleted lines to detect affected symbols in deletions\n            for old_line in range(hunk.old_start, hunk.old_start + hunk.old_count):\n                affected_lines.add(old_line)\n        return affected_lines\n"
+      "src/polaris/context/python_ast.py": "class PythonAstAnalyzer:\n    def extract_affected_lines(self, file_diff):\n        affected_lines = set()\n        for hunk in file_diff.hunks:\n            # Inspect deleted lines to detect affected symbols in deletions\n            for old_line in range(hunk.old_start, hunk.old_start + hunk.old_count):\n                affected_lines.add(old_line)\n        return affected_lines\n"
     },
     "expected_findings": [
       {
-        "file_path": "src/deicide/context/python_ast.py",
+        "file_path": "src/polaris/context/python_ast.py",
         "line_range": {
           "start_line": 5,
           "end_line": 7
@@ -995,7 +995,7 @@
         "category": "correctness",
         "severity": "high",
         "confidence": "high",
-        "file_path": "src/deicide/context/python_ast.py",
+        "file_path": "src/polaris/context/python_ast.py",
         "start_line": 5,
         "end_line": 7,
         "title": "Deletion-only diffs fail to identify affected symbols",
@@ -1005,22 +1005,22 @@
       }
     ],
     "supplementary_snippets": [],
-    "repository": "DEICIDE",
+    "repository": "POLARIS",
     "commit_id": "ae580a6",
     "is_clean": false,
     "fix_reference": "Local fix commit ae580a6"
   },
   {
-    "case_id": "real-deicide-03-clean-readme-docs",
+    "case_id": "real-polaris-03-clean-readme-docs",
     "description": "Clean documentation update for context engine CLI options",
-    "diff_text": "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1,2 +1,4 @@\n # DEICIDE\n+## Context Engine\n+DEICIDE includes an AST-powered context selection engine.\n",
+    "diff_text": "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1,2 +1,4 @@\n # POLARIS\n+## Context Engine\n+POLARIS includes an AST-powered context selection engine.\n",
     "file_contents": {
-      "README.md": "# DEICIDE\n## Context Engine\nDEICIDE includes an AST-powered context selection engine.\n"
+      "README.md": "# POLARIS\n## Context Engine\nPOLARIS includes an AST-powered context selection engine.\n"
     },
     "expected_findings": [],
     "candidate_findings": [],
     "supplementary_snippets": [],
-    "repository": "DEICIDE",
+    "repository": "POLARIS",
     "commit_id": "cfc826d",
     "is_clean": true,
     "fix_reference": "Commit cfc826d"

@@ -1,6 +1,6 @@
 """Finding validation, evidence verification, stable ID computation, and deduplication.
 
-Delegates to the DEICIDE MVP 1.3 Finding Intelligence Engine (`deicide.intelligence`)
+Delegates to the POLARIS MVP 1.3 Finding Intelligence Engine (`polaris.intelligence`)
 while preserving backward-compatible function signatures.
 """
 
@@ -9,19 +9,19 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from deicide.core.models import (
+from polaris.core.models import (
     AnalysisWarning,
     CandidateFinding,
     Finding,
 )
-from deicide.git.models import DiffBundle, FileContext
-from deicide.intelligence.deduplicator import deduplicate_findings_semantic
-from deicide.intelligence.evidence_validator import (
+from polaris.git.models import DiffBundle, FileContext
+from polaris.intelligence.deduplicator import deduplicate_findings_semantic
+from polaris.intelligence.evidence_validator import (
     compute_finding_id,
     is_evidence_supported,
     validate_and_assess_candidates,
 )
-from deicide.intelligence.severity_normalizer import normalize_findings
+from polaris.intelligence.severity_normalizer import normalize_findings
 
 __all__ = [
     "compute_finding_id",

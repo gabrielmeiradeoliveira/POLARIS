@@ -6,25 +6,25 @@ import time
 from pathlib import Path
 from typing import NamedTuple
 
-from deicide.context.behavioral_delta import (
+from polaris.context.behavioral_delta import (
     BehavioralDeltaResult,
     analyze_behavioral_deltas,
 )
-from deicide.context.changed_symbols import identify_changed_symbols
-from deicide.context.context_models import (
+from polaris.context.changed_symbols import identify_changed_symbols
+from polaris.context.context_models import (
     ContextSelectionLimits,
     ContextSelectionResult,
 )
-from deicide.context.dependency_graph import build_dependency_graph
-from deicide.context.models import ChangedSymbol, FileAnalysisStatus
-from deicide.context.project_index import IndexLimits, build_project_index
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.context.snippet_selector import select_context
-from deicide.context.static_analysis import PythonStaticAnalyzer, StaticAnalysisResult
-from deicide.core.errors import SecurityViolationError
-from deicide.core.models import ContextSummary, ExecutionBudget
-from deicide.git.analyzer import ensure_safe_repo_file
-from deicide.git.models import DiffBundle, FileChangeStatus
+from polaris.context.dependency_graph import build_dependency_graph
+from polaris.context.models import ChangedSymbol, FileAnalysisStatus
+from polaris.context.project_index import IndexLimits, build_project_index
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.context.snippet_selector import select_context
+from polaris.context.static_analysis import PythonStaticAnalyzer, StaticAnalysisResult
+from polaris.core.errors import SecurityViolationError
+from polaris.core.models import ContextSummary, ExecutionBudget
+from polaris.git.analyzer import ensure_safe_repo_file
+from polaris.git.models import DiffBundle, FileChangeStatus
 
 
 class ContextPreparationOutcome(NamedTuple):

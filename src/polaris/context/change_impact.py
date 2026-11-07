@@ -10,8 +10,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from deicide.context.context_models import SelectedSnippet
-from deicide.git.models import FileContext
+from polaris.context.context_models import SelectedSnippet
+from polaris.git.models import FileContext
 
 
 @dataclass(frozen=True)

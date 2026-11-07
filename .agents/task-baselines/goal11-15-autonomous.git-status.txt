@@ -1,0 +1,15 @@
+Purpose: verbatim Git worktree baseline captured before GOAL 11-15 mission edits.
+Base commit: 4051e892a2fd304bd8314a61ad19efe15f985343
+Branch: feature/review-accuracy
+
+ M AGENTS.md
+ M calculator.py
+ D context_test.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/reports/baseline_mvp1_4_minimax_m3_1_flash.md
+?? evaluations/results/
+?? scratch/

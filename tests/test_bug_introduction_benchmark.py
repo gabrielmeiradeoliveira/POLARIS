@@ -1,4 +1,4 @@
-"""Tests for DEICIDE MVP 1.4 Valid Bug Introduction Benchmark."""
+"""Tests for POLARIS MVP 1.4 Valid Bug Introduction Benchmark."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.errors import ExitCode
-from deicide.core.models import FindingCategory
-from deicide.evaluation.models import ChangeType, EvaluationSummary
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.providers.fake import FakeProvider
+from polaris.cli import app
+from polaris.core.errors import ExitCode
+from polaris.core.models import FindingCategory
+from polaris.evaluation.models import ChangeType, EvaluationSummary
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.providers.fake import FakeProvider
 
 BENCHMARK_PATH = Path("evaluations/fixtures/bug_introduction_benchmark.json")
 
@@ -288,17 +288,17 @@ def test_behavioral_reproduction_case_04_client_state_mutation() -> None:
             return headers
 
     # Before: first request does not contaminate subsequent requests
-    s_before = SessionBefore({"User-Agent": "Deicide/1.0"})
+    s_before = SessionBefore({"User-Agent": "Polaris/1.0"})
     res1 = s_before.prepare_headers({"Authorization": "Bearer secret123"})
-    assert res1 == {"User-Agent": "Deicide/1.0", "Authorization": "Bearer secret123"}
+    assert res1 == {"User-Agent": "Polaris/1.0", "Authorization": "Bearer secret123"}
     res2 = s_before.prepare_headers()
-    assert res2 == {"User-Agent": "Deicide/1.0"}
+    assert res2 == {"User-Agent": "Polaris/1.0"}
     assert "Authorization" not in s_before.default_headers
 
     # After: first request mutates default_headers in-place, leaking secrets into second request
-    s_after = SessionAfter({"User-Agent": "Deicide/1.0"})
+    s_after = SessionAfter({"User-Agent": "Polaris/1.0"})
     res1_after = s_after.prepare_headers({"Authorization": "Bearer secret123"})
-    assert res1_after == {"User-Agent": "Deicide/1.0", "Authorization": "Bearer secret123"}
+    assert res1_after == {"User-Agent": "Polaris/1.0", "Authorization": "Bearer secret123"}
     res2_after = s_after.prepare_headers()
     assert "Authorization" in res2_after, "State mutation leaked Authorization header into subsequent request"
     assert s_after.default_headers["Authorization"] == "Bearer secret123"

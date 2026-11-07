@@ -1,4 +1,4 @@
-"""Comprehensive unit and integration tests for the DEICIDE Behavioral Delta Analysis Engine."""
+"""Comprehensive unit and integration tests for the POLARIS Behavioral Delta Analysis Engine."""
 
 from __future__ import annotations
 
@@ -7,24 +7,24 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from deicide.context.behavioral_delta import (
+from polaris.context.behavioral_delta import (
     BehavioralDelta,
     BehavioralDeltaResult,
     BehavioralDeltaType,
     analyze_behavioral_deltas,
     serialize_behavioral_deltas,
 )
-from deicide.context.context_models import ContextSelectionLimits, ContextSelectionResult
-from deicide.context.pipeline import calculate_context_token_allowance, prepare_review_context
-from deicide.core.config import DeicideConfig
-from deicide.core.models import CandidateFinding, Confidence, ExecutionBudget, FindingCategory, LineRange, Severity
-from deicide.evaluation.models import EvaluationFixture
-from deicide.evaluation.runner import evaluate_case, load_fixtures_from_file
-from deicide.git.analyzer import GitAnalyzer, parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
-from deicide.intelligence.pipeline import FindingIntelligenceEngine
-from deicide.modules.code_review import CodeReviewModule
-from deicide.providers.fake import FakeProvider
+from polaris.context.context_models import ContextSelectionLimits, ContextSelectionResult
+from polaris.context.pipeline import calculate_context_token_allowance, prepare_review_context
+from polaris.core.config import PolarisConfig
+from polaris.core.models import CandidateFinding, Confidence, ExecutionBudget, FindingCategory, LineRange, Severity
+from polaris.evaluation.models import EvaluationFixture
+from polaris.evaluation.runner import evaluate_case, load_fixtures_from_file
+from polaris.git.analyzer import GitAnalyzer, parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.intelligence.pipeline import FindingIntelligenceEngine
+from polaris.modules.code_review import CodeReviewModule
+from polaris.providers.fake import FakeProvider
 from tests.conftest import run_git_cmd
 
 BENCHMARK_PATH = Path("evaluations/fixtures/bug_introduction_benchmark.json")
@@ -265,7 +265,7 @@ def test_benchmark_corpus_behavioral_deltas_alignment() -> None:
     assert r1.deltas[0].line_range == LineRange(start_line=3, end_line=4)
 
     # Case 2: budget underflow (clamping max(0, ...) removal)
-    f2 = by_id["bug-intro-02-deicide-budget-underflow"]
+    f2 = by_id["bug-intro-02-polaris-budget-underflow"]
     b2, c2 = _make_bundle_and_contexts(f2.diff_text, f2.file_contents)
     r2 = analyze_behavioral_deltas(b2, c2)
     assert len(r2.deltas) == 1
@@ -321,8 +321,8 @@ def test_pipeline_prompt_and_finding_intelligence_integration(tmp_path: Path) ->
     repo = tmp_path / "delta_repo"
     repo.mkdir(parents=True, exist_ok=True)
     run_git_cmd(repo, "init")
-    run_git_cmd(repo, "config", "user.name", "Deicide Tester")
-    run_git_cmd(repo, "config", "user.email", "tester@deicide.local")
+    run_git_cmd(repo, "config", "user.name", "Polaris Tester")
+    run_git_cmd(repo, "config", "user.email", "tester@polaris.local")
 
     service_file = repo / "payment.py"
     service_file.write_text(
@@ -347,7 +347,7 @@ def test_pipeline_prompt_and_finding_intelligence_integration(tmp_path: Path) ->
     git_analyzer = GitAnalyzer(repo)
     diff_bundle = git_analyzer.extract_diff()
     contexts = git_analyzer.retrieve_context(diff_bundle)
-    budget = DeicideConfig(repo_path=repo).budget
+    budget = PolarisConfig(repo_path=repo).budget
 
     outcome = prepare_review_context(
         repo_root=repo,
@@ -522,7 +522,7 @@ def test_dynamic_caller_handling_no_false_positive_broken_caller(tmp_path: Path)
     repo.mkdir()
     run_git_cmd(repo, "init", "-b", "main")
     run_git_cmd(repo, "config", "user.name", "Tester")
-    run_git_cmd(repo, "config", "user.email", "tester@deicide.ai")
+    run_git_cmd(repo, "config", "user.email", "tester@polaris.ai")
 
     lib_file = repo / "lib.py"
     lib_file.write_text("def process(a: int) -> int:\n    return a * 2\n", encoding="utf-8")
@@ -543,7 +543,7 @@ def test_dynamic_caller_handling_no_false_positive_broken_caller(tmp_path: Path)
 
     git_analyzer = GitAnalyzer(repo)
     diff_bundle = git_analyzer.extract_diff()
-    budget = DeicideConfig(repo_path=repo).budget
+    budget = PolarisConfig(repo_path=repo).budget
 
     outcome = prepare_review_context(
         repo_root=repo,
@@ -620,20 +620,20 @@ def test_multi_guard_modification_pairing() -> None:
 def test_behavioral_delta_feature_toggle(tmp_path: Path) -> None:
     """Verify Behavioral Delta defaults off and supports explicit opt-in and opt-out."""
     # 1. Config default, env overrides, and explicit flags
-    cfg_default = DeicideConfig.from_env_and_args()
+    cfg_default = PolarisConfig.from_env_and_args()
     assert cfg_default.behavioral_delta_enabled is False
 
-    cfg_enabled = DeicideConfig.from_env_and_args(
-        environ={"DEICIDE_BEHAVIORAL_DELTA_ENABLED": "1"},
+    cfg_enabled = PolarisConfig.from_env_and_args(
+        environ={"POLARIS_BEHAVIORAL_DELTA_ENABLED": "1"},
     )
     assert cfg_enabled.behavioral_delta_enabled is True
 
-    cfg_disabled = DeicideConfig.from_env_and_args(
-        environ={"DEICIDE_BEHAVIORAL_DELTA_ENABLED": "0"},
+    cfg_disabled = PolarisConfig.from_env_and_args(
+        environ={"POLARIS_BEHAVIORAL_DELTA_ENABLED": "0"},
     )
     assert cfg_disabled.behavioral_delta_enabled is False
 
-    cfg_flag_disabled = DeicideConfig.from_env_and_args(
+    cfg_flag_disabled = PolarisConfig.from_env_and_args(
         behavioral_delta_enabled=False,
     )
     assert cfg_flag_disabled.behavioral_delta_enabled is False
@@ -663,7 +663,7 @@ def test_behavioral_delta_feature_toggle(tmp_path: Path) -> None:
     repo.mkdir()
     run_git_cmd(repo, "init", "-b", "main")
     run_git_cmd(repo, "config", "user.name", "Tester")
-    run_git_cmd(repo, "config", "user.email", "tester@deicide.ai")
+    run_git_cmd(repo, "config", "user.email", "tester@polaris.ai")
 
     f_py = repo / "f.py"
     f_py.write_text("def f(x):\n    if x == 0:\n        return 0\n    return 10 / x\n", encoding="utf-8")
@@ -673,7 +673,7 @@ def test_behavioral_delta_feature_toggle(tmp_path: Path) -> None:
     f_py.write_text("def f(x):\n    return 10 / x\n", encoding="utf-8")
     git_analyzer = GitAnalyzer(repo)
     diff_bundle = git_analyzer.extract_diff()
-    budget = DeicideConfig(repo_path=repo).budget
+    budget = PolarisConfig(repo_path=repo).budget
 
     outcome_enabled = prepare_review_context(
         repo_root=repo,

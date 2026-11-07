@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Iterable
 
-from deicide.core.models import Finding
-from deicide.integrations.github.models import MappedComment, PublishOperation, ReviewSummary
+from polaris.core.models import Finding
+from polaris.integrations.github.models import MappedComment, PublishOperation, ReviewSummary
 
 
 def build_summary(

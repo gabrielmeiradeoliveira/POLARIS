@@ -1,4 +1,4 @@
-"""Tests for DEICIDE MVP 1.4.2 Reproducible Behavioral Regression Benchmark.
+"""Tests for POLARIS MVP 1.4.2 Reproducible Behavioral Regression Benchmark.
 
 Verifies:
 1. Benchmark corpus integrity, schema conformity, and category coverage.
@@ -19,13 +19,13 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner
 
-from deicide.cli import app
-from deicide.core.errors import ExitCode
-from deicide.core.models import FindingCategory
-from deicide.evaluation.models import ChangeType, EvaluationSummary
-from deicide.evaluation.runner import evaluate_corpus, load_fixtures_from_file
-from deicide.git.analyzer import parse_unified_diff
-from deicide.providers.fake import FakeProvider
+from polaris.cli import app
+from polaris.core.errors import ExitCode
+from polaris.core.models import FindingCategory
+from polaris.evaluation.models import ChangeType, EvaluationSummary
+from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
+from polaris.git.analyzer import parse_unified_diff
+from polaris.providers.fake import FakeProvider
 
 BENCHMARK_PATH = Path("evaluations/fixtures/behavioral_regression_benchmark.json")
 BASELINE_BENCHMARK_PATH = Path("evaluations/fixtures/bug_introduction_benchmark.json")

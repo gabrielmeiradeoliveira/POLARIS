@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import contextlib
+import os
+import stat
 import subprocess
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -10,8 +14,11 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def isolate_live_dotenv(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    """Prevent unit tests from reading the developer's live .env unless explicitly tested."""
-    monkeypatch.setenv("DEICIDE_ENV_FILE", str(tmp_path / ".isolated_empty_dotenv"))
+    """Prevent unit tests from inheriting live provider configuration unless explicitly tested."""
+    for name in tuple(os.environ):
+        if name.startswith("POLARIS_") or name in {"NVIDIA_API_KEY", "NVIDIA_BASE_URL"}:
+            monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("POLARIS_ENV_FILE", str(tmp_path / ".isolated_empty_dotenv"))
 
 
 def run_git_cmd(repo: Path, *args: str) -> str:
@@ -26,7 +33,7 @@ def run_git_cmd(repo: Path, *args: str) -> str:
 
 
 @pytest.fixture
-def temp_git_repo(tmp_path: Path) -> Path:
+def temp_git_repo(tmp_path: Path) -> Generator[Path, None, None]:
     """Create an initialized Git repository with one initial commit."""
     repo = tmp_path / "sample_repo"
     repo.mkdir(parents=True, exist_ok=True)
@@ -42,4 +49,12 @@ def temp_git_repo(tmp_path: Path) -> Path:
     )
     run_git_cmd(repo, "add", ".")
     run_git_cmd(repo, "commit", "-m", "Initial commit")
-    return repo
+    yield repo
+    if os.name == "nt":
+        for root, dirs, files in os.walk(repo):
+            for name in files:
+                with contextlib.suppress(OSError):
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)
+            for name in dirs:
+                with contextlib.suppress(OSError):
+                    os.chmod(os.path.join(root, name), stat.S_IWRITE)

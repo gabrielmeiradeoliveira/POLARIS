@@ -1,0 +1,54 @@
+ M .env.example
+ M AGENTS.md
+ M calculator.py
+ D context_test.py
+ M evaluations/fixtures/bug_introduction_benchmark.json
+ M src/polaris/cli.py
+ M src/polaris/context/__init__.py
+ M src/polaris/context/context_budget.py
+ M src/polaris/context/context_models.py
+ M src/polaris/context/context_ranker.py
+ M src/polaris/context/pipeline.py
+ M src/polaris/context/snippet_selector.py
+ M src/polaris/core/config.py
+ M src/polaris/core/models.py
+ M src/polaris/core/orchestrator.py
+ M src/polaris/evaluation/__init__.py
+ M src/polaris/evaluation/models.py
+ M src/polaris/evaluation/runner.py
+ M src/polaris/git/analyzer.py
+ M src/polaris/intelligence/evidence_validator.py
+ M src/polaris/intelligence/models.py
+ M src/polaris/modules/code_review.py
+ M src/polaris/providers/base.py
+ M src/polaris/providers/nvidia.py
+ M src/polaris/reporting/formatter.py
+ M tests/test_bug_introduction_benchmark.py
+ M tests/test_cli_and_reporting.py
+ M tests/test_config_and_validation.py
+ M tests/test_context_audit.py
+ M tests/test_context_selection.py
+ M tests/test_real_world_benchmark.py
+ M tests/test_review_accuracy_baseline.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? evaluations/BEHAVIORAL_DELTA_AB_PROCEDURE.md
+?? evaluations/fixtures/behavioral_regression_benchmark.json
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/fixtures/end_to_end_context_benchmark.json
+?? evaluations/fixtures/real_world_verified_benchmark.json
+?? evaluations/reports/
+?? evaluations/results/
+?? scratch/
+?? src/polaris/context/behavioral_delta.py
+?? tests/test_behavioral_delta.py
+?? tests/test_behavioral_regression_benchmark.py
+?? tests/test_end_to_end_context_benchmark.py
+?? tests/test_end_to_end_context_oracles.py
+?? tests/test_evaluation_matching_and_diagnostics.py
+?? tests/test_evaluation_observability.py
+?? tests/test_evaluation_usage_accounting.py
+?? tests/test_production_parity_evaluation.py
+?? tests/test_real_world_verified_benchmark.py

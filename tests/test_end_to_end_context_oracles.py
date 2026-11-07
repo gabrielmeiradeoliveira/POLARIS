@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from deicide.evaluation.runner import load_fixtures_from_file
+from polaris.evaluation.runner import load_fixtures_from_file
 
 FIXTURES = Path("evaluations/fixtures/end_to_end_context_benchmark.json")
 

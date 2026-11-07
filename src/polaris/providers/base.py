@@ -7,7 +7,7 @@ from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.core.models import TokenUsage, estimate_token_count
+from polaris.core.models import TokenUsage, estimate_token_count
 
 
 class ProviderRequest(BaseModel):

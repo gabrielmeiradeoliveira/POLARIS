@@ -3,7 +3,7 @@
   "run_id": "goal18-engine-20261101",
   "timestamp_utc": "2026-11-01T16:46:55.029976Z",
   "git_commit": "fd72c57fc0f7032d5aaf25aed5c6951d4f519dcc",
-  "deicide_version": "0.1.0",
+  "polaris_version": "0.1.0",
   "provider": "fake",
   "model": "fake-deterministic-v1",
   "configuration": "accuracy-engine-2",

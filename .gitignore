@@ -68,7 +68,7 @@ coverage.xml
 *.pem
 *.key
 
-# Local databases and usage history (DEICIDE Quota & Usage Store)
+# Local databases and usage history (POLARIS Quota & Usage Store)
 *.db
 *.sqlite
 *.sqlite3
@@ -89,6 +89,23 @@ $RECYCLE.BIN/
 
 # Logs and runtime artifacts
 *.log
+*.tmp
+tmp/
+temp/
+/screenshots/
+/web/screenshots/
 
-# DEICIDE evaluation history: compact manifests/reports are reviewable; raw artifacts are local only.
+# POLARIS evaluation history: compact manifests/reports are reviewable; raw artifacts are local only.
 /evaluations/history/artifacts/
+
+# pytest --basetemp directories left by legacy commands at the repository root.
+.pytest-*/
+
+# Local web dashboard build output.
+/web/node_modules/
+/web/dist/
+/web/e2e/.dashboard.sqlite
+/web/test-results/
+/web/playwright-report/
+/test-results/
+playwright/.cache/

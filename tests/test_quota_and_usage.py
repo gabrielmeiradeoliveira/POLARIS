@@ -13,9 +13,10 @@ import pytest
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
-from deicide.cli import app, build_default_registry
-from deicide.core.config import DeicideConfig
-from deicide.core.errors import (
+from polaris.cli import app, build_default_registry
+from polaris.core.config import PolarisConfig
+from polaris.core.errors import (
+    BudgetExceededError,
     ConfigurationError,
     ExitCode,
     MissingCredentialsError,
@@ -23,13 +24,13 @@ from deicide.core.errors import (
     QuotaExhaustedError,
     RateLimitError,
 )
-from deicide.core.models import BudgetTracker, ExecutionBudget
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.providers.base import ProviderRequest
-from deicide.providers.factory import create_provider
-from deicide.providers.fake import FakeProvider
-from deicide.providers.nvidia import NvidiaProvider
-from deicide.quota.store import RequestStatus, UsageStore, derive_quota_scope
+from polaris.core.models import TOKEN_ESTIMATION_SAFETY_MARGIN, BudgetTracker, ExecutionBudget
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.providers.base import ProviderRequest
+from polaris.providers.factory import create_provider
+from polaris.providers.fake import FakeProvider
+from polaris.providers.nvidia import NvidiaProvider
+from polaris.quota.store import RequestStatus, UsageStore, derive_quota_scope
 
 runner = CliRunner()
 
@@ -396,7 +397,7 @@ def test_excessive_retry_after_fails_immediately(tmp_path: Path) -> None:
     assert slept == []
 
 
-def test_process_interruption_and_stale_reservation_expiration(tmp_path: Path) -> None:
+def test_process_interruption_keeps_stale_reservation_until_reconciliation(tmp_path: Path) -> None:
     db_file = tmp_path / "stale.sqlite3"
     clock = MockClock()
     store = UsageStore(db_path=db_file, clock_fn=clock, reservation_ttl_seconds=60.0)
@@ -407,6 +408,7 @@ def test_process_interruption_and_stale_reservation_expiration(tmp_path: Path) -
         model="z-ai/glm-5.3-flash",
         quota_scope="crash-scope",
         estimated_input_tokens=100,
+        reserved_output_tokens=50,
         rate_limit_rpm=1,
         rate_limit_rpd=1,
     )
@@ -423,9 +425,28 @@ def test_process_interruption_and_stale_reservation_expiration(tmp_path: Path) -
             rate_limit_rpd=1,
         )
 
-    # After TTL (t + 65s > 60s TTL), the stuck reservation is automatically expired and freed
+    # A restarted process preserves stale reservations as uncertain, not freed.
     clock.advance(60.0)
-    new_id = store.reserve(
+    restarted_store = UsageStore(db_path=db_file, clock_fn=clock, reservation_ttl_seconds=60.0)
+    snap = restarted_store.get_snapshot(
+        provider="nvidia",
+        model="z-ai/glm-5.3-flash",
+        quota_scope="crash-scope",
+    )
+    assert (snap.uncertain_today, snap.input_tokens_today, snap.output_tokens_today) == (1, 100, 50)
+    with pytest.raises(QuotaExhaustedError):
+        restarted_store.reserve(
+            provider="nvidia",
+            model="z-ai/glm-5.3-flash",
+            quota_scope="crash-scope",
+            estimated_input_tokens=100,
+            rate_limit_rpm=1,
+            rate_limit_rpd=1,
+        )
+
+    # An explicit reconciliation preserves the row while allowing a proven-unsent retry.
+    restarted_store.reconcile(_stuck_id, status=RequestStatus.EXPIRED, input_tokens=0, output_tokens=0)
+    new_id = restarted_store.reserve(
         provider="nvidia",
         model="z-ai/glm-5.3-flash",
         quota_scope="crash-scope",
@@ -433,9 +454,9 @@ def test_process_interruption_and_stale_reservation_expiration(tmp_path: Path) -
         rate_limit_rpm=1,
         rate_limit_rpd=1,
     )
-    store.reconcile(new_id, status=RequestStatus.SUCCEEDED, input_tokens=90, output_tokens=10)
+    restarted_store.reconcile(new_id, status=RequestStatus.SUCCEEDED, input_tokens=90, output_tokens=10)
 
-    snap = store.get_snapshot(
+    snap = restarted_store.get_snapshot(
         provider="nvidia",
         model="z-ai/glm-5.3-flash",
         quota_scope="crash-scope",
@@ -451,16 +472,16 @@ def test_malformed_configuration_and_untrusted_repo_env_ignored(
     # Plant a malicious .env inside the analyzed repository
     malicious_env = temp_git_repo / ".env"
     malicious_env.write_text(
-        "DEICIDE_PROVIDER=fake\n"
-        "DEICIDE_QUOTA_ENABLED=false\n"
-        "DEICIDE_MAX_REQUESTS=9999\n"
+        "POLARIS_PROVIDER=fake\n"
+        "POLARIS_QUOTA_ENABLED=false\n"
+        "POLARIS_MAX_REQUESTS=9999\n"
         "NVIDIA_API_KEY=malicious-repo-key\n",
         encoding="utf-8",
     )
 
     monkeypatch.setattr("pathlib.Path.cwd", lambda: temp_git_repo)
     monkeypatch.setattr("os.getcwd", lambda: str(temp_git_repo))
-    cfg = DeicideConfig.from_env_and_args(repo_path=temp_git_repo, environ={})
+    cfg = PolarisConfig.from_env_and_args(repo_path=temp_git_repo, environ={})
     # Must NOT have loaded the analyzed repository's .env
     assert cfg.api_key is None
     assert cfg.budget.quota_enabled is True
@@ -468,17 +489,17 @@ def test_malformed_configuration_and_untrusted_repo_env_ignored(
 
     # Strict validation rejects negative, zero, or non-numeric limits and invalid booleans
     for bad_env in (
-        {"DEICIDE_MAX_REQUESTS": "0"},
-        {"DEICIDE_MAX_REQUESTS": "-2"},
-        {"DEICIDE_MAX_REQUESTS": "abc"},
-        {"DEICIDE_MAX_TOKENS": "0"},
-        {"DEICIDE_RATE_LIMIT_RPM": "-1"},
-        {"DEICIDE_RATE_LIMIT_TPM": "not_a_number"},
-        {"DEICIDE_RATE_LIMIT_RPD": "0"},
-        {"DEICIDE_QUOTA_ENABLED": "maybe"},
+        {"POLARIS_MAX_REQUESTS": "0"},
+        {"POLARIS_MAX_REQUESTS": "-2"},
+        {"POLARIS_MAX_REQUESTS": "abc"},
+        {"POLARIS_MAX_TOKENS": "0"},
+        {"POLARIS_RATE_LIMIT_RPM": "-1"},
+        {"POLARIS_RATE_LIMIT_TPM": "not_a_number"},
+        {"POLARIS_RATE_LIMIT_RPD": "0"},
+        {"POLARIS_QUOTA_ENABLED": "maybe"},
     ):
         with pytest.raises(ConfigurationError):
-            DeicideConfig.from_env_and_args(environ=bad_env)
+            PolarisConfig.from_env_and_args(environ=bad_env)
 
 
 def test_fake_provider_isolation_and_api_key_scope_isolation(temp_git_repo: Path, tmp_path: Path) -> None:
@@ -506,7 +527,7 @@ def test_fake_provider_isolation_and_api_key_scope_isolation(temp_git_repo: Path
     calc_file = temp_git_repo / "src" / "calc.py"
     calc_file.write_text("def f(x: int) -> float:\n    return x / 0\n", encoding="utf-8")
 
-    cfg_fake = DeicideConfig.from_env_and_args(
+    cfg_fake = PolarisConfig.from_env_and_args(
         repo_path=temp_git_repo,
         provider="fake",
         usage_db_path=db_file,
@@ -535,12 +556,12 @@ def test_privacy_no_credentials_prompts_or_source_code_in_sqlite(temp_git_repo: 
     )
 
     store = UsageStore(db_path=db_file)
-    cfg = DeicideConfig.from_env_and_args(
+    cfg = PolarisConfig.from_env_and_args(
         repo_path=temp_git_repo,
         provider="nvidia",
         model="z-ai/glm-5.3-flash",
         usage_db_path=db_file,
-        environ={"NVIDIA_API_KEY": secret_api_key, "DEICIDE_ALLOW_EXTERNAL_CODE": "1"},
+        environ={"NVIDIA_API_KEY": secret_api_key, "POLARIS_ALLOW_EXTERNAL_CODE": "1"},
     )
     provider = NvidiaProvider(
         api_key=SecretStr(secret_api_key),
@@ -603,7 +624,7 @@ def test_cli_usage_terminal_and_json_output(tmp_path: Path) -> None:
         ],
     )
     assert res_term.exit_code == int(ExitCode.SUCCESS)
-    assert "DEICIDE Persistent API Usage & Quota Report" in res_term.stdout
+    assert "POLARIS Persistent API Usage & Quota Report" in res_term.stdout
     assert "nvidia (z-ai/glm-5.3-flash)" in res_term.stdout
     assert "Requests Recorded Today       : 1" in res_term.stdout
     assert "Input Tokens Today            : 420" in res_term.stdout
@@ -640,99 +661,114 @@ def test_cli_usage_terminal_and_json_output(tmp_path: Path) -> None:
     assert "locally tracked estimates" in data["disclaimer"]
 
 
-def test_trusted_dotenv_loaded_automatically_with_repo_arg_and_empty_deicide_key(
+def test_trusted_dotenv_loaded_automatically_with_repo_arg_and_empty_polaris_key(
     temp_git_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    trusted_root = tmp_path / "trusted_deicide_home"
+    trusted_root = tmp_path / "trusted_polaris_home"
     trusted_root.mkdir()
     trusted_dotenv = trusted_root / ".env"
     trusted_dotenv.write_text(
-        "DEICIDE_PROVIDER=nvidia\n"
-        "DEICIDE_MODEL=z-ai/glm-5.3-flash\n"
+        "POLARIS_PROVIDER=nvidia\n"
+        "POLARIS_MODEL=z-ai/glm-5.3-flash\n"
         "NVIDIA_API_KEY=trusted-dotenv-nvidia-key\n"
-        "DEICIDE_API_KEY=\n"
-        "DEICIDE_ALLOW_EXTERNAL_CODE=1\n"
-        "DEICIDE_TIMEOUT_SECONDS=75.0\n"
-        "DEICIDE_MAX_RETRIES=0\n",
+        "POLARIS_API_KEY=\n"
+        "POLARIS_ALLOW_EXTERNAL_CODE=1\n"
+        "POLARIS_TIMEOUT_SECONDS=75.0\n"
+        "POLARIS_MAX_RETRIES=0\n",
         encoding="utf-8",
     )
 
     # Plant an untrusted .env inside the target repository being analyzed
     (temp_git_repo / ".env").write_text(
-        "NVIDIA_API_KEY=untrusted-repo-key\nDEICIDE_API_KEY=untrusted-deicide-key\nDEICIDE_TIMEOUT_SECONDS=5.0\n",
+        "NVIDIA_API_KEY=untrusted-repo-key\nPOLARIS_API_KEY=untrusted-polaris-key\nPOLARIS_TIMEOUT_SECONDS=5.0\n",
         encoding="utf-8",
     )
 
-    monkeypatch.delenv("DEICIDE_ENV_FILE", raising=False)
+    monkeypatch.delenv("POLARIS_ENV_FILE", raising=False)
     monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
-    monkeypatch.delenv("DEICIDE_API_KEY", raising=False)
-    monkeypatch.setattr("deicide.core.config._DEICIDE_INSTALL_ROOT", trusted_root)
-    monkeypatch.setattr("deicide.core.config.get_user_data_dir", lambda *_a, **_kw: tmp_path / "empty_appdata")
+    monkeypatch.delenv("POLARIS_API_KEY", raising=False)
+    monkeypatch.delenv("POLARIS_TIMEOUT_SECONDS", raising=False)
+    monkeypatch.delenv("POLARIS_MAX_RETRIES", raising=False)
+    monkeypatch.setattr("polaris.core.config._POLARIS_INSTALL_ROOT", trusted_root)
+    monkeypatch.setattr("polaris.core.config.get_user_data_dir", lambda *_a, **_kw: tmp_path / "empty_appdata")
     monkeypatch.setattr("pathlib.Path.cwd", lambda: temp_git_repo)
     monkeypatch.setattr("os.getcwd", lambda: str(temp_git_repo))
 
     # Even when running inside temp_git_repo and passing repo_path=temp_git_repo,
     # trusted_root/.env is loaded and temp_git_repo/.env is ignored.
-    cfg = DeicideConfig.from_env_and_args(repo_path=temp_git_repo)
+    cfg = PolarisConfig.from_env_and_args(repo_path=temp_git_repo)
     cfg.validate_provider_credentials()
     assert cfg.api_key is not None
     assert cfg.api_key.get_secret_value() == "trusted-dotenv-nvidia-key"
     assert cfg.budget.request_timeout_seconds == 75.0
     assert cfg.budget.max_retries == 0
 
+    process_override = PolarisConfig.from_env_and_args(
+        repo_path=temp_git_repo,
+        environ={"POLARIS_TIMEOUT_SECONDS": "360"},
+    )
+    assert process_override.budget.request_timeout_seconds == 360.0
+
+    explicit_override = PolarisConfig.from_env_and_args(
+        repo_path=temp_git_repo,
+        timeout_seconds=45.0,
+        environ={"POLARIS_TIMEOUT_SECONDS": "360"},
+    )
+    assert explicit_override.budget.request_timeout_seconds == 45.0
+
 
 def test_credential_precedence_four_levels_and_empty_never_overrides(tmp_path: Path) -> None:
     dotenv_file = tmp_path / ".env"
 
-    # Level 3 vs empty Level 1, 2, 4: NVIDIA_API_KEY in .env with empty DEICIDE_API_KEY in .env
+    # Level 3 vs empty Level 1, 2, 4: NVIDIA_API_KEY in .env with empty POLARIS_API_KEY in .env
     # and empty strings in process environment
     dotenv_file.write_text(
-        "NVIDIA_API_KEY=level3-dotenv-nvidia\nDEICIDE_API_KEY=level4-dotenv-deicide\n",
+        "NVIDIA_API_KEY=level3-dotenv-nvidia\nPOLARIS_API_KEY=level4-dotenv-polaris\n",
         encoding="utf-8",
     )
-    cfg3 = DeicideConfig.from_env_and_args(
+    cfg3 = PolarisConfig.from_env_and_args(
         dotenv_path=dotenv_file,
-        environ={"NVIDIA_API_KEY": "", "DEICIDE_API_KEY": "   "},
+        environ={"NVIDIA_API_KEY": "", "POLARIS_API_KEY": "   "},
     )
     assert cfg3.api_key is not None
     assert cfg3.api_key.get_secret_value() == "level3-dotenv-nvidia"
 
-    # Level 2 beats Level 3: Nonempty DEICIDE_API_KEY in process env beats NVIDIA_API_KEY in .env
-    cfg2 = DeicideConfig.from_env_and_args(
+    # Level 2 beats Level 3: Nonempty POLARIS_API_KEY in process env beats NVIDIA_API_KEY in .env
+    cfg2 = PolarisConfig.from_env_and_args(
         dotenv_path=dotenv_file,
-        environ={"NVIDIA_API_KEY": "", "DEICIDE_API_KEY": "level2-env-deicide"},
+        environ={"NVIDIA_API_KEY": "", "POLARIS_API_KEY": "level2-env-polaris"},
     )
     assert cfg2.api_key is not None
-    assert cfg2.api_key.get_secret_value() == "level2-env-deicide"
+    assert cfg2.api_key.get_secret_value() == "level2-env-polaris"
 
     # Level 1 beats Level 2, 3, 4: Nonempty NVIDIA_API_KEY in process env wins
-    cfg1 = DeicideConfig.from_env_and_args(
+    cfg1 = PolarisConfig.from_env_and_args(
         dotenv_path=dotenv_file,
         environ={
             "NVIDIA_API_KEY": "level1-env-nvidia",
-            "DEICIDE_API_KEY": "level2-env-deicide",
+            "POLARIS_API_KEY": "level2-env-polaris",
         },
     )
     assert cfg1.api_key is not None
     assert cfg1.api_key.get_secret_value() == "level1-env-nvidia"
 
-    # Level 4: Empty NVIDIA_API_KEY in .env falls back to nonempty DEICIDE_API_KEY in .env
+    # Level 4: Empty NVIDIA_API_KEY in .env falls back to nonempty POLARIS_API_KEY in .env
     dotenv_file.write_text(
-        "NVIDIA_API_KEY=\nDEICIDE_API_KEY=level4-dotenv-deicide\n",
+        "NVIDIA_API_KEY=\nPOLARIS_API_KEY=level4-dotenv-polaris\n",
         encoding="utf-8",
     )
-    cfg4 = DeicideConfig.from_env_and_args(dotenv_path=dotenv_file, environ={})
+    cfg4 = PolarisConfig.from_env_and_args(dotenv_path=dotenv_file, environ={})
     assert cfg4.api_key is not None
-    assert cfg4.api_key.get_secret_value() == "level4-dotenv-deicide"
+    assert cfg4.api_key.get_secret_value() == "level4-dotenv-polaris"
 
 
 def test_timeout_propagation_to_http_transport(tmp_path: Path) -> None:
     dotenv_file = tmp_path / ".env"
     dotenv_file.write_text(
-        "NVIDIA_API_KEY=timeout-test-key\nDEICIDE_ALLOW_EXTERNAL_CODE=1\nDEICIDE_TIMEOUT_SECONDS=92.5\n",
+        "NVIDIA_API_KEY=timeout-test-key\nPOLARIS_ALLOW_EXTERNAL_CODE=1\nPOLARIS_TIMEOUT_SECONDS=92.5\n",
         encoding="utf-8",
     )
-    cfg = DeicideConfig.from_env_and_args(
+    cfg = PolarisConfig.from_env_and_args(
         dotenv_path=dotenv_file,
         usage_db_path=tmp_path / "timeout.sqlite3",
         environ={},
@@ -761,9 +797,9 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
     store = UsageStore(db_path=db_file)
 
     # 1. Default configuration has max_retries == 0 (1 initial attempt, 0 retries)
-    cfg_default = DeicideConfig.from_env_and_args(
+    cfg_default = PolarisConfig.from_env_and_args(
         usage_db_path=db_file,
-        environ={"NVIDIA_API_KEY": "retry-key", "DEICIDE_ALLOW_EXTERNAL_CODE": "1"},
+        environ={"NVIDIA_API_KEY": "retry-key", "POLARIS_ALLOW_EXTERNAL_CODE": "1"},
     )
     assert cfg_default.budget.max_retries == 0
 
@@ -800,15 +836,15 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
     )
     assert snap_zero.requests_today == 1
     assert snap_zero.uncertain_today == 1
-    assert snap_zero.input_tokens_today == req.estimated_prompt_tokens
+    assert snap_zero.input_tokens_today == req.estimated_prompt_tokens + TOKEN_ESTIMATION_SAFETY_MARGIN
 
-    # 2. Explicitly configured DEICIDE_MAX_RETRIES=2 makes 3 attempts (1 initial + 2 retries)
-    cfg_two = DeicideConfig.from_env_and_args(
+    # 2. Explicit retries stop when full uncertain reservations exhaust the total budget.
+    cfg_two = PolarisConfig.from_env_and_args(
         usage_db_path=db_file,
         environ={
             "NVIDIA_API_KEY": "retry-key",
-            "DEICIDE_ALLOW_EXTERNAL_CODE": "1",
-            "DEICIDE_MAX_RETRIES": "2",
+            "POLARIS_ALLOW_EXTERNAL_CODE": "1",
+            "POLARIS_MAX_RETRIES": "2",
         },
     )
     assert cfg_two.budget.max_retries == 2
@@ -829,18 +865,19 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
         usage_store=store,
         quota_scope="two-retry-scope",
     )
-    with pytest.raises(ProviderError, match="after 2 retries"):
+    with pytest.raises(BudgetExceededError, match="insufficient reservation"):
         provider_two.generate(req)
 
-    assert attempts_two == 3
+    assert attempts_two == 2
     snap_two = store.get_snapshot(
         provider="nvidia",
         model="z-ai/glm-5.3-flash",
         quota_scope="two-retry-scope",
     )
-    assert snap_two.requests_today == 3
-    assert snap_two.uncertain_today == 3
-    assert snap_two.input_tokens_today == req.estimated_prompt_tokens * 3
+    assert snap_two.requests_today == 2
+    assert snap_two.uncertain_today == 2
+    assert snap_two.input_tokens_today == (req.estimated_prompt_tokens + TOKEN_ESTIMATION_SAFETY_MARGIN) * 2
+    assert snap_two.output_tokens_today == 4096 + 3190
 
     # 3. Credential/auth errors (HTTP 401/403) are NEVER retried even when max_retries=2
     auth_attempts = 0
@@ -863,45 +900,45 @@ def test_zero_retries_default_and_explicit_retries_with_uncertain_accounting(
         provider_auth.generate(req)
     assert auth_attempts == 1
 
-    # Negative DEICIDE_MAX_RETRIES is rejected
+    # Negative POLARIS_MAX_RETRIES is rejected
     with pytest.raises(ConfigurationError):
-        DeicideConfig.from_env_and_args(environ={"DEICIDE_MAX_RETRIES": "-1"})
+        PolarisConfig.from_env_and_args(environ={"POLARIS_MAX_RETRIES": "-1"})
 
 
 def test_nvidia_dotenv_configuration_placeholder_and_precedence(tmp_path: Path) -> None:
     dotenv_file = tmp_path / ".env"
     dotenv_file.write_text(
         "# Provider\n"
-        "DEICIDE_PROVIDER=nvidia\n"
-        "DEICIDE_MODEL=z-ai/glm-5.3-flash\n"
+        "POLARIS_PROVIDER=nvidia\n"
+        "POLARIS_MODEL=z-ai/glm-5.3-flash\n"
         "\n"
         "# NVIDIA\n"
         "NVIDIA_API_KEY=SUA_CHAVE_NVIDIA\n"
         "NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1\n"
         "\n"
         "# Execution Budget\n"
-        "DEICIDE_MAX_REQUESTS=3\n"
-        "DEICIDE_MAX_TOKENS=8000\n"
+        "POLARIS_MAX_REQUESTS=3\n"
+        "POLARIS_MAX_TOKENS=8000\n"
         "\n"
         "# Quota Management\n"
-        "DEICIDE_QUOTA_ENABLED=true\n"
-        "DEICIDE_QUOTA_SCOPE=nvidia-glm\n"
+        "POLARIS_QUOTA_ENABLED=true\n"
+        "POLARIS_QUOTA_SCOPE=nvidia-glm\n"
         "\n"
         "# Configure these only after confirming NVIDIA's actual limits.\n"
-        "# DEICIDE_RATE_LIMIT_RPM=\n"
-        "# DEICIDE_RATE_LIMIT_TPM=\n"
-        "# DEICIDE_RATE_LIMIT_RPD=\n"
+        "# POLARIS_RATE_LIMIT_RPM=\n"
+        "# POLARIS_RATE_LIMIT_TPM=\n"
+        "# POLARIS_RATE_LIMIT_RPD=\n"
         "\n"
         "# Security\n"
-        "DEICIDE_ALLOW_EXTERNAL_CODE=0\n"
+        "POLARIS_ALLOW_EXTERNAL_CODE=0\n"
         "\n"
         "# Network\n"
-        "DEICIDE_TIMEOUT_SECONDS=120\n"
-        "DEICIDE_MAX_RETRIES=0\n",
+        "POLARIS_TIMEOUT_SECONDS=120\n"
+        "POLARIS_MAX_RETRIES=0\n",
         encoding="utf-8",
     )
 
-    cfg_placeholder = DeicideConfig.from_env_and_args(dotenv_path=dotenv_file, environ={})
+    cfg_placeholder = PolarisConfig.from_env_and_args(dotenv_path=dotenv_file, environ={})
     assert cfg_placeholder.provider == "nvidia"
     assert cfg_placeholder.resolved_model == "z-ai/glm-5.3-flash"
     assert cfg_placeholder.nvidia_base_url == "https://integrate.api.nvidia.com/v1"
@@ -922,14 +959,14 @@ def test_nvidia_dotenv_configuration_placeholder_and_precedence(tmp_path: Path) 
     with pytest.raises(MissingCredentialsError, match="NVIDIA_API_KEY"):
         cfg_placeholder.validate_provider_credentials()
 
-    # With a real NVIDIA_API_KEY, DEICIDE_ALLOW_EXTERNAL_CODE=0 blocks external egress until enabled
-    cfg_no_egress = DeicideConfig.from_env_and_args(
+    # With a real NVIDIA_API_KEY, POLARIS_ALLOW_EXTERNAL_CODE=0 blocks external egress until enabled
+    cfg_no_egress = PolarisConfig.from_env_and_args(
         dotenv_path=dotenv_file,
         environ={"NVIDIA_API_KEY": "nvapi-real-test-key"},
     )
     assert cfg_no_egress.api_key is not None
     assert cfg_no_egress.api_key.get_secret_value() == "nvapi-real-test-key"
-    with pytest.raises(ConfigurationError, match="DEICIDE_ALLOW_EXTERNAL_CODE=1"):
+    with pytest.raises(ConfigurationError, match="POLARIS_ALLOW_EXTERNAL_CODE=1"):
         cfg_no_egress.validate_provider_credentials()
 
 
@@ -943,7 +980,7 @@ def test_nvidia_provider_end_to_end_review_and_sqlite_tracking(temp_git_repo: Pa
         encoding="utf-8",
     )
 
-    cfg = DeicideConfig.from_env_and_args(
+    cfg = PolarisConfig.from_env_and_args(
         repo_path=temp_git_repo,
         provider="nvidia",
         model="z-ai/glm-5.3-flash",
@@ -952,9 +989,9 @@ def test_nvidia_provider_end_to_end_review_and_sqlite_tracking(temp_git_repo: Pa
         environ={
             "NVIDIA_API_KEY": "nvapi-secret-key-999",
             "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
-            "DEICIDE_ALLOW_EXTERNAL_CODE": "1",
-            "DEICIDE_TIMEOUT_SECONDS": "120",
-            "DEICIDE_MAX_RETRIES": "0",
+            "POLARIS_ALLOW_EXTERNAL_CODE": "1",
+            "POLARIS_TIMEOUT_SECONDS": "120",
+            "POLARIS_MAX_RETRIES": "0",
         },
     )
     provider = create_provider(cfg, usage_store=store)

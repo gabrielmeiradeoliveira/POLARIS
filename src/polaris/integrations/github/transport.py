@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from deicide.integrations.github.models import HttpResponse
+from polaris.integrations.github.models import HttpResponse
 
 
 class GitHubTransport(Protocol):

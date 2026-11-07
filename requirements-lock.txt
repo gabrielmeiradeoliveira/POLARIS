@@ -1,6 +1,6 @@
-# Exact environment lock for DEICIDE historical benchmark release preparation.
-# Install this file, then install the checked-out DEICIDE release with: pip install -e .
-# The DEICIDE editable package is deliberately excluded: its identity is the release Git commit.
+# Exact environment lock for POLARIS historical benchmark release preparation.
+# Install this file, then install the checked-out POLARIS release with: pip install -e .
+# The POLARIS editable package is deliberately excluded: its identity is the release Git commit.
 annotated-doc==0.0.5
 annotated-types==0.8.0
 colorama==0.4.6

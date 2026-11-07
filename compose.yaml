@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:17.4-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-polaris}
+      POSTGRES_USER: ${POSTGRES_USER:-polaris}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  api:
+    build: { context: ., dockerfile: Dockerfile.api }
+    environment:
+      POLARIS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-polaris}
+      POLARIS_REPOSITORIES_ROOT: /repositories
+      POLARIS_PROVIDER: fake
+      POLARIS_GITHUB_TOKEN: ${POLARIS_GITHUB_TOKEN:-}
+    volumes:
+      - type: bind
+        source: ${POLARIS_REPOSITORIES_PATH:?set POLARIS_REPOSITORIES_PATH in .env}
+        target: /repositories
+        read_only: true
+    depends_on: { db: { condition: service_healthy } }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  worker:
+    build: { context: ., dockerfile: Dockerfile.worker }
+    environment:
+      POLARIS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-polaris}
+      POLARIS_REPOSITORIES_ROOT: /repositories
+      POLARIS_PROVIDER: fake
+      POLARIS_GITHUB_TOKEN: ${POLARIS_GITHUB_TOKEN:-}
+    volumes:
+      - type: bind
+        source: ${POLARIS_REPOSITORIES_PATH:?set POLARIS_REPOSITORIES_PATH in .env}
+        target: /repositories
+        read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=536870912
+    depends_on: { api: { condition: service_healthy } }
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/polaris-worker-heartbeat && test $$(find /tmp/polaris-worker-heartbeat -mmin -1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+volumes:
+  postgres_data:

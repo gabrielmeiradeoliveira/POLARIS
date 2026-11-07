@@ -1,11 +1,11 @@
-"""Deterministic, explainable severity normalization rules for DEICIDE findings."""
+"""Deterministic, explainable severity normalization rules for POLARIS findings."""
 
 from __future__ import annotations
 
 import re
 
-from deicide.core.models import Confidence, Finding, FindingCategory, Severity
-from deicide.intelligence.models import (
+from polaris.core.models import Confidence, Finding, FindingCategory, Severity
+from polaris.intelligence.models import (
     EvidenceAssessment,
     EvidenceQuality,
     NormalizationAdjustment,

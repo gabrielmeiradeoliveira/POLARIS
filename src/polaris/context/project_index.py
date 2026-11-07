@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
-from deicide.context.models import CallReference, FileAnalysis, FileAnalysisStatus, ImportReference, Symbol
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
+from polaris.context.models import CallReference, FileAnalysis, FileAnalysisStatus, ImportReference, Symbol
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.git.analyzer import ensure_safe_repo_file, normalize_repo_relative_path
 
 _EXCLUDED_DIR_NAMES = frozenset(
     {

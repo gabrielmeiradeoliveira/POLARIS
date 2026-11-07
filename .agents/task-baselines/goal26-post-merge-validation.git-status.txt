@@ -1,0 +1,6 @@
+Purpose: verbatim pre-edit Git status for GOAL 26 post-merge validation task (Stage 2 start).
+
+?? demo-repo/
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json

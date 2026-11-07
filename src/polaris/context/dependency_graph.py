@@ -1,4 +1,4 @@
-"""Deterministic cross-file dependency graph, evidence tracking, and bounded traversal for DEICIDE."""
+"""Deterministic cross-file dependency graph, evidence tracking, and bounded traversal for POLARIS."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ from collections import deque
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from deicide.context.import_resolver import ImportResolver
-from deicide.context.models import ChangedSymbol, SourceLocation, Symbol, SymbolKind
-from deicide.context.project_index import ProjectIndex
+from polaris.context.import_resolver import ImportResolver
+from polaris.context.models import ChangedSymbol, SourceLocation, Symbol, SymbolKind
+from polaris.context.project_index import ProjectIndex
 
 
 class GraphNodeKind(StrEnum):

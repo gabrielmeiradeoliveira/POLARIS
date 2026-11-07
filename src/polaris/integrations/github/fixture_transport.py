@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from deicide.integrations.github.models import HttpResponse
+from polaris.integrations.github.models import HttpResponse
 
 
 class FixtureGitHubTransport:

@@ -1,0 +1,181 @@
+ M .env.example
+ M .gitignore
+ M AGENTS.md
+ M README.md
+ M calculator.py
+ D context_test.py
+ M evaluations/BEHAVIORAL_DELTA_AB_PROCEDURE.md
+ M evaluations/fixtures/bug_introduction_benchmark.json
+ M evaluations/fixtures/live_nvidia_baseline_cases.json
+ M evaluations/fixtures/real_world_benchmark.json
+ M pyproject.toml
+ M requirements-lock.txt
+RM src/polaris/__init__.py -> src/polaris/__init__.py
+RM src/polaris/__main__.py -> src/polaris/__main__.py
+RM src/polaris/cli.py -> src/polaris/cli.py
+RM src/polaris/context/__init__.py -> src/polaris/context/__init__.py
+RM src/polaris/context/behavioral_delta.py -> src/polaris/context/behavioral_delta.py
+RM src/polaris/context/change_impact.py -> src/polaris/context/change_impact.py
+RM src/polaris/context/changed_symbols.py -> src/polaris/context/changed_symbols.py
+RM src/polaris/context/context_budget.py -> src/polaris/context/context_budget.py
+RM src/polaris/context/context_models.py -> src/polaris/context/context_models.py
+RM src/polaris/context/context_ranker.py -> src/polaris/context/context_ranker.py
+RM src/polaris/context/context_relevance.py -> src/polaris/context/context_relevance.py
+RM src/polaris/context/dependency_graph.py -> src/polaris/context/dependency_graph.py
+RM src/polaris/context/import_resolver.py -> src/polaris/context/import_resolver.py
+R  src/polaris/context/models.py -> src/polaris/context/models.py
+RM src/polaris/context/pipeline.py -> src/polaris/context/pipeline.py
+RM src/polaris/context/project_index.py -> src/polaris/context/project_index.py
+RM src/polaris/context/python_ast.py -> src/polaris/context/python_ast.py
+RM src/polaris/context/snippet_selector.py -> src/polaris/context/snippet_selector.py
+RM src/polaris/context/static_analysis.py -> src/polaris/context/static_analysis.py
+RM src/polaris/context/static_relevance.py -> src/polaris/context/static_relevance.py
+RM src/polaris/core/__init__.py -> src/polaris/core/__init__.py
+RM src/polaris/core/config.py -> src/polaris/core/config.py
+RM src/polaris/core/errors.py -> src/polaris/core/errors.py
+RM src/polaris/core/models.py -> src/polaris/core/models.py
+RM src/polaris/core/orchestrator.py -> src/polaris/core/orchestrator.py
+RM src/polaris/core/registry.py -> src/polaris/core/registry.py
+RM src/polaris/core/validation.py -> src/polaris/core/validation.py
+RM src/polaris/evaluation/__init__.py -> src/polaris/evaluation/__init__.py
+RM src/polaris/evaluation/baseline.py -> src/polaris/evaluation/baseline.py
+R  src/polaris/evaluation/fixture_integrity.py -> src/polaris/evaluation/fixture_integrity.py
+RM src/polaris/evaluation/history.py -> src/polaris/evaluation/history.py
+RM src/polaris/evaluation/models.py -> src/polaris/evaluation/models.py
+RM src/polaris/evaluation/runner.py -> src/polaris/evaluation/runner.py
+RM src/polaris/git/__init__.py -> src/polaris/git/__init__.py
+RM src/polaris/git/analyzer.py -> src/polaris/git/analyzer.py
+RM src/polaris/git/models.py -> src/polaris/git/models.py
+RM src/polaris/integrations/__init__.py -> src/polaris/integrations/__init__.py
+RM src/polaris/integrations/github/__init__.py -> src/polaris/integrations/github/__init__.py
+RM src/polaris/integrations/github/adapter.py -> src/polaris/integrations/github/adapter.py
+RM src/polaris/integrations/github/client.py -> src/polaris/integrations/github/client.py
+RM src/polaris/integrations/github/fixture_transport.py -> src/polaris/integrations/github/fixture_transport.py
+RM src/polaris/integrations/github/mapping.py -> src/polaris/integrations/github/mapping.py
+RM src/polaris/integrations/github/models.py -> src/polaris/integrations/github/models.py
+RM src/polaris/integrations/github/publishing.py -> src/polaris/integrations/github/publishing.py
+RM src/polaris/integrations/github/review_engine.py -> src/polaris/integrations/github/review_engine.py
+RM src/polaris/integrations/github/summary.py -> src/polaris/integrations/github/summary.py
+RM src/polaris/integrations/github/transport.py -> src/polaris/integrations/github/transport.py
+RM src/polaris/intelligence/__init__.py -> src/polaris/intelligence/__init__.py
+RM src/polaris/intelligence/deduplicator.py -> src/polaris/intelligence/deduplicator.py
+RM src/polaris/intelligence/evidence_validator.py -> src/polaris/intelligence/evidence_validator.py
+RM src/polaris/intelligence/models.py -> src/polaris/intelligence/models.py
+RM src/polaris/intelligence/pipeline.py -> src/polaris/intelligence/pipeline.py
+RM src/polaris/intelligence/prioritizer.py -> src/polaris/intelligence/prioritizer.py
+RM src/polaris/intelligence/severity_normalizer.py -> src/polaris/intelligence/severity_normalizer.py
+RM src/polaris/modules/__init__.py -> src/polaris/modules/__init__.py
+RM src/polaris/modules/code_review.py -> src/polaris/modules/code_review.py
+RM src/polaris/modules/deterministic_rules.py -> src/polaris/modules/deterministic_rules.py
+RM src/polaris/providers/__init__.py -> src/polaris/providers/__init__.py
+RM src/polaris/providers/base.py -> src/polaris/providers/base.py
+RM src/polaris/providers/factory.py -> src/polaris/providers/factory.py
+RM src/polaris/providers/fake.py -> src/polaris/providers/fake.py
+RM src/polaris/providers/nvidia.py -> src/polaris/providers/nvidia.py
+RM src/polaris/quota/__init__.py -> src/polaris/quota/__init__.py
+RM src/polaris/quota/store.py -> src/polaris/quota/store.py
+RM src/polaris/reporting/__init__.py -> src/polaris/reporting/__init__.py
+RM src/polaris/reporting/formatter.py -> src/polaris/reporting/formatter.py
+ M tests/__init__.py
+ M tests/conftest.py
+ M tests/test_behavioral_delta.py
+ M tests/test_behavioral_regression_benchmark.py
+ M tests/test_bug_introduction_benchmark.py
+ M tests/test_change_impact.py
+ M tests/test_cli_and_reporting.py
+ M tests/test_config_and_validation.py
+ M tests/test_context_audit.py
+ M tests/test_context_deletion_detection.py
+ M tests/test_context_dependency_graph.py
+ M tests/test_context_pipeline_integration.py
+ M tests/test_context_python_ast.py
+ M tests/test_context_selection.py
+ M tests/test_end_to_end_context_benchmark.py
+ M tests/test_end_to_end_context_oracles.py
+ M tests/test_evaluation.py
+ M tests/test_evaluation_history.py
+ M tests/test_evaluation_matching_and_diagnostics.py
+ M tests/test_evaluation_observability.py
+ M tests/test_evaluation_usage_accounting.py
+ M tests/test_finding_intelligence.py
+ M tests/test_git_integration.py
+ M tests/test_github_integration_goal19.py
+ M tests/test_github_pr_review_goal20.py
+ M tests/test_goal21_adversarial.py
+ M tests/test_goal22_deterministic_rules.py
+ M tests/test_goal23_real_world.py
+ M tests/test_hybrid_context.py
+ M tests/test_intelligence_evaluation.py
+ M tests/test_nvidia_failure_diagnostics.py
+ M tests/test_production_parity_evaluation.py
+ M tests/test_provider_reliability.py
+ M tests/test_providers_and_security.py
+ M tests/test_quota_and_usage.py
+ M tests/test_real_world_benchmark.py
+ M tests/test_real_world_fixture_integrity.py
+ M tests/test_real_world_verified_benchmark.py
+ M tests/test_review_accuracy_baseline.py
+ M tests/test_static_analysis.py
+?? .agents/task-baselines/
+?? .agents/workflows/orchestration-matrix.md
+?? .dockerignore
+?? Dockerfile.api
+?? Dockerfile.worker
+?? alembic.ini
+?? alembic/
+?? compose.yaml
+?? demo-repo/
+?? evaluations/fixtures/bug_intro_03_temp.json
+?? evaluations/fixtures/bug_intro_04_05_temp.json
+?? evaluations/fixtures/clean_negatives_temp.json
+?? evaluations/fixtures/goal24_holdout/
+?? evaluations/fixtures/goal24_post_slice_holdout/
+?? evaluations/fixtures/goal24_rc1/
+?? evaluations/goal24_holdout_runner.py
+?? evaluations/goal24_post_slice_holdout_runner.py
+?? evaluations/goal24_runner.py
+?? evaluations/goal25_runner.py
+?? evaluations/manifests/goal28_external_reproducibility.json
+?? evaluations/manifests/goal29_external_negative_selection.json
+?? evaluations/manifests/goal36_flask_pr2288_oracle.json
+?? evaluations/reports/GOAL24_1_VALIDATION_CLOSURE.md
+?? evaluations/reports/GOAL24_BASELINE.md
+?? evaluations/reports/GOAL24_COMPLEX_BENCHMARK.md
+?? evaluations/reports/GOAL24_FINAL_BENCHMARK.md
+?? evaluations/reports/GOAL24_FINAL_EFFICIENCY.md
+?? evaluations/reports/GOAL24_FINAL_ENGINEERING.md
+?? evaluations/reports/GOAL24_FINAL_RELEASE.md
+?? evaluations/reports/GOAL24_FINAL_SECURITY.md
+?? evaluations/reports/GOAL24_RC1_FINAL.md
+?? evaluations/reports/GOAL24_TOKEN_EFFICIENCY.md
+?? evaluations/reports/GOAL25_FINAL.md
+?? evaluations/reports/GOAL25_INDEPENDENT_VALIDATION.md
+?? evaluations/reports/GOAL25_NVIDIA_AB.md
+?? evaluations/reports/GOAL25_PREFLIGHT.md
+?? evaluations/reports/GOAL25_SECURITY_AND_COST.md
+?? evaluations/reports/baseline_mvp1_4_minimax_m3_1_flash.md
+?? evaluations/results/
+?? src/polaris/integrations/github/app.py
+?? src/polaris/integrations/github/checkout.py
+?? src/polaris/integrations/github/http_transport.py
+?? src/polaris/quality/
+?? src/polaris/web/
+?? tests/test_continuous_platform_goal51.py
+?? tests/test_github_app.py
+?? tests/test_github_checkout.py
+?? tests/test_goal24_benchmark_eligibility.py
+?? tests/test_goal24_benchmark_runner.py
+?? tests/test_goal24_complex_catalog.py
+?? tests/test_goal24_cross_file_rules.py
+?? tests/test_goal24_efficiency.py
+?? tests/test_goal24_filter_regression.py
+?? tests/test_goal24_post_recovery_holdout.py
+?? tests/test_goal24_post_slice_holdout.py
+?? tests/test_goal24_prompt_redaction.py
+?? tests/test_goal24_provider_security.py
+?? tests/test_goal24_two_stage_reliability.py
+?? tests/test_goal25_runner.py
+?? tests/test_pat_e2e.py
+?? tests/test_quality_engine.py
+?? tests/test_web_api.py
+?? web/

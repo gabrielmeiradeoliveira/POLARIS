@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from deicide.core.config import DeicideConfig, load_dotenv_file
-from deicide.core.errors import (
+from polaris.core.config import PolarisConfig, load_dotenv_file
+from polaris.core.errors import (
     BudgetExceededError,
     ConfigurationError,
     MissingCredentialsError,
     UnsupportedProviderError,
 )
-from deicide.core.models import (
+from polaris.core.models import (
     BudgetTracker,
     CandidateFinding,
     Confidence,
@@ -22,59 +22,59 @@ from deicide.core.models import (
     Severity,
     TokenUsage,
 )
-from deicide.core.validation import (
+from polaris.core.validation import (
     compute_finding_id,
     deduplicate_findings,
     validate_candidates,
 )
-from deicide.git.analyzer import parse_unified_diff
-from deicide.git.models import ContextSnippet, DiffBundle, FileContext
+from polaris.git.analyzer import parse_unified_diff
+from polaris.git.models import ContextSnippet, DiffBundle, FileContext
 
 
 def test_config_validation_and_credentials(tmp_path: Path) -> None:
     # Fake provider needs no credentials
     absent_dotenv = tmp_path / "absent.env"
-    cfg_fake = DeicideConfig.from_env_and_args(provider="fake", environ={}, dotenv_path=absent_dotenv)
+    cfg_fake = PolarisConfig.from_env_and_args(provider="fake", environ={}, dotenv_path=absent_dotenv)
     cfg_fake.validate_provider_credentials()
     assert cfg_fake.provider == "fake"
     assert cfg_fake.behavioral_delta_enabled is False
 
-    cfg_delta_enabled = DeicideConfig.from_env_and_args(
-        provider="fake", environ={"DEICIDE_BEHAVIORAL_DELTA_ENABLED": "1"}, dotenv_path=absent_dotenv
+    cfg_delta_enabled = PolarisConfig.from_env_and_args(
+        provider="fake", environ={"POLARIS_BEHAVIORAL_DELTA_ENABLED": "1"}, dotenv_path=absent_dotenv
     )
     assert cfg_delta_enabled.behavioral_delta_enabled is True
 
     # Gemini is unsupported and raises UnsupportedProviderError
     with pytest.raises(UnsupportedProviderError, match="Unsupported provider 'gemini'"):
-        DeicideConfig.from_env_and_args(provider="gemini", environ={})
+        PolarisConfig.from_env_and_args(provider="gemini", environ={})
 
     # NVIDIA without API key fails validation
-    cfg_no_key = DeicideConfig.from_env_and_args(provider="nvidia", environ={})
+    cfg_no_key = PolarisConfig.from_env_and_args(provider="nvidia", environ={})
     with pytest.raises(MissingCredentialsError, match="Missing API credentials"):
         cfg_no_key.validate_provider_credentials()
 
-    # NVIDIA with API key but explicit DEICIDE_ALLOW_EXTERNAL_CODE=0 fails validation
-    cfg_disallowed = DeicideConfig.from_env_and_args(
+    # NVIDIA with API key but explicit POLARIS_ALLOW_EXTERNAL_CODE=0 fails validation
+    cfg_disallowed = PolarisConfig.from_env_and_args(
         provider="nvidia",
-        environ={"NVIDIA_API_KEY": "test-key", "DEICIDE_ALLOW_EXTERNAL_CODE": "0"},
+        environ={"NVIDIA_API_KEY": "test-key", "POLARIS_ALLOW_EXTERNAL_CODE": "0"},
     )
     with pytest.raises(MissingCredentialsError, match="External code transmission"):
         cfg_disallowed.validate_provider_credentials()
 
     # Unsupported provider raises UnsupportedProviderError
     with pytest.raises(UnsupportedProviderError):
-        DeicideConfig.from_env_and_args(provider="unknown_llm", environ={})
+        PolarisConfig.from_env_and_args(provider="unknown_llm", environ={})
 
     # Leading hyphen in base revision is rejected
     with pytest.raises(ConfigurationError):
-        DeicideConfig.from_env_and_args(provider="fake", base_revision="--malicious-flag", environ={})
+        PolarisConfig.from_env_and_args(provider="fake", base_revision="--malicious-flag", environ={})
 
 
 def test_provider_cleanup_and_nvidia_defaults() -> None:
-    from deicide.core.config import SUPPORTED_PROVIDERS
+    from polaris.core.config import SUPPORTED_PROVIDERS
 
     # 1. Default provider is NVIDIA
-    cfg = DeicideConfig.from_env_and_args(environ={})
+    cfg = PolarisConfig.from_env_and_args(environ={})
     assert cfg.provider == "nvidia"
 
     # 2. Default model is z-ai/glm-5.3-flash
@@ -85,33 +85,33 @@ def test_provider_cleanup_and_nvidia_defaults() -> None:
 
     # 4. Explicit Gemini selection is rejected with UnsupportedProviderError
     with pytest.raises(UnsupportedProviderError, match="Unsupported provider 'gemini'"):
-        DeicideConfig.from_env_and_args(provider="gemini", environ={})
+        PolarisConfig.from_env_and_args(provider="gemini", environ={})
 
-    # 5. NVIDIA credential resolution works with NVIDIA_API_KEY and DEICIDE_API_KEY
-    cfg_nv = DeicideConfig.from_env_and_args(
-        environ={"NVIDIA_API_KEY": "nv-key-123", "DEICIDE_ALLOW_EXTERNAL_CODE": "1"}
+    # 5. NVIDIA credential resolution works with NVIDIA_API_KEY and POLARIS_API_KEY
+    cfg_nv = PolarisConfig.from_env_and_args(
+        environ={"NVIDIA_API_KEY": "nv-key-123", "POLARIS_ALLOW_EXTERNAL_CODE": "1"}
     )
     assert cfg_nv.api_key is not None
     assert cfg_nv.api_key.get_secret_value() == "nv-key-123"
 
-    cfg_deicide_key = DeicideConfig.from_env_and_args(
-        environ={"DEICIDE_API_KEY": "deicide-fallback-key", "DEICIDE_ALLOW_EXTERNAL_CODE": "1"}
+    cfg_polaris_key = PolarisConfig.from_env_and_args(
+        environ={"POLARIS_API_KEY": "polaris-fallback-key", "POLARIS_ALLOW_EXTERNAL_CODE": "1"}
     )
-    assert cfg_deicide_key.api_key is not None
-    assert cfg_deicide_key.api_key.get_secret_value() == "deicide-fallback-key"
+    assert cfg_polaris_key.api_key is not None
+    assert cfg_polaris_key.api_key.get_secret_value() == "polaris-fallback-key"
 
     # 6. FakeProvider requires no credentials
-    cfg_fake = DeicideConfig.from_env_and_args(provider="fake", environ={})
+    cfg_fake = PolarisConfig.from_env_and_args(provider="fake", environ={})
     cfg_fake.validate_provider_credentials()
     assert cfg_fake.provider == "fake"
     assert cfg_fake.resolved_model == "fake-deterministic-v1"
 
-    # 7. No GeminiProvider import exists in deicide.providers
-    import deicide.providers as prov_pkg
+    # 7. No GeminiProvider import exists in polaris.providers
+    import polaris.providers as prov_pkg
 
     assert not hasattr(prov_pkg, "GeminiProvider")
     with pytest.raises(ImportError):
-        from deicide.providers.gemini import GeminiProvider  # type: ignore[import-not-found] # noqa: F401
+        from polaris.providers.gemini import GeminiProvider  # type: ignore[import-not-found] # noqa: F401
 
 
 def test_dotenv_loading_and_env_precedence(tmp_path: Path) -> None:
@@ -119,19 +119,19 @@ def test_dotenv_loading_and_env_precedence(tmp_path: Path) -> None:
     env_file.write_text(
         "# Comment line\n"
         'NVIDIA_API_KEY="dotenv-secret-key"\n'
-        "DEICIDE_MODEL='custom-glm-model'\n"
-        "export DEICIDE_MAX_TOKENS=32000 # inline comment\n",
+        "POLARIS_MODEL='custom-glm-model'\n"
+        "export POLARIS_MAX_TOKENS=32000 # inline comment\n",
         encoding="utf-8",
     )
 
     parsed = load_dotenv_file(env_file)
     assert parsed["NVIDIA_API_KEY"] == "dotenv-secret-key"
-    assert parsed["DEICIDE_MODEL"] == "custom-glm-model"
-    assert parsed["DEICIDE_MAX_TOKENS"] == "32000"
+    assert parsed["POLARIS_MODEL"] == "custom-glm-model"
+    assert parsed["POLARIS_MAX_TOKENS"] == "32000"
 
-    cfg_from_dotenv = DeicideConfig.from_env_and_args(
+    cfg_from_dotenv = PolarisConfig.from_env_and_args(
         dotenv_path=env_file,
-        environ={"DEICIDE_ALLOW_EXTERNAL_CODE": "1"},
+        environ={"POLARIS_ALLOW_EXTERNAL_CODE": "1"},
     )
     cfg_from_dotenv.validate_provider_credentials()
     assert cfg_from_dotenv.api_key is not None
@@ -140,9 +140,9 @@ def test_dotenv_loading_and_env_precedence(tmp_path: Path) -> None:
     assert cfg_from_dotenv.budget.max_total_tokens == 32000
 
     # Explicit environment variable overrides .env value
-    cfg_overridden = DeicideConfig.from_env_and_args(
+    cfg_overridden = PolarisConfig.from_env_and_args(
         dotenv_path=env_file,
-        environ={"NVIDIA_API_KEY": "os-env-override-key", "DEICIDE_ALLOW_EXTERNAL_CODE": "1"},
+        environ={"NVIDIA_API_KEY": "os-env-override-key", "POLARIS_ALLOW_EXTERNAL_CODE": "1"},
     )
     assert cfg_overridden.api_key is not None
     assert cfg_overridden.api_key.get_secret_value() == "os-env-override-key"
@@ -344,11 +344,11 @@ def test_finding_deduplication_keeps_highest_severity() -> None:
 
 
 def test_default_execution_budget_is_360_seconds() -> None:
-    """Verify that default ExecutionBudget and DeicideConfig total wall-clock budget is 360 seconds."""
+    """Verify that default ExecutionBudget and PolarisConfig total wall-clock budget is 360 seconds."""
     budget = ExecutionBudget()
     assert budget.max_elapsed_seconds == 360.0
 
-    cfg = DeicideConfig.from_env_and_args(environ={})
+    cfg = PolarisConfig.from_env_and_args(environ={})
     assert cfg.budget.max_elapsed_seconds == 360.0
 
 
@@ -358,7 +358,7 @@ def test_timeout_and_retries_preserve_total_execution_budget() -> None:
     Also verifies that --timeout remains the per-request timeout (45.0s) and does not
     get overwritten to 360.0s, and that max_retries, max_requests, and max_tokens are preserved.
     """
-    cfg = DeicideConfig.from_env_and_args(
+    cfg = PolarisConfig.from_env_and_args(
         timeout_seconds=45.0,
         max_retries=1,
         max_requests=20,
@@ -373,7 +373,7 @@ def test_timeout_and_retries_preserve_total_execution_budget() -> None:
     assert cfg.budget.max_elapsed_seconds == 360.0
 
     # Large per-request timeout expands total budget if min_elapsed exceeds 360s
-    cfg_large = DeicideConfig.from_env_and_args(
+    cfg_large = PolarisConfig.from_env_and_args(
         timeout_seconds=200.0,
         max_retries=1,
         environ={},
@@ -382,22 +382,22 @@ def test_timeout_and_retries_preserve_total_execution_budget() -> None:
     assert cfg_large.budget.request_timeout_seconds == 200.0
     assert cfg_large.budget.max_elapsed_seconds == 430.0
 
-    # Explicit DEICIDE_MAX_ELAPSED_SECONDS in env is respected
-    cfg_env = DeicideConfig.from_env_and_args(
+    # Explicit POLARIS_MAX_ELAPSED_SECONDS in env is respected
+    cfg_env = PolarisConfig.from_env_and_args(
         timeout_seconds=45.0,
         max_retries=1,
-        environ={"DEICIDE_MAX_ELAPSED_SECONDS": "500"},
+        environ={"POLARIS_MAX_ELAPSED_SECONDS": "500"},
     )
     assert cfg_env.budget.request_timeout_seconds == 45.0
     assert cfg_env.budget.max_elapsed_seconds == 500.0
 
 
 def test_attempt_and_case_deadline_configuration_defaults_args_env_and_validation() -> None:
-    defaults = DeicideConfig.from_env_and_args(provider="fake", environ={})
+    defaults = PolarisConfig.from_env_and_args(provider="fake", environ={})
     assert defaults.budget.attempt_deadline_seconds is None
     assert defaults.budget.case_deadline_seconds is None
 
-    explicit = DeicideConfig.from_env_and_args(
+    explicit = PolarisConfig.from_env_and_args(
         provider="fake",
         attempt_deadline_seconds=12.5,
         case_deadline_seconds=90.0,
@@ -406,16 +406,16 @@ def test_attempt_and_case_deadline_configuration_defaults_args_env_and_validatio
     assert explicit.budget.attempt_deadline_seconds == 12.5
     assert explicit.budget.case_deadline_seconds == 90.0
 
-    environment = DeicideConfig.from_env_and_args(
+    environment = PolarisConfig.from_env_and_args(
         provider="fake",
-        environ={"DEICIDE_ATTEMPT_DEADLINE_SECONDS": "7.5", "DEICIDE_CASE_DEADLINE_SECONDS": "45"},
+        environ={"POLARIS_ATTEMPT_DEADLINE_SECONDS": "7.5", "POLARIS_CASE_DEADLINE_SECONDS": "45"},
     )
     assert environment.budget.attempt_deadline_seconds == 7.5
     assert environment.budget.case_deadline_seconds == 45.0
 
     for option, value in (("attempt_deadline_seconds", 0), ("attempt_deadline_seconds", -1), ("case_deadline_seconds", 0), ("case_deadline_seconds", -1)):
         with pytest.raises(ConfigurationError, match="greater than zero"):
-            DeicideConfig.from_env_and_args(provider="fake", environ={}, **{option: value})
+            PolarisConfig.from_env_and_args(provider="fake", environ={}, **{option: value})
 
 
 def test_tracker_stops_execution_when_elapsed_time_limit_exceeded() -> None:
@@ -453,9 +453,9 @@ def test_tracker_stops_execution_when_elapsed_time_limit_exceeded() -> None:
 
 def test_evaluate_corpus_stops_on_elapsed_time_limit_exceeded() -> None:
     """Verify evaluate_corpus cleanly halts and sets budget_exhausted when time limit is exceeded."""
-    from deicide.evaluation.models import EvaluationFixture
-    from deicide.evaluation.runner import evaluate_corpus
-    from deicide.providers.fake import FakeProvider
+    from polaris.evaluation.models import EvaluationFixture
+    from polaris.evaluation.runner import evaluate_corpus
+    from polaris.providers.fake import FakeProvider
 
     fixture1 = EvaluationFixture(
         case_id="case-1",

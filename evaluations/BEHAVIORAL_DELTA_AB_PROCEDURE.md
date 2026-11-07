@@ -1,8 +1,8 @@
-# DEICIDE Behavioral Delta Analysis A/B Evaluation Procedure
+# POLARIS Behavioral Delta Analysis A/B Evaluation Procedure
 
 ## 1. Overview and Objective
 
-This document defines the reproducible, standardized protocol for conducting an empirical A/B evaluation of DEICIDE's Behavioral Delta Analysis Engine. Historical 12-case artifacts remain unchanged; the production-ready protocol below uses the 20-case E2E corpus.
+This document defines the reproducible, standardized protocol for conducting an empirical A/B evaluation of POLARIS's Behavioral Delta Analysis Engine. Historical 12-case artifacts remain unchanged; the production-ready protocol below uses the 20-case E2E corpus.
 
 The goal is to measure whether deterministic Behavioral Delta Analysis improves code review accuracy (True Positives, Precision, Recall, False Positive Rate, and Severity Calibration) when reviewing code diffs with an LLM provider, compared to raw diff review without Behavioral Delta context.
 
@@ -36,13 +36,13 @@ Before running live model evaluations, verify fixture integrity and command opti
 
 ```bash
 # Verify Arm A (OFF) offline:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider fake \
   --no-behavioral-delta
 
 # Verify Arm B (ON) offline:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider fake \
   --behavioral-delta
@@ -91,7 +91,7 @@ Execute the benchmark with Behavioral Delta Analysis explicitly disabled (`--no-
 
 ```bash
 # Terminal report capture:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider nvidia \
   --model minimaxai/minimax-m3.1-flash \
@@ -106,7 +106,7 @@ deicide evaluate \
   --detailed > evaluations/results/behavioral_delta_ab_12case/delta_off_terminal.txt
 
 # Structured JSON capture:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider nvidia \
   --model minimaxai/minimax-m3.1-flash \
@@ -127,7 +127,7 @@ Execute the exact same benchmark with Behavioral Delta Analysis explicitly enabl
 
 ```bash
 # Terminal report capture:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider nvidia \
   --model minimaxai/minimax-m3.1-flash \
@@ -142,7 +142,7 @@ deicide evaluate \
   --detailed > evaluations/results/behavioral_delta_ab_12case/delta_on_terminal.txt
 
 # Structured JSON capture:
-deicide evaluate \
+polaris evaluate \
   --fixtures evaluations/fixtures/behavioral_regression_benchmark.json \
   --provider nvidia \
   --model minimaxai/minimax-m3.1-flash \

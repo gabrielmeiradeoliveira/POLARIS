@@ -16,7 +16,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.core.errors import ConfigurationError, QuotaExhaustedError
+from polaris.core.errors import ConfigurationError, QuotaExhaustedError
 
 
 class RequestStatus(StrEnum):
@@ -39,7 +39,7 @@ ACTIVE_QUOTA_STATUSES: tuple[str, ...] = (
 )
 
 QUOTA_DISCLAIMER = (
-    "Quota and usage metrics are locally tracked estimates for this DEICIDE installation "
+    "Quota and usage metrics are locally tracked estimates for this POLARIS installation "
     "and do not represent the provider's exact server-side account balance."
 )
 
@@ -85,41 +85,41 @@ def derive_quota_scope(explicit_scope: str | None, api_key_secret: str | None) -
     """Derive a privacy-preserving quota bucket scope without storing raw credentials.
 
     Two different API keys automatically map to distinct SHA-256 fingerprint scopes
-    unless the user explicitly configures a shared `DEICIDE_QUOTA_SCOPE`.
+    unless the user explicitly configures a shared `POLARIS_QUOTA_SCOPE`.
     """
     if explicit_scope and explicit_scope.strip():
         return explicit_scope.strip()
     if api_key_secret and api_key_secret.strip():
-        digest = hashlib.sha256(f"deicide-quota-scope:{api_key_secret.strip()}".encode()).hexdigest()[:12]
+        digest = hashlib.sha256(f"polaris-quota-scope:{api_key_secret.strip()}".encode()).hexdigest()[:12]
         return f"key-{digest}"
     return "default"
 
 
 def get_user_data_dir(environ: dict[str, str] | None = None) -> Path:
-    """Return the platform-appropriate user data directory for DEICIDE.
+    """Return the platform-appropriate user data directory for POLARIS.
 
-    On Windows, prefers LOCALAPPDATA (e.g. C:\\Users\\<user>\\AppData\\Local\\deicide).
+    On Windows, prefers LOCALAPPDATA (e.g. C:\\Users\\<user>\\AppData\\Local\\polaris).
     """
     env = os.environ if environ is None else environ
     if os.name == "nt" or sys.platform == "win32":
         base = env.get("LOCALAPPDATA") or env.get("APPDATA")
         if base and base.strip():
-            return Path(base.strip()) / "deicide"
-        return Path.home() / "AppData" / "Local" / "deicide"
+            return Path(base.strip()) / "polaris"
+        return Path.home() / "AppData" / "Local" / "polaris"
 
     if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "deicide"
+        return Path.home() / "Library" / "Application Support" / "polaris"
 
     xdg_data = env.get("XDG_DATA_HOME")
     if xdg_data and xdg_data.strip():
-        return Path(xdg_data.strip()) / "deicide"
-    return Path.home() / ".local" / "share" / "deicide"
+        return Path(xdg_data.strip()) / "polaris"
+    return Path.home() / ".local" / "share" / "polaris"
 
 
 def get_default_usage_db_path(environ: dict[str, str] | None = None) -> Path:
     """Return the resolved path to the persistent SQLite usage database."""
     env = os.environ if environ is None else environ
-    override = env.get("DEICIDE_USAGE_DB_PATH")
+    override = env.get("POLARIS_USAGE_DB_PATH")
     if override and override.strip():
         return Path(override.strip()).expanduser().resolve()
     return (get_user_data_dir(environ) / "usage.sqlite3").resolve()
@@ -199,6 +199,25 @@ class UsageStore:
                 ON usage_records (provider, model, quota_scope, timestamp_utc);
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS attempt_diagnostics (
+                    reservation_id TEXT PRIMARY KEY,
+                    attempt_number INTEGER NOT NULL CHECK (attempt_number >= 1),
+                    recorded_at_utc REAL NOT NULL,
+                    state TEXT NOT NULL,
+                    latency_ms INTEGER CHECK (latency_ms >= 0),
+                    prompt_hash TEXT,
+                    response_hash TEXT,
+                    retry_reason TEXT,
+                    error_category TEXT,
+                    http_status INTEGER CHECK (http_status IS NULL OR (http_status >= 100 AND http_status <= 599)),
+                    transport_duration_ms INTEGER CHECK (transport_duration_ms IS NULL OR transport_duration_ms >= 0),
+                    configured_attempt_timeout_seconds REAL CHECK (configured_attempt_timeout_seconds IS NULL OR configured_attempt_timeout_seconds > 0),
+                    termination_reason TEXT
+                );
+                """
+            )
             conn.execute("COMMIT;")
         except Exception:
             conn.execute("ROLLBACK;")
@@ -215,7 +234,7 @@ class UsageStore:
              WHERE status = ? AND timestamp_utc <= ?;
             """,
             (
-                RequestStatus.EXPIRED.value,
+                RequestStatus.UNCERTAIN.value,
                 now_utc,
                 RequestStatus.RESERVED.value,
                 cutoff,
@@ -224,7 +243,7 @@ class UsageStore:
         return cursor.rowcount
 
     def expire_stale_reservations(self) -> int:
-        """Mark reservations older than `reservation_ttl_seconds` as expired."""
+        """Mark stale reservations uncertain without releasing their budget."""
         now_utc = float(self._clock())
         conn = self._connect()
         try:
@@ -245,6 +264,7 @@ class UsageStore:
         model: str,
         quota_scope: str,
         estimated_input_tokens: int,
+        reserved_output_tokens: int = 0,
         attempt_number: int = 1,
         rate_limit_rpm: int | None = None,
         rate_limit_tpm: int | None = None,
@@ -255,6 +275,7 @@ class UsageStore:
         norm_model = model.strip()
         norm_scope = quota_scope.strip() or "default"
         safe_input_tokens = max(0, int(estimated_input_tokens))
+        safe_output_tokens = max(0, int(reserved_output_tokens))
         safe_attempt = max(1, int(attempt_number))
 
         now_utc = float(self._clock())
@@ -358,8 +379,8 @@ class UsageStore:
                     utc_date,
                     RequestStatus.RESERVED.value,
                     safe_input_tokens,
-                    0,
-                    safe_input_tokens,
+                    safe_output_tokens,
+                    safe_input_tokens + safe_output_tokens,
                     1,
                     safe_attempt,
                     now_utc,
@@ -369,6 +390,91 @@ class UsageStore:
             return reservation_id
         except QuotaExhaustedError:
             raise
+        except Exception:
+            conn.execute("ROLLBACK;")
+            raise
+        finally:
+            conn.close()
+
+    def mark_uncertain(self, reservation_id: str) -> None:
+        """Keep a reservation's full conservative usage until explicit reconciliation."""
+        conn = self._connect()
+        try:
+            conn.execute("BEGIN IMMEDIATE;")
+            conn.execute(
+                "UPDATE usage_records SET status = ?, updated_at_utc = ? WHERE reservation_id = ?;",
+                (RequestStatus.UNCERTAIN.value, float(self._clock()), reservation_id),
+            )
+            conn.execute("COMMIT;")
+        except Exception:
+            conn.execute("ROLLBACK;")
+            raise
+        finally:
+            conn.close()
+
+    def record_attempt_diagnostic(
+        self,
+        reservation_id: str,
+        *,
+        attempt_number: int,
+        latency_ms: int | None,
+        prompt_hash: str | None,
+        response_hash: str | None,
+        retry_reason: str | None,
+        error_category: str | None,
+        http_status: int | None,
+        transport_duration_ms: int | None,
+        configured_attempt_timeout_seconds: float | None,
+        termination_reason: str | None,
+    ) -> None:
+        """Persist privacy-safe transport metadata linked to an existing reservation."""
+        conn = self._connect()
+        try:
+            conn.execute("BEGIN IMMEDIATE;")
+            row = conn.execute(
+                "SELECT status FROM usage_records WHERE reservation_id = ?;", (reservation_id,)
+            ).fetchone()
+            if row is None:
+                conn.execute("ROLLBACK;")
+                return
+            conn.execute(
+                """
+                INSERT INTO attempt_diagnostics (
+                    reservation_id, attempt_number, recorded_at_utc, state, latency_ms,
+                    prompt_hash, response_hash, retry_reason, error_category, http_status,
+                    transport_duration_ms, configured_attempt_timeout_seconds, termination_reason
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(reservation_id) DO UPDATE SET
+                    attempt_number = excluded.attempt_number,
+                    recorded_at_utc = excluded.recorded_at_utc,
+                    state = excluded.state,
+                    latency_ms = excluded.latency_ms,
+                    prompt_hash = excluded.prompt_hash,
+                    response_hash = excluded.response_hash,
+                    retry_reason = excluded.retry_reason,
+                    error_category = excluded.error_category,
+                    http_status = excluded.http_status,
+                    transport_duration_ms = excluded.transport_duration_ms,
+                    configured_attempt_timeout_seconds = excluded.configured_attempt_timeout_seconds,
+                    termination_reason = excluded.termination_reason;
+                """,
+                (
+                    reservation_id,
+                    max(1, int(attempt_number)),
+                    float(self._clock()),
+                    str(row["status"]),
+                    latency_ms,
+                    prompt_hash,
+                    response_hash,
+                    retry_reason,
+                    error_category,
+                    http_status,
+                    transport_duration_ms,
+                    configured_attempt_timeout_seconds,
+                    termination_reason,
+                ),
+            )
+            conn.execute("COMMIT;")
         except Exception:
             conn.execute("ROLLBACK;")
             raise

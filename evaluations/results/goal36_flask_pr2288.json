@@ -1,0 +1,41 @@
+{
+  "goal": "goal36",
+  "project": "pallets/flask",
+  "pull_request": 2288,
+  "base_sha": "a558d47ee2b007f039985ec9124ffcc9c36e959f",
+  "head_sha": "b11f7354d17ae4d7d11bc1b204cac98573f48965",
+  "oracle_manifest": "evaluations/manifests/goal36_flask_pr2288_oracle.json",
+  "static": {
+    "provider": "fake",
+    "context": "disabled",
+    "findings": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "precision": null,
+    "recall": 0.0,
+    "f1": 0.0,
+    "duration_ms": 110,
+    "estimated_prompt_tokens": 8220,
+    "files_analyzed": [
+      "flask/sessions.py",
+      "tests/test_basic.py"
+    ]
+  },
+  "hybrid": {
+    "provider": "nvidia",
+    "context": "enabled",
+    "status": "telemetry_uncertain",
+    "findings": null,
+    "metrics": null,
+    "request_count": 1,
+    "confirmed_tokens": null,
+    "conservative_reserved_input_tokens": 10606,
+    "conservative_reserved_output_tokens": 4096,
+    "conservative_reserved_total_tokens": 14702,
+    "ledger_status": "uncertain",
+    "retry_performed": false,
+    "blocker": "The CLI returned no final report or provider usage telemetry; the persistent reservation was retained and reconciled as uncertain."
+  },
+  "completed": false
+}

@@ -1,0 +1,3 @@
+evaluations/fixtures/*.json text eol=lf
+evaluations/manifests/*.json text eol=lf
+evaluations/tokenizers/** text eol=lf

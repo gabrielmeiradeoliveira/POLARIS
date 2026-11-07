@@ -1,0 +1,930 @@
+﻿{
+  "dataset_size": 12,
+  "positive_cases": 8,
+  "negative_cases": 4,
+  "successful_cases": 11,
+  "failed_cases": 1,
+  "api_failed_cases": 1,
+  "budget_exhausted_cases": 0,
+  "skipped_cases": 0,
+  "true_positives": 5,
+  "false_positives": 2,
+  "false_negatives": 2,
+  "precision": 0.7143,
+  "recall": 0.7143,
+  "false_positive_rate": 0.0,
+  "duplicates_reduced": 0,
+  "legitimate_rejected": 0,
+  "severity_mismatches": 4,
+  "evaluation_mode": "end_to_end",
+  "total_latency_ms": 281910,
+  "average_latency_ms": 25628.18,
+  "usage": {
+    "prompt_tokens": 20406,
+    "completion_tokens": 5430,
+    "total_tokens": 25836,
+    "is_estimated": true,
+    "estimated_cost_usd": null
+  },
+  "verified_cases": 0,
+  "reference_modeled_cases": 0,
+  "unverified_cases": 12,
+  "budget_exhausted": false,
+  "max_cases_applied": null,
+  "case_results": [
+    {
+      "case_id": "beh-regress-01-cross-file-return-contract",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 91525,
+      "usage": {
+        "prompt_tokens": 2318,
+        "completion_tokens": 0,
+        "total_tokens": 2318,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "failed",
+      "error": "NVIDIA API network/timeout error after 1 retries: The read operation timed out",
+      "error_category": "timeout",
+      "http_status": null,
+      "retries_attempted": 1,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": null
+    },
+    {
+      "case_id": "beh-regress-02-removed-parameter-default",
+      "true_positives": 0,
+      "false_positives": 1,
+      "false_negatives": 1,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 18332,
+      "usage": {
+        "prompt_tokens": 3584,
+        "completion_tokens": 718,
+        "total_tokens": 4302,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-d18f08e9d0da",
+          "module_id": "code_review",
+          "category": "type_mismatch",
+          "severity": "high",
+          "confidence": "high",
+          "file_path": "storage/cache_client.py",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "title": "Removing the default version argument breaks existing callers",
+          "description": "The signature now requires a third positional argument, but the existing caller in services/user_service.py:get_user_cache_key invokes build_cache_key('users', user_id) with only two arguments. Any call through that helper will raise TypeError for the missing required 'version' argument instead of producing a cache key.",
+          "evidence": "def build_cache_key(namespace: str, item_id: str, version: int) -> str:",
+          "suggested_remediation": "Restore the default value (version: int = 1), or update every caller to pass an explicit version."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "type_mismatch",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "storage/cache_client.py",
+            "start_line": 1,
+            "end_line": 1,
+            "title": "Removing the default version argument breaks existing callers",
+            "description": "The signature now requires a third positional argument, but the existing caller in services/user_service.py:get_user_cache_key invokes build_cache_key('users', user_id) with only two arguments. Any call through that helper will raise TypeError for the missing required 'version' argument instead of producing a cache key.",
+            "evidence": "def build_cache_key(namespace: str, item_id: str, version: int) -> str:",
+            "suggested_remediation": "Restore the default value (version: int = 1), or update every caller to pass an explicit version."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-d18f08e9d0da",
+            "module_id": "code_review",
+            "category": "type_mismatch",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "storage/cache_client.py",
+            "line_range": {
+              "start_line": 1,
+              "end_line": 1
+            },
+            "title": "Removing the default version argument breaks existing callers",
+            "description": "The signature now requires a third positional argument, but the existing caller in services/user_service.py:get_user_cache_key invokes build_cache_key('users', user_id) with only two arguments. Any call through that helper will raise TypeError for the missing required 'version' argument instead of producing a cache key.",
+            "evidence": "def build_cache_key(namespace: str, item_id: str, version: int) -> str:",
+            "suggested_remediation": "Restore the default value (version: int = 1), or update every caller to pass an explicit version."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [
+          {
+            "finding_id": "dcd-d18f08e9d0da",
+            "file_path": "storage/cache_client.py",
+            "line_range": {
+              "start_line": 1,
+              "end_line": 1
+            },
+            "category": "type_mismatch",
+            "severity": "high",
+            "title": "Removing the default version argument breaks existing callers",
+            "reasons": [
+              "Against expected defect #1 (storage/cache_client.py:1-1): category mismatch ('type_mismatch' not in ['correctness'])"
+            ],
+            "reason": "Against expected defect #1 (storage/cache_client.py:1-1): category mismatch ('type_mismatch' not in ['correctness'])"
+          }
+        ],
+        "unmatched_expected": [
+          {
+            "file_path": "storage/cache_client.py",
+            "line_range": {
+              "start_line": 1,
+              "end_line": 1
+            },
+            "category": "correctness",
+            "allowed_categories": [
+              "correctness"
+            ],
+            "severity": "high",
+            "reason": "No validated finding matched this defect. Checked: finding 'dcd-d18f08e9d0da' (category 'type_mismatch' not in ['correctness'])."
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "beh-regress-03-incorrect-boundary-condition",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 1,
+      "latency_ms": 16904,
+      "usage": {
+        "prompt_tokens": 5591,
+        "completion_tokens": 1110,
+        "total_tokens": 6701,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-701170a743c0",
+          "module_id": "code_review",
+          "category": "boundary_condition",
+          "severity": "medium",
+          "confidence": "high",
+          "file_path": "data/chunk_reader.py",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 6
+          },
+          "title": "Final chunk can extend beyond the total length",
+          "description": "The chunk end is now calculated as start + chunk_size without capping it at total_length. For any total_length that is not evenly divisible by chunk_size, the final returned index has an end greater than total_length, violating the expected half-open range and potentially causing downstream readers to process bytes beyond the available data.",
+          "evidence": "end = start + chunk_size",
+          "suggested_remediation": "Cap the end at total_length, for example: end = min(start + chunk_size, total_length)."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "boundary_condition",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "data/chunk_reader.py",
+            "start_line": 6,
+            "end_line": 6,
+            "title": "Final chunk can extend beyond the total length",
+            "description": "The chunk end is now calculated as start + chunk_size without capping it at total_length. For any total_length that is not evenly divisible by chunk_size, the final returned index has an end greater than total_length, violating the expected half-open range and potentially causing downstream readers to process bytes beyond the available data.",
+            "evidence": "end = start + chunk_size",
+            "suggested_remediation": "Cap the end at total_length, for example: end = min(start + chunk_size, total_length)."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-701170a743c0",
+            "module_id": "code_review",
+            "category": "boundary_condition",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "data/chunk_reader.py",
+            "line_range": {
+              "start_line": 6,
+              "end_line": 6
+            },
+            "title": "Final chunk can extend beyond the total length",
+            "description": "The chunk end is now calculated as start + chunk_size without capping it at total_length. For any total_length that is not evenly divisible by chunk_size, the final returned index has an end greater than total_length, violating the expected half-open range and potentially causing downstream readers to process bytes beyond the available data.",
+            "evidence": "end = start + chunk_size",
+            "suggested_remediation": "Cap the end at total_length, for example: end = min(start + chunk_size, total_length)."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-701170a743c0",
+            "file_path": "data/chunk_reader.py",
+            "line_range": {
+              "start_line": 6,
+              "end_line": 6
+            },
+            "category": "boundary_condition",
+            "severity": "medium",
+            "title": "Final chunk can extend beyond the total length",
+            "expected_file_path": "data/chunk_reader.py",
+            "expected_line_range": {
+              "start_line": 5,
+              "end_line": 7
+            },
+            "expected_category": "boundary_condition",
+            "expected_allowed_categories": [
+              "correctness",
+              "boundary_condition"
+            ],
+            "severity_match": false
+          }
+        ],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-04-shared-mutable-state",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 1,
+      "latency_ms": 25830,
+      "usage": {
+        "prompt_tokens": 6948,
+        "completion_tokens": 1703,
+        "total_tokens": 8651,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-49593f041940",
+          "module_id": "code_review",
+          "category": "state_mutation",
+          "severity": "medium",
+          "confidence": "high",
+          "file_path": "pipeline/task_collector.py",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "title": "Mutable default list causes registrations to accumulate across calls",
+          "description": "The default value `[]` is created once when the function is defined, and `options.append(...)` mutates that shared list. Every call that omits `options` therefore appends to the same list, so later calls return registrations from earlier calls instead of an independent result. For example, two calls without `options` produce `['step:first']` and then `['step:first', 'step:second']`.",
+          "evidence": "def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:\n    options.append(f\"step:{step_name}\")",
+          "suggested_remediation": "Use `options: list[str] | None = None`, create a new list when no argument is supplied, and avoid mutating a caller-owned list unless that behavior is explicitly required."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "state_mutation",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "pipeline/task_collector.py",
+            "start_line": 1,
+            "end_line": 2,
+            "title": "Mutable default list causes registrations to accumulate across calls",
+            "description": "The default value `[]` is created once when the function is defined, and `options.append(...)` mutates that shared list. Every call that omits `options` therefore appends to the same list, so later calls return registrations from earlier calls instead of an independent result. For example, two calls without `options` produce `['step:first']` and then `['step:first', 'step:second']`.",
+            "evidence": "def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:\n    options.append(f\"step:{step_name}\")",
+            "suggested_remediation": "Use `options: list[str] | None = None`, create a new list when no argument is supplied, and avoid mutating a caller-owned list unless that behavior is explicitly required."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-49593f041940",
+            "module_id": "code_review",
+            "category": "state_mutation",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "pipeline/task_collector.py",
+            "line_range": {
+              "start_line": 1,
+              "end_line": 2
+            },
+            "title": "Mutable default list causes registrations to accumulate across calls",
+            "description": "The default value `[]` is created once when the function is defined, and `options.append(...)` mutates that shared list. Every call that omits `options` therefore appends to the same list, so later calls return registrations from earlier calls instead of an independent result. For example, two calls without `options` produce `['step:first']` and then `['step:first', 'step:second']`.",
+            "evidence": "def register_pipeline_step(step_name: str, options: list[str] = []) -> list[str]:\n    options.append(f\"step:{step_name}\")",
+            "suggested_remediation": "Use `options: list[str] | None = None`, create a new list when no argument is supplied, and avoid mutating a caller-owned list unless that behavior is explicitly required."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-49593f041940",
+            "file_path": "pipeline/task_collector.py",
+            "line_range": {
+              "start_line": 1,
+              "end_line": 2
+            },
+            "category": "state_mutation",
+            "severity": "medium",
+            "title": "Mutable default list causes registrations to accumulate across calls",
+            "expected_file_path": "pipeline/task_collector.py",
+            "expected_line_range": {
+              "start_line": 1,
+              "end_line": 2
+            },
+            "expected_category": "state_mutation",
+            "expected_allowed_categories": [
+              "correctness",
+              "state_mutation"
+            ],
+            "severity_match": false
+          }
+        ],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-05-exception-handling-regression",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 1,
+      "latency_ms": 22925,
+      "usage": {
+        "prompt_tokens": 9510,
+        "completion_tokens": 2303,
+        "total_tokens": 11813,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-6b791602e480",
+          "module_id": "code_review",
+          "category": "error_handling",
+          "severity": "medium",
+          "confidence": "high",
+          "file_path": "network/payload_parser.py",
+          "line_range": {
+            "start_line": 9,
+            "end_line": 9
+          },
+          "title": "Invalid UTF-8 payloads now raise an uncaught exception",
+          "description": "The decode operation can raise UnicodeDecodeError when raw_bytes contains invalid UTF-8. Since that exception is no longer handled, malformed payloads now escape parse_json_payload instead of returning None, violating the function's optional-result behavior and potentially causing callers that expect invalid payloads to be ignored to fail.",
+          "evidence": "except json.JSONDecodeError:",
+          "suggested_remediation": "Restore handling for UnicodeDecodeError, for example: except (UnicodeDecodeError, json.JSONDecodeError):"
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "error_handling",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "network/payload_parser.py",
+            "start_line": 9,
+            "end_line": 9,
+            "title": "Invalid UTF-8 payloads now raise an uncaught exception",
+            "description": "The decode operation can raise UnicodeDecodeError when raw_bytes contains invalid UTF-8. Since that exception is no longer handled, malformed payloads now escape parse_json_payload instead of returning None, violating the function's optional-result behavior and potentially causing callers that expect invalid payloads to be ignored to fail.",
+            "evidence": "except json.JSONDecodeError:",
+            "suggested_remediation": "Restore handling for UnicodeDecodeError, for example: except (UnicodeDecodeError, json.JSONDecodeError):"
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-6b791602e480",
+            "module_id": "code_review",
+            "category": "error_handling",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "network/payload_parser.py",
+            "line_range": {
+              "start_line": 9,
+              "end_line": 9
+            },
+            "title": "Invalid UTF-8 payloads now raise an uncaught exception",
+            "description": "The decode operation can raise UnicodeDecodeError when raw_bytes contains invalid UTF-8. Since that exception is no longer handled, malformed payloads now escape parse_json_payload instead of returning None, violating the function's optional-result behavior and potentially causing callers that expect invalid payloads to be ignored to fail.",
+            "evidence": "except json.JSONDecodeError:",
+            "suggested_remediation": "Restore handling for UnicodeDecodeError, for example: except (UnicodeDecodeError, json.JSONDecodeError):"
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-6b791602e480",
+            "file_path": "network/payload_parser.py",
+            "line_range": {
+              "start_line": 9,
+              "end_line": 9
+            },
+            "category": "error_handling",
+            "severity": "medium",
+            "title": "Invalid UTF-8 payloads now raise an uncaught exception",
+            "expected_file_path": "network/payload_parser.py",
+            "expected_line_range": {
+              "start_line": 8,
+              "end_line": 10
+            },
+            "expected_category": "error_handling",
+            "expected_allowed_categories": [
+              "correctness",
+              "error_handling"
+            ],
+            "severity_match": false
+          }
+        ],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-06-resource-lifecycle-regression",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 1,
+      "latency_ms": 20482,
+      "usage": {
+        "prompt_tokens": 10989,
+        "completion_tokens": 2848,
+        "total_tokens": 13837,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-72a316b010f4",
+          "module_id": "code_review",
+          "category": "resource_management",
+          "severity": "medium",
+          "confidence": "high",
+          "file_path": "storage/connection_manager.py",
+          "line_range": {
+            "start_line": 14,
+            "end_line": 15
+          },
+          "title": "Failed transactions leave the connection open",
+          "description": "The connection is opened before the failure check, but the failure path raises before reaching conn.close(). Unlike the previous try/finally implementation, failed transactions no longer close the connection, leaking the open resource and potentially causing subsequent operations to fail or exhaust connection resources.",
+          "evidence": "if \"FAIL\" in query:\n        raise RuntimeError(\"Query execution failed\")",
+          "suggested_remediation": "Wrap the transaction body in try/finally and call conn.close() in the finally block, or explicitly close the connection before raising the failure exception."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "resource_management",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "storage/connection_manager.py",
+            "start_line": 14,
+            "end_line": 15,
+            "title": "Failed transactions leave the connection open",
+            "description": "The connection is opened before the failure check, but the failure path raises before reaching conn.close(). Unlike the previous try/finally implementation, failed transactions no longer close the connection, leaking the open resource and potentially causing subsequent operations to fail or exhaust connection resources.",
+            "evidence": "if \"FAIL\" in query:\n        raise RuntimeError(\"Query execution failed\")",
+            "suggested_remediation": "Wrap the transaction body in try/finally and call conn.close() in the finally block, or explicitly close the connection before raising the failure exception."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-72a316b010f4",
+            "module_id": "code_review",
+            "category": "resource_management",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "storage/connection_manager.py",
+            "line_range": {
+              "start_line": 14,
+              "end_line": 15
+            },
+            "title": "Failed transactions leave the connection open",
+            "description": "The connection is opened before the failure check, but the failure path raises before reaching conn.close(). Unlike the previous try/finally implementation, failed transactions no longer close the connection, leaking the open resource and potentially causing subsequent operations to fail or exhaust connection resources.",
+            "evidence": "if \"FAIL\" in query:\n        raise RuntimeError(\"Query execution failed\")",
+            "suggested_remediation": "Wrap the transaction body in try/finally and call conn.close() in the finally block, or explicitly close the connection before raising the failure exception."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-72a316b010f4",
+            "file_path": "storage/connection_manager.py",
+            "line_range": {
+              "start_line": 14,
+              "end_line": 15
+            },
+            "category": "resource_management",
+            "severity": "medium",
+            "title": "Failed transactions leave the connection open",
+            "expected_file_path": "storage/connection_manager.py",
+            "expected_line_range": {
+              "start_line": 13,
+              "end_line": 18
+            },
+            "expected_category": "resource_management",
+            "expected_allowed_categories": [
+              "correctness",
+              "error_handling",
+              "resource_management"
+            ],
+            "severity_match": false
+          }
+        ],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-07-auth-validation-bypass",
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 19871,
+      "usage": {
+        "prompt_tokens": 12015,
+        "completion_tokens": 3399,
+        "total_tokens": 15414,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-8618860089c8",
+          "module_id": "code_review",
+          "category": "logic_error",
+          "severity": "high",
+          "confidence": "high",
+          "file_path": "auth/access_policy.py",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 6
+          },
+          "title": "Non-owners are granted edit and delete access",
+          "description": "The changed condition uses OR instead of AND, so any non-admin user can edit or delete a resource even when is_owner is False. This bypasses the ownership check and grants unauthorized mutation access.",
+          "evidence": "return is_owner or action in (\"edit\", \"delete\")",
+          "suggested_remediation": "Restore the ownership requirement: `return is_owner and action in (\"edit\", \"delete\")`."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "logic_error",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "auth/access_policy.py",
+            "start_line": 6,
+            "end_line": 6,
+            "title": "Non-owners are granted edit and delete access",
+            "description": "The changed condition uses OR instead of AND, so any non-admin user can edit or delete a resource even when is_owner is False. This bypasses the ownership check and grants unauthorized mutation access.",
+            "evidence": "return is_owner or action in (\"edit\", \"delete\")",
+            "suggested_remediation": "Restore the ownership requirement: `return is_owner and action in (\"edit\", \"delete\")`."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-8618860089c8",
+            "module_id": "code_review",
+            "category": "logic_error",
+            "severity": "high",
+            "confidence": "high",
+            "file_path": "auth/access_policy.py",
+            "line_range": {
+              "start_line": 6,
+              "end_line": 6
+            },
+            "title": "Non-owners are granted edit and delete access",
+            "description": "The changed condition uses OR instead of AND, so any non-admin user can edit or delete a resource even when is_owner is False. This bypasses the ownership check and grants unauthorized mutation access.",
+            "evidence": "return is_owner or action in (\"edit\", \"delete\")",
+            "suggested_remediation": "Restore the ownership requirement: `return is_owner and action in (\"edit\", \"delete\")`."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [
+          {
+            "finding_id": "dcd-8618860089c8",
+            "file_path": "auth/access_policy.py",
+            "line_range": {
+              "start_line": 6,
+              "end_line": 6
+            },
+            "category": "logic_error",
+            "severity": "high",
+            "title": "Non-owners are granted edit and delete access",
+            "expected_file_path": "auth/access_policy.py",
+            "expected_line_range": {
+              "start_line": 5,
+              "end_line": 6
+            },
+            "expected_category": "logic_error",
+            "expected_allowed_categories": [
+              "correctness",
+              "logic_error"
+            ],
+            "severity_match": true
+          }
+        ],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-08-lru-recency-logic-flaw",
+      "true_positives": 0,
+      "false_positives": 1,
+      "false_negatives": 1,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 36918,
+      "usage": {
+        "prompt_tokens": 13189,
+        "completion_tokens": 4709,
+        "total_tokens": 17898,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [
+        {
+          "id": "dcd-07e4789527b9",
+          "module_id": "code_review",
+          "category": "logic_error",
+          "severity": "medium",
+          "confidence": "high",
+          "file_path": "cache/lru_store.py",
+          "line_range": {
+            "start_line": 8,
+            "end_line": 10
+          },
+          "title": "get() no longer promotes accessed keys, breaking LRU eviction order",
+          "description": "The removal of `self.order.remove(key)` / `self.order.append(key)` means a successful `get()` no longer marks the key as most recently used. Since `put()` evicts `self.order.pop(0)`, the evicted entry is now the oldest inserted key rather than the least recently used one. For example, with capacity 2: put('a'), put('b'), get('a'), put('c') evicts 'a' even though 'b' was the least recently used entry. The cache therefore violates its LRU contract and can discard hot entries while retaining stale ones.",
+          "evidence": "if key not in self.store:\n            return None\n        return self.store[key]",
+          "suggested_remediation": "Restore the recency update before returning the value: `self.order.remove(key)` followed by `self.order.append(key)`."
+        }
+      ],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "defect_introduction",
+      "diagnostics": {
+        "candidate_findings": [
+          {
+            "category": "logic_error",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "cache/lru_store.py",
+            "start_line": 8,
+            "end_line": 10,
+            "title": "get() no longer promotes accessed keys, breaking LRU eviction order",
+            "description": "The removal of `self.order.remove(key)` / `self.order.append(key)` means a successful `get()` no longer marks the key as most recently used. Since `put()` evicts `self.order.pop(0)`, the evicted entry is now the oldest inserted key rather than the least recently used one. For example, with capacity 2: put('a'), put('b'), get('a'), put('c') evicts 'a' even though 'b' was the least recently used entry. The cache therefore violates its LRU contract and can discard hot entries while retaining stale ones.",
+            "evidence": "if key not in self.store:\n            return None\n        return self.store[key]",
+            "suggested_remediation": "Restore the recency update before returning the value: `self.order.remove(key)` followed by `self.order.append(key)`."
+          }
+        ],
+        "validated_findings": [
+          {
+            "id": "dcd-07e4789527b9",
+            "module_id": "code_review",
+            "category": "logic_error",
+            "severity": "medium",
+            "confidence": "high",
+            "file_path": "cache/lru_store.py",
+            "line_range": {
+              "start_line": 8,
+              "end_line": 10
+            },
+            "title": "get() no longer promotes accessed keys, breaking LRU eviction order",
+            "description": "The removal of `self.order.remove(key)` / `self.order.append(key)` means a successful `get()` no longer marks the key as most recently used. Since `put()` evicts `self.order.pop(0)`, the evicted entry is now the oldest inserted key rather than the least recently used one. For example, with capacity 2: put('a'), put('b'), get('a'), put('c') evicts 'a' even though 'b' was the least recently used entry. The cache therefore violates its LRU contract and can discard hot entries while retaining stale ones.",
+            "evidence": "if key not in self.store:\n            return None\n        return self.store[key]",
+            "suggested_remediation": "Restore the recency update before returning the value: `self.order.remove(key)` followed by `self.order.append(key)`."
+          }
+        ],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [
+          {
+            "finding_id": "dcd-07e4789527b9",
+            "file_path": "cache/lru_store.py",
+            "line_range": {
+              "start_line": 8,
+              "end_line": 10
+            },
+            "category": "logic_error",
+            "severity": "medium",
+            "title": "get() no longer promotes accessed keys, breaking LRU eviction order",
+            "reasons": [
+              "Against expected defect #1 (cache/lru_store.py:8-10): category mismatch ('logic_error' not in ['correctness'])"
+            ],
+            "reason": "Against expected defect #1 (cache/lru_store.py:8-10): category mismatch ('logic_error' not in ['correctness'])"
+          }
+        ],
+        "unmatched_expected": [
+          {
+            "file_path": "cache/lru_store.py",
+            "line_range": {
+              "start_line": 8,
+              "end_line": 10
+            },
+            "category": "correctness",
+            "allowed_categories": [
+              "correctness"
+            ],
+            "severity": "high",
+            "reason": "No validated finding matched this defect. Checked: finding 'dcd-07e4789527b9' (category 'logic_error' not in ['correctness'])."
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "beh-regress-09-defensive-query-guard",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 5921,
+      "usage": {
+        "prompt_tokens": 15870,
+        "completion_tokens": 4909,
+        "total_tokens": 20779,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "clean_bug_fix",
+      "diagnostics": {
+        "candidate_findings": [],
+        "validated_findings": [],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-10-safe-signature-migration",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 7407,
+      "usage": {
+        "prompt_tokens": 17222,
+        "completion_tokens": 5072,
+        "total_tokens": 22294,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "clean_unrelated",
+      "diagnostics": {
+        "candidate_findings": [],
+        "validated_findings": [],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-11-resource-cleanup-context-manager",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 10399,
+      "usage": {
+        "prompt_tokens": 18999,
+        "completion_tokens": 5252,
+        "total_tokens": 24251,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "clean_unrelated",
+      "diagnostics": {
+        "candidate_findings": [],
+        "validated_findings": [],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    },
+    {
+      "case_id": "beh-regress-12-specific-exception-narrowing",
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "duplicates_reduced": 0,
+      "legitimate_rejected": 0,
+      "severity_mismatches": 0,
+      "latency_ms": 5396,
+      "usage": {
+        "prompt_tokens": 20406,
+        "completion_tokens": 5430,
+        "total_tokens": 25836,
+        "is_estimated": true,
+        "estimated_cost_usd": null
+      },
+      "actual_findings": [],
+      "status": "completed",
+      "error": null,
+      "error_category": null,
+      "http_status": null,
+      "retries_attempted": 0,
+      "provenance": "synthetic_benchmark",
+      "change_type": "clean_unrelated",
+      "diagnostics": {
+        "candidate_findings": [],
+        "validated_findings": [],
+        "rejected_candidates": [],
+        "matched_findings": [],
+        "unmatched_findings": [],
+        "unmatched_expected": []
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Data models for the DEICIDE MVP 1.3 Finding Intelligence Engine."""
+"""Data models for the POLARIS MVP 1.3 Finding Intelligence Engine."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from deicide.core.models import AnalysisWarning, Confidence, Finding, Severity
+from polaris.core.models import AnalysisWarning, Confidence, Finding, Severity
 
 
 class EvidenceQuality(StrEnum):

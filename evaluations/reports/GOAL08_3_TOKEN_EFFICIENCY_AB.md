@@ -14,7 +14,7 @@ not establish quality equivalence or superiority.
 - Cases: the eight `rw-*` historical introducing fixtures
 - Behavioral Delta: disabled in both arms
 - Context budget: 2,000 estimated tokens per case
-- Token method: DEICIDE's existing `ceil(characters / 4)` estimator. A real
+- Token method: POLARIS's existing `ceil(characters / 4)` estimator. A real
   tokenizer was unavailable in the audited environment.
 - Arm A: existing context behavior, hybrid static selection disabled
 - Arm B: identical context preparation, hybrid static selection enabled
@@ -64,7 +64,7 @@ noncanonical serialization.
 ## Offline regression verification
 
 ```text
-python -m pytest -o addopts= -p no:cacheprovider --basetemp C:\Users\gabri\AppData\Local\Temp\deicide-goal08-full -rA
+python -m pytest -o addopts= -p no:cacheprovider --basetemp C:\Users\gabri\AppData\Local\Temp\polaris-goal08-full -rA
 ```
 
 Result: `287 passed in 18.67s`.

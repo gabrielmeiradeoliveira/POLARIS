@@ -25,12 +25,12 @@ The blocked proxy case declares `13/8` lines while its body has `9/5`; even with
 
 ## Automated guardrail
 
-`src/deicide/evaluation/fixture_integrity.py` independently parses hunk bodies without reusing DEICIDE's production diff parser. It checks declared counts, materialized new-side coordinates, reverse reconstruction, forward application, and malformed input. `tests/test_real_world_fixture_integrity.py` covers all eight fixtures and negative malformed-count/coordinate cases. The GOAL 05 regression remains in `tests/test_real_world_verified_benchmark.py`.
+`src/polaris/evaluation/fixture_integrity.py` independently parses hunk bodies without reusing POLARIS's production diff parser. It checks declared counts, materialized new-side coordinates, reverse reconstruction, forward application, and malformed input. `tests/test_real_world_fixture_integrity.py` covers all eight fixtures and negative malformed-count/coordinate cases. The GOAL 05 regression remains in `tests/test_real_world_verified_benchmark.py`.
 
 ## Tests
 
-- External-temp focused run: `pytest -p no:cacheprovider --basetemp $env:TEMP\deicide-goal06-pytest-179308 tests/test_real_world_fixture_integrity.py tests/test_real_world_verified_benchmark.py -q` — `7 passed`.
-- External-temp full offline suite: `pytest -p no:cacheprovider --basetemp $env:TEMP\deicide-goal06-full-179308 -q` — passed, 100%.
+- External-temp focused run: `pytest -p no:cacheprovider --basetemp $env:TEMP\polaris-goal06-pytest-179308 tests/test_real_world_fixture_integrity.py tests/test_real_world_verified_benchmark.py -q` — `7 passed`.
+- External-temp full offline suite: `pytest -p no:cacheprovider --basetemp $env:TEMP\polaris-goal06-full-179308 -q` — passed, 100%.
 - `git diff --check` — no whitespace errors; only pre-existing line-ending warnings.
 
 No external provider calls, NVIDIA benchmarks, historical-metric recalculation, or commits occurred.

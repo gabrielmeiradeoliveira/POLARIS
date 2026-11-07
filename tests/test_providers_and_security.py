@@ -10,14 +10,14 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
-from deicide.cli import build_default_registry
-from deicide.core.config import DeicideConfig
-from deicide.core.errors import BudgetExceededError, ProviderError, RateLimitError
-from deicide.core.models import BudgetTracker, ExecutionBudget
-from deicide.core.orchestrator import AnalysisOrchestrator
-from deicide.providers.base import ProviderRequest
-from deicide.providers.fake import FakeProvider
-from deicide.providers.nvidia import NvidiaProvider
+from polaris.cli import build_default_registry
+from polaris.core.config import PolarisConfig
+from polaris.core.errors import BudgetExceededError, ProviderError, RateLimitError
+from polaris.core.models import BudgetTracker, ExecutionBudget
+from polaris.core.orchestrator import AnalysisOrchestrator
+from polaris.providers.base import ProviderRequest
+from polaris.providers.fake import FakeProvider
+from polaris.providers.nvidia import NvidiaProvider
 
 
 def test_fake_provider_detects_bugs_and_ignores_clean_code(temp_git_repo: Path) -> None:
@@ -26,7 +26,7 @@ def test_fake_provider_detects_bugs_and_ignores_clean_code(temp_git_repo: Path) 
         "def add(a: int, b: int, cache=[]) -> float:\n    cache.append(a)\n    return (a + b) / 0\n",
         encoding="utf-8",
     )
-    config = DeicideConfig.from_env_and_args(
+    config = PolarisConfig.from_env_and_args(
         repo_path=temp_git_repo,
         provider="fake",
         environ={},
@@ -49,7 +49,7 @@ def test_fake_provider_detects_bugs_and_ignores_clean_code(temp_git_repo: Path) 
 def test_fake_provider_uses_the_same_dynamic_output_reservation(temp_git_repo: Path) -> None:
     calc_file = temp_git_repo / "src" / "calc.py"
     calc_file.write_text("def add(a, b):\n    return a / 0\n", encoding="utf-8")
-    config = DeicideConfig.from_env_and_args(
+    config = PolarisConfig.from_env_and_args(
         repo_path=temp_git_repo,
         provider="fake",
         max_tokens=1_500,
@@ -69,7 +69,7 @@ def test_malformed_model_responses_handled_gracefully(temp_git_repo: Path) -> No
 
     # 1. Completely invalid JSON string
     provider_bad_json = FakeProvider(scripted_responses=["NOT VALID JSON {{{"])
-    config = DeicideConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
+    config = PolarisConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
     report1 = AnalysisOrchestrator(config, provider_bad_json, build_default_registry()).run()
     assert report1.findings == []
     assert any(w.code == "MALFORMED_MODEL_RESPONSE" for w in report1.warnings)
@@ -140,7 +140,7 @@ def test_prompt_injection_in_source_code_is_neutralized(temp_git_repo: Path) -> 
         }
     )
     provider = FakeProvider(scripted_responses=[compromised_response])
-    config = DeicideConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
+    config = PolarisConfig.from_env_and_args(repo_path=temp_git_repo, provider="fake", environ={})
     report = AnalysisOrchestrator(config, provider, build_default_registry()).run()
 
     assert report.findings == []

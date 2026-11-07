@@ -1,20 +1,20 @@
-"""Deterministic offline tests for DEICIDE Context Engine Phase 1: Python AST Analyzer."""
+"""Deterministic offline tests for POLARIS Context Engine Phase 1: Python AST Analyzer."""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-from deicide.context.changed_symbols import identify_changed_symbols
-from deicide.context.models import (
+from polaris.context.changed_symbols import identify_changed_symbols
+from polaris.context.models import (
     FileAnalysisStatus,
     ImportKind,
     OverlapClassification,
     SymbolKind,
 )
-from deicide.context.python_ast import PythonAstAnalyzer
-from deicide.git.analyzer import GitAnalyzer
-from deicide.git.models import DiffHunk, FileChangeStatus, FileDiff
+from polaris.context.python_ast import PythonAstAnalyzer
+from polaris.git.analyzer import GitAnalyzer
+from polaris.git.models import DiffHunk, FileChangeStatus, FileDiff
 
 
 # TEST 01: Top-level function extraction
@@ -432,7 +432,7 @@ def test_22_deleted_python_file() -> None:
             )
         ],
     )
-    from deicide.context.models import FileAnalysis
+    from polaris.context.models import FileAnalysis
 
     dummy_analysis = FileAnalysis(
         source_file="legacy.py",

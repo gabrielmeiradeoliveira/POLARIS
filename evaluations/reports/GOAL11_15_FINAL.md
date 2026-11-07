@@ -14,7 +14,7 @@
 $env:PYTHONDONTWRITEBYTECODE='1'
 .\.venv\Scripts\python.exe -m pytest --basetemp .pytest-goal11-15 -q
 .\.venv\Scripts\ruff.exe check src tests
-.\.venv\Scripts\python.exe -m deicide evaluate --provider fake --fixtures evaluations\fixtures\end_to_end_context_benchmark.json --no-behavioral-delta --no-hybrid-static-selection --no-static-relevance-selection --observability-file evaluations\results\goal11_15_ab\A_baseline.json
+.\.venv\Scripts\python.exe -m polaris evaluate --provider fake --fixtures evaluations\fixtures\end_to_end_context_benchmark.json --no-behavioral-delta --no-hybrid-static-selection --no-static-relevance-selection --observability-file evaluations\results\goal11_15_ab\A_baseline.json
 ```
 
 Repeat the last command with `--hybrid-static-selection` for B and `--static-relevance-selection` for C.

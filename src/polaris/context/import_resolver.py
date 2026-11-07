@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from deicide.context.models import ImportKind, SourceLocation, Symbol
-from deicide.context.project_index import ProjectIndex
+from polaris.context.models import ImportKind, SourceLocation, Symbol
+from polaris.context.project_index import ProjectIndex
 
 
 @dataclass(frozen=True)

@@ -28,7 +28,7 @@ completion could cross `max_total_tokens` after it had already been generated.
 
 ## Reservation policy
 
-Before every NVIDIA attempt, DEICIDE now calculates:
+Before every NVIDIA attempt, POLARIS now calculates:
 
 `remaining = max_total_tokens - recorded_total_tokens`
 

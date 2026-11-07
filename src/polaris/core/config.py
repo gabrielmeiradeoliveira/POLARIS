@@ -1,4 +1,4 @@
-"""Application configuration and environment loading for DEICIDE."""
+"""Application configuration and environment loading for POLARIS."""
 
 from __future__ import annotations
 
@@ -9,15 +9,15 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
-from deicide.context.context_models import ContextSelectionLimits
-from deicide.core.errors import (
+from polaris.context.context_models import ContextSelectionLimits
+from polaris.core.errors import (
     ConfigurationError,
-    DeicideError,
     MissingCredentialsError,
+    PolarisError,
     UnsupportedProviderError,
 )
-from deicide.core.models import ExecutionBudget
-from deicide.quota.store import derive_quota_scope, get_default_usage_db_path, get_user_data_dir
+from polaris.core.models import ExecutionBudget
+from polaris.quota.store import derive_quota_scope, get_default_usage_db_path, get_user_data_dir
 
 SUPPORTED_PROVIDERS: frozenset[str] = frozenset({"fake", "nvidia"})
 DEFAULT_NVIDIA_MODEL = "z-ai/glm-5.3-flash"
@@ -31,7 +31,7 @@ _PLACEHOLDER_KEYS: frozenset[str] = frozenset(
     }
 )
 
-_DEICIDE_INSTALL_ROOT = Path(__file__).resolve().parents[3]
+_POLARIS_INSTALL_ROOT = Path(__file__).resolve().parents[3]
 
 
 def load_dotenv_file(dotenv_path: Path) -> dict[str, str]:
@@ -79,9 +79,9 @@ def resolve_api_key(
 
     For 'nvidia' (and default):
     1. Nonempty NVIDIA_API_KEY from the process environment.
-    2. Nonempty DEICIDE_API_KEY from the process environment.
+    2. Nonempty POLARIS_API_KEY from the process environment.
     3. Nonempty NVIDIA_API_KEY from the trusted `.env`.
-    4. Nonempty DEICIDE_API_KEY from the trusted `.env`.
+    4. Nonempty POLARIS_API_KEY from the trusted `.env`.
 
     An empty credential never overrides a nonempty credential.
     """
@@ -89,9 +89,9 @@ def resolve_api_key(
 
     candidates = (
         process_env.get(primary_var),
-        process_env.get("DEICIDE_API_KEY"),
+        process_env.get("POLARIS_API_KEY"),
         dotenv_env.get(primary_var),
-        dotenv_env.get("DEICIDE_API_KEY"),
+        dotenv_env.get("POLARIS_API_KEY"),
     )
     for raw in candidates:
         if raw is not None:
@@ -107,11 +107,11 @@ def _load_trusted_dotenv(
     *,
     use_default_locations: bool,
 ) -> dict[str, str]:
-    """Load DEICIDE's trusted `.env` without ever reading from an analyzed target repository."""
+    """Load POLARIS's trusted `.env` without ever reading from an analyzed target repository."""
     if dotenv_path is not None:
         return load_dotenv_file(dotenv_path)
 
-    env_file_override = process_env.get("DEICIDE_ENV_FILE", "").strip()
+    env_file_override = process_env.get("POLARIS_ENV_FILE", "").strip()
     if env_file_override:
         return load_dotenv_file(Path(env_file_override).expanduser())
 
@@ -119,7 +119,7 @@ def _load_trusted_dotenv(
         return {}
 
     merged: dict[str, str] = {}
-    for candidate_dir in (get_user_data_dir(), _DEICIDE_INSTALL_ROOT):
+    for candidate_dir in (get_user_data_dir(), _POLARIS_INSTALL_ROOT):
         candidate_env = candidate_dir / ".env"
         try:
             is_file = candidate_env.is_file()
@@ -217,8 +217,8 @@ class OutputFormat(StrEnum):
     JSON = "json"
 
 
-class DeicideConfig(BaseModel):
-    """Validated runtime configuration for a DEICIDE execution."""
+class PolarisConfig(BaseModel):
+    """Validated runtime configuration for a POLARIS execution."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -316,14 +316,14 @@ class DeicideConfig(BaseModel):
         if self.api_key is None or not self.api_key.get_secret_value().strip():
             msg = (
                 f"Missing API credentials for provider '{self.provider}'. "
-                f"Set {key_var_hint} (or DEICIDE_API_KEY) in your .env file or environment, "
+                f"Set {key_var_hint} (or POLARIS_API_KEY) in your .env file or environment, "
                 "or run with '--provider fake' for offline analysis."
             )
             raise MissingCredentialsError(msg)
         if not self.allow_external_code:
             msg = (
                 f"External code transmission to provider '{self.provider}' is not enabled. "
-                "Set DEICIDE_ALLOW_EXTERNAL_CODE=1 (or pass --allow-external) along with your API key "
+                "Set POLARIS_ALLOW_EXTERNAL_CODE=1 (or pass --allow-external) along with your API key "
                 "to authorize sending repository diffs to the external AI provider."
             )
             raise MissingCredentialsError(msg)
@@ -365,7 +365,7 @@ class DeicideConfig(BaseModel):
         context_max_graph_depth: int | None = None,
         environ: dict[str, str] | None = None,
         dotenv_path: Path | None = None,
-    ) -> DeicideConfig:
+    ) -> PolarisConfig:
         """Build and validate configuration from CLI arguments, trusted `.env`, and environment variables.
 
         Never reads `.env` or configuration files from the target repository being analyzed.
@@ -384,8 +384,8 @@ class DeicideConfig(BaseModel):
             if v is not None and v.strip() != "":
                 env[k] = v
 
-        env_provider = env.get("DEICIDE_PROVIDER", "nvidia").strip().lower()
-        resolved_provider = provider if provider is not None else env.get("DEICIDE_PROVIDER", "nvidia")
+        env_provider = env.get("POLARIS_PROVIDER", "nvidia").strip().lower()
+        resolved_provider = provider if provider is not None else env.get("POLARIS_PROVIDER", "nvidia")
         norm_provider = resolved_provider.strip().lower()
 
         if model is not None:
@@ -393,7 +393,7 @@ class DeicideConfig(BaseModel):
         elif norm_provider != env_provider:
             resolved_model = None
         else:
-            resolved_model = env.get("DEICIDE_MODEL")
+            resolved_model = env.get("POLARIS_MODEL")
 
         secret_key = resolve_api_key(process_env, dotenv_env, provider=norm_provider)
         resolved_nvidia_url = (
@@ -402,10 +402,10 @@ class DeicideConfig(BaseModel):
 
         if allow_external_code is not None:
             resolved_allow_external = allow_external_code
-        elif "DEICIDE_ALLOW_EXTERNAL_CODE" in env and env["DEICIDE_ALLOW_EXTERNAL_CODE"].strip():
+        elif "POLARIS_ALLOW_EXTERNAL_CODE" in env and env["POLARIS_ALLOW_EXTERNAL_CODE"].strip():
             resolved_allow_external = _parse_strict_bool(
-                env["DEICIDE_ALLOW_EXTERNAL_CODE"],
-                "DEICIDE_ALLOW_EXTERNAL_CODE",
+                env["POLARIS_ALLOW_EXTERNAL_CODE"],
+                "POLARIS_ALLOW_EXTERNAL_CODE",
                 default=False,
             )
         else:
@@ -424,22 +424,22 @@ class DeicideConfig(BaseModel):
         budget_kwargs: dict[str, int | float | bool | None] = {}
 
         parsed_max_tokens = _parse_positive_int(
-            max_tokens if max_tokens is not None else env.get("DEICIDE_MAX_TOKENS"),
-            "DEICIDE_MAX_TOKENS",
+            max_tokens if max_tokens is not None else env.get("POLARIS_MAX_TOKENS"),
+            "POLARIS_MAX_TOKENS",
         )
         if parsed_max_tokens is not None:
             budget_kwargs["max_total_tokens"] = parsed_max_tokens
 
         parsed_max_requests = _parse_positive_int(
-            max_requests if max_requests is not None else env.get("DEICIDE_MAX_REQUESTS"),
-            "DEICIDE_MAX_REQUESTS",
+            max_requests if max_requests is not None else env.get("POLARIS_MAX_REQUESTS"),
+            "POLARIS_MAX_REQUESTS",
         )
         if parsed_max_requests is not None:
             budget_kwargs["max_requests"] = parsed_max_requests
 
         parsed_max_retries = _parse_non_negative_int(
-            max_retries if max_retries is not None else env.get("DEICIDE_MAX_RETRIES"),
-            "DEICIDE_MAX_RETRIES",
+            max_retries if max_retries is not None else env.get("POLARIS_MAX_RETRIES"),
+            "POLARIS_MAX_RETRIES",
         )
         if parsed_max_retries is not None:
             budget_kwargs["max_retries"] = parsed_max_retries
@@ -447,15 +447,15 @@ class DeicideConfig(BaseModel):
         parsed_max_elapsed = _parse_positive_float(
             max_elapsed_seconds
             if max_elapsed_seconds is not None
-            else (env.get("DEICIDE_MAX_ELAPSED_SECONDS") or env.get("DEICIDE_MAX_ELAPSED")),
-            "DEICIDE_MAX_ELAPSED_SECONDS",
+            else (env.get("POLARIS_MAX_ELAPSED_SECONDS") or env.get("POLARIS_MAX_ELAPSED")),
+            "POLARIS_MAX_ELAPSED_SECONDS",
         )
         if parsed_max_elapsed is not None:
             budget_kwargs["max_elapsed_seconds"] = parsed_max_elapsed
 
         parsed_timeout = _parse_positive_float(
-            timeout_seconds if timeout_seconds is not None else env.get("DEICIDE_TIMEOUT_SECONDS"),
-            "DEICIDE_TIMEOUT_SECONDS",
+            timeout_seconds if timeout_seconds is not None else env.get("POLARIS_TIMEOUT_SECONDS"),
+            "POLARIS_TIMEOUT_SECONDS",
         )
         if parsed_timeout is not None:
             budget_kwargs["request_timeout_seconds"] = parsed_timeout
@@ -466,15 +466,15 @@ class DeicideConfig(BaseModel):
                 budget_kwargs["max_elapsed_seconds"] = min_elapsed
 
         parsed_attempt_deadline = _parse_positive_float(
-            attempt_deadline_seconds if attempt_deadline_seconds is not None else env.get("DEICIDE_ATTEMPT_DEADLINE_SECONDS"),
-            "DEICIDE_ATTEMPT_DEADLINE_SECONDS",
+            attempt_deadline_seconds if attempt_deadline_seconds is not None else env.get("POLARIS_ATTEMPT_DEADLINE_SECONDS"),
+            "POLARIS_ATTEMPT_DEADLINE_SECONDS",
         )
         if parsed_attempt_deadline is not None:
             budget_kwargs["attempt_deadline_seconds"] = parsed_attempt_deadline
 
         parsed_case_deadline = _parse_positive_float(
-            case_deadline_seconds if case_deadline_seconds is not None else env.get("DEICIDE_CASE_DEADLINE_SECONDS"),
-            "DEICIDE_CASE_DEADLINE_SECONDS",
+            case_deadline_seconds if case_deadline_seconds is not None else env.get("POLARIS_CASE_DEADLINE_SECONDS"),
+            "POLARIS_CASE_DEADLINE_SECONDS",
         )
         if parsed_case_deadline is not None:
             budget_kwargs["case_deadline_seconds"] = parsed_case_deadline
@@ -484,8 +484,8 @@ class DeicideConfig(BaseModel):
             budget_kwargs["max_files"] = parsed_max_files
 
         parsed_rpm = _parse_positive_int(
-            rate_limit_rpm if rate_limit_rpm is not None else env.get("DEICIDE_RATE_LIMIT_RPM"),
-            "DEICIDE_RATE_LIMIT_RPM",
+            rate_limit_rpm if rate_limit_rpm is not None else env.get("POLARIS_RATE_LIMIT_RPM"),
+            "POLARIS_RATE_LIMIT_RPM",
         )
         if parsed_rpm is not None:
             budget_kwargs["rate_limit_rpm"] = parsed_rpm
@@ -493,8 +493,8 @@ class DeicideConfig(BaseModel):
             budget_kwargs["rate_limit_rpm"] = None
 
         parsed_tpm = _parse_positive_int(
-            rate_limit_tpm if rate_limit_tpm is not None else env.get("DEICIDE_RATE_LIMIT_TPM"),
-            "DEICIDE_RATE_LIMIT_TPM",
+            rate_limit_tpm if rate_limit_tpm is not None else env.get("POLARIS_RATE_LIMIT_TPM"),
+            "POLARIS_RATE_LIMIT_TPM",
         )
         if parsed_tpm is not None:
             budget_kwargs["rate_limit_tpm"] = parsed_tpm
@@ -502,8 +502,8 @@ class DeicideConfig(BaseModel):
             budget_kwargs["rate_limit_tpm"] = None
 
         parsed_rpd = _parse_positive_int(
-            rate_limit_rpd if rate_limit_rpd is not None else env.get("DEICIDE_RATE_LIMIT_RPD"),
-            "DEICIDE_RATE_LIMIT_RPD",
+            rate_limit_rpd if rate_limit_rpd is not None else env.get("POLARIS_RATE_LIMIT_RPD"),
+            "POLARIS_RATE_LIMIT_RPD",
         )
         if parsed_rpd is not None:
             budget_kwargs["rate_limit_rpd"] = parsed_rpd
@@ -511,63 +511,63 @@ class DeicideConfig(BaseModel):
             budget_kwargs["rate_limit_rpd"] = None
 
         resolved_quota_enabled = _parse_strict_bool(
-            quota_enabled if quota_enabled is not None else env.get("DEICIDE_QUOTA_ENABLED"),
-            "DEICIDE_QUOTA_ENABLED",
+            quota_enabled if quota_enabled is not None else env.get("POLARIS_QUOTA_ENABLED"),
+            "POLARIS_QUOTA_ENABLED",
             default=True,
         )
         budget_kwargs["quota_enabled"] = resolved_quota_enabled
 
-        resolved_scope = quota_scope if quota_scope is not None else env.get("DEICIDE_QUOTA_SCOPE")
+        resolved_scope = quota_scope if quota_scope is not None else env.get("POLARIS_QUOTA_SCOPE")
         resolved_db_path = (
             usage_db_path
             if usage_db_path is not None
             else (
-                Path(env["DEICIDE_USAGE_DB_PATH"].strip()).expanduser().resolve()
-                if env.get("DEICIDE_USAGE_DB_PATH", "").strip()
+                Path(env["POLARIS_USAGE_DB_PATH"].strip()).expanduser().resolve()
+                if env.get("POLARIS_USAGE_DB_PATH", "").strip()
                 else None
             )
         )
 
         resolved_context_enabled = _parse_strict_bool(
-            context_enabled if context_enabled is not None else env.get("DEICIDE_CONTEXT_ENABLED"),
-            "DEICIDE_CONTEXT_ENABLED",
+            context_enabled if context_enabled is not None else env.get("POLARIS_CONTEXT_ENABLED"),
+            "POLARIS_CONTEXT_ENABLED",
             default=True,
         )
 
         resolved_behavioral_delta_enabled = _parse_strict_bool(
             behavioral_delta_enabled
             if behavioral_delta_enabled is not None
-            else env.get("DEICIDE_BEHAVIORAL_DELTA_ENABLED"),
-            "DEICIDE_BEHAVIORAL_DELTA_ENABLED",
+            else env.get("POLARIS_BEHAVIORAL_DELTA_ENABLED"),
+            "POLARIS_BEHAVIORAL_DELTA_ENABLED",
             default=False,
         )
 
         resolved_hybrid_static_selection_enabled = _parse_strict_bool(
             hybrid_static_selection_enabled
             if hybrid_static_selection_enabled is not None
-            else env.get("DEICIDE_HYBRID_STATIC_SELECTION_ENABLED"),
-            "DEICIDE_HYBRID_STATIC_SELECTION_ENABLED",
+            else env.get("POLARIS_HYBRID_STATIC_SELECTION_ENABLED"),
+            "POLARIS_HYBRID_STATIC_SELECTION_ENABLED",
             default=False,
         )
         resolved_static_relevance_selection_enabled = _parse_strict_bool(
             static_relevance_selection_enabled
             if static_relevance_selection_enabled is not None
-            else env.get("DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED"),
-            "DEICIDE_STATIC_RELEVANCE_SELECTION_ENABLED",
+            else env.get("POLARIS_STATIC_RELEVANCE_SELECTION_ENABLED"),
+            "POLARIS_STATIC_RELEVANCE_SELECTION_ENABLED",
             default=False,
         )
 
         ctx_limits_kwargs: dict[str, int] = {}
         parsed_ctx_max_files = _parse_positive_int(
-            context_max_files if context_max_files is not None else env.get("DEICIDE_CONTEXT_MAX_FILES"),
-            "DEICIDE_CONTEXT_MAX_FILES",
+            context_max_files if context_max_files is not None else env.get("POLARIS_CONTEXT_MAX_FILES"),
+            "POLARIS_CONTEXT_MAX_FILES",
         )
         if parsed_ctx_max_files is not None:
             ctx_limits_kwargs["max_context_files"] = parsed_ctx_max_files
 
         parsed_ctx_max_snippets = _parse_positive_int(
-            context_max_snippets if context_max_snippets is not None else env.get("DEICIDE_CONTEXT_MAX_SNIPPETS"),
-            "DEICIDE_CONTEXT_MAX_SNIPPETS",
+            context_max_snippets if context_max_snippets is not None else env.get("POLARIS_CONTEXT_MAX_SNIPPETS"),
+            "POLARIS_CONTEXT_MAX_SNIPPETS",
         )
         if parsed_ctx_max_snippets is not None:
             ctx_limits_kwargs["max_snippets"] = parsed_ctx_max_snippets
@@ -575,15 +575,15 @@ class DeicideConfig(BaseModel):
         parsed_ctx_max_lines = _parse_positive_int(
             context_max_snippet_lines
             if context_max_snippet_lines is not None
-            else env.get("DEICIDE_CONTEXT_MAX_SNIPPET_LINES"),
-            "DEICIDE_CONTEXT_MAX_SNIPPET_LINES",
+            else env.get("POLARIS_CONTEXT_MAX_SNIPPET_LINES"),
+            "POLARIS_CONTEXT_MAX_SNIPPET_LINES",
         )
         if parsed_ctx_max_lines is not None:
             ctx_limits_kwargs["max_snippet_lines"] = parsed_ctx_max_lines
 
         parsed_ctx_max_tokens = _parse_non_negative_int(
-            context_max_tokens if context_max_tokens is not None else env.get("DEICIDE_CONTEXT_MAX_TOKENS"),
-            "DEICIDE_CONTEXT_MAX_TOKENS",
+            context_max_tokens if context_max_tokens is not None else env.get("POLARIS_CONTEXT_MAX_TOKENS"),
+            "POLARIS_CONTEXT_MAX_TOKENS",
         )
         if parsed_ctx_max_tokens is not None:
             ctx_limits_kwargs["max_context_tokens"] = parsed_ctx_max_tokens
@@ -591,8 +591,8 @@ class DeicideConfig(BaseModel):
         parsed_delta_reserved = _parse_non_negative_int(
             behavioral_delta_reserved_tokens
             if behavioral_delta_reserved_tokens is not None
-            else env.get("DEICIDE_BEHAVIORAL_DELTA_RESERVED_TOKENS"),
-            "DEICIDE_BEHAVIORAL_DELTA_RESERVED_TOKENS",
+            else env.get("POLARIS_BEHAVIORAL_DELTA_RESERVED_TOKENS"),
+            "POLARIS_BEHAVIORAL_DELTA_RESERVED_TOKENS",
         )
         if parsed_delta_reserved is not None:
             ctx_limits_kwargs["behavioral_delta_reserved_tokens"] = parsed_delta_reserved
@@ -600,8 +600,8 @@ class DeicideConfig(BaseModel):
         parsed_ctx_depth = _parse_positive_int(
             context_max_graph_depth
             if context_max_graph_depth is not None
-            else env.get("DEICIDE_CONTEXT_MAX_GRAPH_DEPTH"),
-            "DEICIDE_CONTEXT_MAX_GRAPH_DEPTH",
+            else env.get("POLARIS_CONTEXT_MAX_GRAPH_DEPTH"),
+            "POLARIS_CONTEXT_MAX_GRAPH_DEPTH",
         )
         if parsed_ctx_depth is not None:
             ctx_limits_kwargs["max_graph_depth"] = parsed_ctx_depth
@@ -632,7 +632,7 @@ class DeicideConfig(BaseModel):
                 static_relevance_selection_enabled=resolved_static_relevance_selection_enabled,
                 context_limits=context_limits,
             )
-        except DeicideError:
+        except PolarisError:
             raise
         except Exception as exc:
             raise ConfigurationError(f"Invalid configuration: {exc}") from exc

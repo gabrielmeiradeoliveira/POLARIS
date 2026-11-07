@@ -1,0 +1,38 @@
+{
+  "goal": "GOAL 26 Phase 3",
+  "recorded_at": "2026-11-04T22:53:32-03:00",
+  "status": "blocked_before_external_execution",
+  "manifest": "evaluations/manifests/goal26-phase3-paired-protocol.json",
+  "manifest_sha256": "7ed2121eea2f04889c44d2666a6afe656ff201675b3000234f8b730b7108c5fa",
+  "git_head": "586dcfc72f3963e4bc6b319c1bd1c90112a5c774",
+  "integrity": {
+    "end_to_end_context_sha256": "1901684d08c4b6cba33edeaa186782ec3b778fad9af7cf2f043eed91913e2357",
+    "real_world_verified_sha256": "c2cd0994d31d639d9571971ddece7ed99303ecb44ebde7d479c0f3cfac54071b",
+    "case_count": 20,
+    "tests": "8 passed: test_goal26_phase1_integrity.py, test_goal26_paired_protocol.py, test_goal26_quality_audit.py"
+  },
+  "protocol_limits": {
+    "arms": ["off", "on"],
+    "initial_execution_limit": 40,
+    "max_retries": 0,
+    "global_token_limit": 100000
+  },
+  "attempts": [],
+  "summary": {
+    "complete_pairs": 0,
+    "off_failures": 0,
+    "on_failures": 0,
+    "total_tokens": 0,
+    "recorded_cost": null,
+    "tp": null,
+    "fp": null,
+    "fn": null,
+    "precision": null,
+    "recall": null,
+    "categories": null,
+    "locations": null,
+    "latency": null
+  },
+  "stop_reason": "The frozen phase-3 manifest sets external_execution_authorized to false and does not freeze a NVIDIA model, quota scope, timeout, context limits, or runnable NVIDIA command. NVIDIA quota therefore could not be verified safely.",
+  "recommendation": "No decision. Keep Behavioral Delta disabled by default; create and approve a new frozen, external-authorized campaign manifest before any live run."
+}

@@ -4,7 +4,7 @@
 
 This benchmark is intentionally independent of production code and GOAL 20. Its 30 scenario manifest is at `evaluations/fixtures/goal21_adversarial/scenarios.json`; the integrity, oracle, and offline-evaluation harness is `tests/test_goal21_adversarial.py`.
 
-Every scenario contains local synthetic Python `before` and `after` code, an expected defect or verified clean change, location, DEICIDE category, justified severity, behaviour explanation, and declarative oracle. The fixture material contains no credentials, private code, network access, subprocess use, or destructive operation.
+Every scenario contains local synthetic Python `before` and `after` code, an expected defect or verified clean change, location, POLARIS category, justified severity, behaviour explanation, and declarative oracle. The fixture material contains no credentials, private code, network access, subprocess use, or destructive operation.
 
 Run the reproducible offline validation with:
 

@@ -1,5 +1,5 @@
-"""DEICIDE analysis modules."""
+"""POLARIS analysis modules."""
 
-from deicide.modules.code_review import CODE_REVIEW_MODULE_ID, CodeReviewModule
+from polaris.modules.code_review import CODE_REVIEW_MODULE_ID, CodeReviewModule
 
 __all__ = ["CODE_REVIEW_MODULE_ID", "CodeReviewModule"]

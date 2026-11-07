@@ -19,7 +19,7 @@ Manifests: `goal17-offline-a-20261101`, `goal17-offline-b-20261101`, and
 
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE = '1'; $env:PYTHONPATH = 'src'
-.\.venv\Scripts\python.exe -m deicide evaluate --provider nvidia `
+.\.venv\Scripts\python.exe -m polaris evaluate --provider nvidia `
   --fixtures evaluations\fixtures\code_review_corpus.json --allow-external `
   --end-to-end --production-parity --strict-severity --no-behavioral-delta `
   --no-hybrid-static-selection --no-static-relevance-selection `

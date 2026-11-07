@@ -3,7 +3,7 @@
 ## Implemented
 
 - Added append-only, self-hashing benchmark manifests under a caller-selected `evaluations/history/` root.
-- Captured UTC timestamp, run ID, local Git commit, DEICIDE version, provider/model, A/B/C configuration label, corpus SHA-256, operational limits, and aggregate evaluation metrics.
+- Captured UTC timestamp, run ID, local Git commit, POLARIS version, provider/model, A/B/C configuration label, corpus SHA-256, operational limits, and aggregate evaluation metrics.
 - Persisted sanitized per-finding validation records with stable IDs, location/category, evidence/response excerpts, declared qualitative confidence, optional explicit numeric probability, outcome, verification method, decision reason, and UTC decision timestamp.
 - Added provenance-separated real and synthetic trend summaries in immutable run-scoped Markdown and JSON reports.
 - Added validation coverage, confirmed-rate-among-assessed, inconclusive counts, and guarded Brier/reliability calculations.
@@ -15,7 +15,7 @@ Manifests exclude raw case diagnostics, raw prompts, raw provider payloads, cred
 ## Usage
 
 ```powershell
-deicide evaluate --provider fake --fixtures evaluations/fixtures/code_review_corpus.json `
+polaris evaluate --provider fake --fixtures evaluations/fixtures/code_review_corpus.json `
   --history-dir evaluations/history --history-run-id offline-a-20261101 `
   --history-configuration A --history-corpus-kind synthetic
 ```

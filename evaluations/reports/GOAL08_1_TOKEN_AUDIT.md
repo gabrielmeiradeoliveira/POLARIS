@@ -3,7 +3,7 @@
 ## Scope and frozen baseline
 
 This audit is read-only with respect to review behavior. It uses the frozen
-historical corpus from `deicide-historical-introducing-v1.0.0`:
+historical corpus from `polaris-historical-introducing-v1.0.0`:
 
 - evaluated payload commit: `52618449b4db2c07860f711330d3cf510daf463d`;
 - manifest commit: `9ad591cf02efff5cb10fe217955bab3a18ef484c`;
@@ -34,7 +34,7 @@ historical result was changed.
 The installed environment has neither `tiktoken` nor `transformers`; the NVIDIA
 provider does not expose a local tokenizer. All input counts therefore use the
 existing deterministic estimator `ceil(len(text) / 4)` from
-`deicide.core.models.estimate_token_count`. These are comparable local budget
+`polaris.core.models.estimate_token_count`. These are comparable local budget
 estimates, not provider-billed tokens.
 
 Each of the eight fixtures was materialized with production-parity context,

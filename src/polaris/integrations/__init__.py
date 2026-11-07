@@ -1,1 +1,1 @@
-"""External-system integrations for DEICIDE."""
+"""External-system integrations for POLARIS."""

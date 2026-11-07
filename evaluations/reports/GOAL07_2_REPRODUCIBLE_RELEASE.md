@@ -34,7 +34,7 @@ without a circular Git hash dependency.
    project, recompute every manifest hash, run the structural fixture test and
    the full offline suite, and compare the resulting Git commit to the manifest.
 5. Only after those checks should an approved annotated tag be created:
-   `deicide-historical-introducing-v1.0.0`.
+   `polaris-historical-introducing-v1.0.0`.
 
 ## Reproduction limitation
 

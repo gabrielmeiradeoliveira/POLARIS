@@ -107,6 +107,8 @@ def test_comparative_metrics_excludes_missing_on_case() -> None:
     on = ArmOutcome("on", (CaseEvaluationResult(case_id="a"),), None)
     assert comparable_metrics((off, on))["complete_pair_ids"] == ["a"]
 
+
+def test_resume_rejects_ambiguous_inflight_without_provider_calls(tmp_path) -> None:
 def test_resume_rejects_ambiguous_inflight_without_provider_calls(tmp_path) -> None:
     import hashlib
     from evaluations.goal26_nvidia_runner import _write_partial
@@ -146,3 +148,69 @@ def test_resume_rejects_modified_manifest_without_provider_calls(tmp_path) -> No
     with pytest.raises(ValueError, match="manifest mismatch"):
         run_campaign(provider, output, changed, resume=True)
     assert provider.requests == []
+
+
+def test_resume_continues_completed_pairs_without_duplicate_requests_and_preserves_budget(tmp_path) -> None:
+    import hashlib
+    from evaluations.goal26_nvidia_runner import _write_partial
+
+    manifest = load_manifest()
+    fixtures = validate_manifest(manifest)
+    assert fixtures[0].case_id == "e2e-ctx-01-return-contract-multiple-callers"
+
+    subset_fixtures = [fixtures[0].model_dump(mode="json"), fixtures[1].model_dump(mode="json")]
+    fixtures_file = tmp_path / "subset_fixtures.json"
+    content = json.dumps(subset_fixtures).encode("utf-8")
+    fixtures_file.write_bytes(content)
+    manifest_subset = {
+        **manifest,
+        "fixtures": str(fixtures_file),
+        "fixture_sha256": hashlib.sha256(content).hexdigest(),
+        "case_order": [fixtures[0].case_id, fixtures[1].case_id],
+    }
+
+    output = tmp_path / "campaign"
+    output.mkdir()
+    tracker = BudgetTracker(campaign_budget(manifest_subset))
+    initial_requests = 2
+    initial_usage = TokenUsage(prompt_tokens=100, completion_tokens=50, total_tokens=150)
+    tracker.requests_made = initial_requests
+    tracker.usage = initial_usage
+
+    case_0_off = CaseEvaluationResult(
+        case_id=fixtures[0].case_id,
+        status="completed",
+        usage=TokenUsage(prompt_tokens=50, completion_tokens=25, total_tokens=75),
+    )
+    case_0_on = CaseEvaluationResult(
+        case_id=fixtures[0].case_id,
+        status="completed",
+        usage=TokenUsage(prompt_tokens=50, completion_tokens=25, total_tokens=75),
+    )
+    checkpoint_outcomes = [
+        ArmOutcome("off", (case_0_off,), None),
+        ArmOutcome("on", (case_0_on,), None),
+    ]
+    _write_partial(output / "results.json", manifest_subset, checkpoint_outcomes, tracker)
+
+    provider = FakeProvider()
+    outcomes = run_campaign(provider, output, manifest_subset, resume=True)
+
+    # Asserts that pair 0 is NOT re-requested (no duplicate requests for already completed pairs)
+    assert len(provider.requests) == 2
+    for request in provider.requests:
+        assert fixtures[0].case_id not in request.user_prompt
+        assert "auth/token.py" not in request.user_prompt
+
+    # Asserts only the remaining fixture pair is requested
+    assert [case.case_id for case in outcomes[0].cases] == [fixtures[0].case_id, fixtures[1].case_id]
+    assert [case.case_id for case in outcomes[1].cases] == [fixtures[0].case_id, fixtures[1].case_id]
+
+    # Asserts results.json preserves and accumulates requests_made and global_usage.total_tokens from checkpoint
+    final_results = json.loads((output / "results.json").read_text(encoding="utf-8"))
+    assert final_results["requests_made"] == initial_requests + 2
+    assert final_results["global_usage"]["total_tokens"] > initial_usage.total_tokens
+    assert final_results["comparative_metrics"]["complete_pair_ids"] == [
+        fixtures[0].case_id,
+        fixtures[1].case_id,
+    ]

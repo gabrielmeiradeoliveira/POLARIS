@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from deicide.core.models import FindingCategory, LineRange, Severity
-from deicide.evaluation.models import EvaluationFixture, ExpectedFindingSpec
-from deicide.evaluation.runner import evaluate_corpus
-from deicide.providers.fake import FakeProvider
+from polaris.core.models import FindingCategory, LineRange, Severity
+from polaris.evaluation.models import EvaluationFixture, ExpectedFindingSpec
+from polaris.evaluation.runner import evaluate_corpus
+from polaris.providers.fake import FakeProvider
 
 _CORPUS_PATH = Path(__file__).parents[1] / "evaluations" / "fixtures" / "goal21_adversarial" / "scenarios.json"
 
