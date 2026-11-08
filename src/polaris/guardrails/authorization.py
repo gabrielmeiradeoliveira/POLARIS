@@ -201,4 +201,32 @@ def analyze_function_authorization_relaxation(
                 )
             )
 
+        # RULE SEC-PATH-001: Path Traversal / Direct File Access without validation
+        # e.g., open(os.path.join(base, filename)) where sanitization was dropped
+        if "open(" in after_unparsed and "../" in after_unparsed:
+            start_line = getattr(after_func, "lineno", after_line)
+            end_line = getattr(after_func, "end_lineno", start_line)
+            findings.append(
+                SecurityFinding(
+                    finding_id=f"sec-guardrail-{file_path}-{after_func.name}-{start_line}-traversal",
+                    rule_id="SEC-PATH-001",
+                    category=FindingCategory.LOGIC_ERROR,
+                    severity=Severity.HIGH,
+                    file_path=file_path,
+                    line_range=LineRange(start_line=start_line, end_line=end_line),
+                    title=f"[SEC-PATH-001] Potential path traversal in '{after_func.name}'",
+                    description=f"In '{after_func.name}', unvalidated path traversal sequence detected in file access: `{after_unparsed}`.",
+                    evidence=GuardrailEvidence(
+                        rule_id="SEC-PATH-001",
+                        symbol=after_func.name,
+                        file_path=file_path,
+                        line_range=LineRange(start_line=start_line, end_line=end_line),
+                        before_predicate=before_unparsed,
+                        after_predicate=after_unparsed,
+                        confidence=GuardrailConfidence.CONFIRMED,
+                        reason="Path traversal sequence detected in filesystem call.",
+                    ),
+                )
+            )
+
     return findings

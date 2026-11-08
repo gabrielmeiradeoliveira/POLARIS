@@ -7,7 +7,7 @@ import uuid
 from collections.abc import Callable
 from enum import StrEnum
 from threading import RLock
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -276,6 +276,7 @@ class AnalysisReport(BaseModel):
     warnings: list[AnalysisWarning] = Field(default_factory=list)
     status: Literal["completed", "empty_diff", "incomplete"] = "completed"
     context_summary: ContextSummary | None = Field(default=None)
+    goal30_intelligence: dict[str, Any] | None = Field(default=None, description="GOAL 30 Autonomous Code Intelligence metadata")
 
 
 class BudgetTracker:

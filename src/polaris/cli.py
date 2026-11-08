@@ -11,7 +11,7 @@ import typer
 from polaris import __version__
 from polaris.core.config import OutputFormat, PolarisConfig
 from polaris.core.errors import ExitCode, PolarisError
-from polaris.core.models import ExecutionBudget
+from polaris.core.models import BudgetTracker, ExecutionBudget
 from polaris.core.orchestrator import AnalysisOrchestrator
 from polaris.core.registry import ModuleRegistry
 from polaris.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
@@ -309,10 +309,10 @@ def review_command(
         llm_provider = create_provider(config)
         llm_provider.preserve_static_on_budget_skip = True
 
-        if strategy and strategy.strip().lower() == "hybrid":
-            # Opt-in GOAL 28 Hybrid Review Execution
-            from polaris.review.engine import HybridReviewOrchestrator
-            typer.echo("[POLARIS HYBRID] Opt-in hybrid review engine activated.")
+        is_hybrid = bool(strategy and strategy.strip().lower() == "hybrid")
+        if is_hybrid:
+            # Opt-in GOAL 30 Hybrid Review & Code Intelligence Execution
+            typer.echo("[POLARIS HYBRID] Opt-in hybrid review & autonomous code intelligence engine activated.")
 
         registry = build_default_registry()
         orchestrator = AnalysisOrchestrator(
@@ -321,6 +321,34 @@ def review_command(
             registry=registry,
         )
         report = orchestrator.run()
+
+        # If HYBRID strategy is activated, enrich report with GOAL 30 deep intelligence
+        if is_hybrid and report.files_analyzed:
+            from polaris.review.orchestrator_3 import HybridOrchestrator3
+            deep_orchestrator = HybridOrchestrator3()
+            tracker = BudgetTracker(config.budget)
+            # Run deep review across analyzed files
+            deep_results = []
+            for fpath in report.files_analyzed:
+                full_p = Path(config.repo_path) / fpath
+                after_c = full_p.read_text(encoding="utf-8", errors="replace") if full_p.is_file() else ""
+                deep_res = deep_orchestrator.run_deep_review(
+                    changed_file=fpath,
+                    before_content=None,
+                    after_content=after_c,
+                    diff_text="",
+                    provider=llm_provider,
+                    tracker=tracker,
+                )
+                deep_results.append({
+                    "file_path": fpath,
+                    "fused_evidences": deep_res["fused_evidences"],
+                    "risk_scores": deep_res["risk_scores"],
+                    "dataflow_count": deep_res["dataflow_count"],
+                })
+
+            # Update report model with goal30 intelligence payload
+            report = report.model_copy(update={"goal30_intelligence": {"analyses": deep_results}})
 
         if config.output_format == OutputFormat.JSON:
             typer.echo(format_json_report(report))
