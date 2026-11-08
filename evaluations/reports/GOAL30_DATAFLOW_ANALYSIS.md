@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: DATAFLOW ANALYSIS ENGINE (FASE 30.5)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Arquivo Principal:** `src/polaris/context/dataflow_engine.py`  
-**Testes:** `tests/test_dataflow_engine.py` (2 passed)  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Arquivo Principal:** `src/polaris/context/dataflow_engine.py`
+**Testes:** `tests/test_dataflow_engine.py` (2 passed)
 
 ---
 

@@ -1,8 +1,8 @@
 # POLARIS — GOAL 30: STRESS, RESILIENCE E PORTABILITY (FASE 30.15)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Testes:** `tests/test_stress_portability_goal30.py` (2 passed)  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Testes:** `tests/test_stress_portability_goal30.py` (2 passed)
 
 ---
 

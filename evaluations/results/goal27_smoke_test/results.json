@@ -1,0 +1,4190 @@
+{
+  "arms": [
+    {
+      "arm": "off",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 40611,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 957,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 894,
+            "total_tokens": 1851
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-02-shared-session-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 31781,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 607,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 898,
+            "total_tokens": 1505
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-03-retry-leaks-resource",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 20715,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 542,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 947,
+            "total_tokens": 1489
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-04-callback-exception-swallowed",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 26322,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 575,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 947,
+            "total_tokens": 1522
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-05-null-plugin-result",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 1,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 55445,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 1012,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 953,
+            "total_tokens": 1965
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-06-page-boundary-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 38642,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 471,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 972,
+            "total_tokens": 1443
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-07-async-shared-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 13289,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 323,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 985,
+            "total_tokens": 1308
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-08-override-skips-validation",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 29266,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 809,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 953,
+            "total_tokens": 1762
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-09-indirect-serializer-contract",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 9423,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 268,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 895,
+            "total_tokens": 1163
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 15952,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 466,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 1013,
+            "total_tokens": 1479
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 23572,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 619,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 913,
+            "total_tokens": 1532
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 10370,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 364,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 925,
+            "total_tokens": 1289
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 14163,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 363,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 921,
+            "total_tokens": 1284
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-14-copy-on-write-session",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 8509,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 239,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 921,
+            "total_tokens": 1160
+          },
+          "true_positives": 0
+        }
+      ],
+      "stopped_reason": "quota_daily_limit_reached (resets at 2026-11-09T00:00:00Z)"
+    },
+    {
+      "arm": "on",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 33163,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 722,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 894,
+            "total_tokens": 1616
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-02-shared-session-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 38003,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 706,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 1103,
+            "total_tokens": 1809
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-03-retry-leaks-resource",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 22762,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 668,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 1298,
+            "total_tokens": 1966
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-04-callback-exception-swallowed",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 111880,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 1308,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 1165,
+            "total_tokens": 2473
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-05-null-plugin-result",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 97463,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 1358,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 1152,
+            "total_tokens": 2510
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-06-page-boundary-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 73487,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 1219,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 972,
+            "total_tokens": 2191
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-07-async-shared-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 18306,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 394,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 1193,
+            "total_tokens": 1587
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-08-override-skips-validation",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 25964,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 577,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 953,
+            "total_tokens": 1530
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-09-indirect-serializer-contract",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 9057,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 202,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 895,
+            "total_tokens": 1097
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 29963,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 548,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 1013,
+            "total_tokens": 1561
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 5702,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 186,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 913,
+            "total_tokens": 1099
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 44313,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 508,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 1255,
+            "total_tokens": 1763
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 10908,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 171,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 921,
+            "total_tokens": 1092
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-14-copy-on-write-session",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 13023,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 317,
+            "estimated_cost_usd": null,
+            "is_estimated": true,
+            "prompt_tokens": 921,
+            "total_tokens": 1238
+          },
+          "true_positives": 0
+        }
+      ],
+      "stopped_reason": "quota_daily_limit_reached (resets at 2026-11-09T00:00:00Z)"
+    }
+  ],
+  "benchmark_version": "1.0.0",
+  "campaign_id": "goal27-real-world-model-selection",
+  "checkpoint_cases": {
+    "off": [
+      {
+        "actual_findings": [
+          {
+            "category": "type_mismatch",
+            "confidence": "high",
+            "description": "The function previously returned a dictionary containing the decoded subject under the 'sub' key, but it now returns the input value unchanged. Callers that expect the result of decode() to be a mapping and access claims such as decode(token)['sub'] will fail with a TypeError for string tokens, or otherwise receive the wrong value.",
+            "evidence": "def decode(x): return x",
+            "file_path": "auth/token.py",
+            "id": "dcd-cf3a48154e90",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore the previous return shape, for example `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw return value.",
+            "title": "decode no longer returns the expected claims mapping"
+          }
+        ],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously returned a dictionary containing the decoded subject under the 'sub' key, but it now returns the input value unchanged. Callers that expect the result of decode() to be a mapping and access claims such as decode(token)['sub'] will fail with a TypeError for string tokens, or otherwise receive the wrong value.",
+              "end_line": 1,
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Restore the previous return shape, for example `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw return value.",
+              "title": "decode no longer returns the expected claims mapping"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "type_mismatch",
+              "expected_allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "expected_category": "type_mismatch",
+              "expected_file_path": "auth/token.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "auth/token.py",
+              "finding_id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "decode no longer returns the expected claims mapping"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously returned a dictionary containing the decoded subject under the 'sub' key, but it now returns the input value unchanged. Callers that expect the result of decode() to be a mapping and access claims such as decode(token)['sub'] will fail with a TypeError for string tokens, or otherwise receive the wrong value.",
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore the previous return shape, for example `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw return value.",
+              "title": "decode no longer returns the expected claims mapping"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 40611,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 40597,
+              "prompt_hash": "099429be817db96e4fee3c7a3728c0816ebb23263ae2c594a182f511d4830194",
+              "response_hash": "d8602f69b2ab6414caaac1cec5a32587e5479ce7057145c0844e18a5c12efbac",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 40574,
+              "usage": {
+                "completion_tokens": 957,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 894,
+                "total_tokens": 1851
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 957,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 894,
+          "total_tokens": 1851
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "A mutable default is shared between function invocations.",
+            "evidence": "def build(values={}): return values",
+            "file_path": "cache/session.py",
+            "id": "dcd-28e0cef2f90d",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+            "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+          }
+        ],
+        "case_id": "e2e-ctx-02-shared-session-state",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "The default argument `{}` is evaluated once when the function is defined, and the function returns that same dictionary. Consequently, every call to `build()` without an argument returns the same mutable object; if a caller modifies it, subsequent calls observe the modified state. The previous implementation also copied the supplied mapping, whereas this version returns the caller's object directly, allowing external mutations to alter the caller's data.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Use `def build(values=None): return dict(values or {})` (or explicitly return `{}` when `values is None`) so each call receives an independent dictionary.",
+              "title": "Mutable default dictionary is shared between calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "correctness",
+                "state_mutation"
+              ],
+              "expected_category": "state_mutation",
+              "expected_file_path": "cache/session.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "cache/session.py",
+              "finding_id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "cache/session.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "Mutable default dictionary is shared between calls"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 31781,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 31768,
+              "prompt_hash": "27bc7edfe10855dd66b71aad4ae466635ab939660281f451c9ab51dc6149ccce",
+              "response_hash": "080240c62ed1970c86a061425949493e8ad4c2cb4cd1589d463c3f26a023afe8",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 31745,
+              "usage": {
+                "completion_tokens": 607,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 898,
+                "total_tokens": 1505
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 607,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 898,
+          "total_tokens": 1505
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "The function opens the connection with conn.open() but now returns retry(query) without closing it. The removed try/finally previously guaranteed that conn.close() ran whether the retry succeeded or raised. As a result, every call leaks an open connection, potentially exhausting the connection pool and causing subsequent database operations to fail.",
+            "evidence": "return retry(query)",
+            "file_path": "db/retry.py",
+            "id": "dcd-61fbd8ee1ae2",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 3
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore the try/finally structure so conn.close() is always called, for example: `try:\n    return retry(query)\nfinally:\n    conn.close()`.",
+            "title": "Database connection is never closed"
+          }
+        ],
+        "case_id": "e2e-ctx-03-retry-leaks-resource",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "end_line": 3,
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            },
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The function opens the connection with conn.open() but now returns retry(query) without closing it. The removed try/finally previously guaranteed that conn.close() ran whether the retry succeeded or raised. As a result, every call leaks an open connection, potentially exhausting the connection pool and causing subsequent database operations to fail.",
+              "end_line": 3,
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "high",
+              "start_line": 3,
+              "suggested_remediation": "Restore the try/finally structure so conn.close() is always called, for example: `try:\n    return retry(query)\nfinally:\n    conn.close()`.",
+              "title": "Database connection is never closed"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "correctness",
+                "resource_management"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "db/retry.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "db/retry.py",
+              "finding_id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Database connection is never closed"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "resource_management",
+              "file_path": "db/retry.py",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The function opens the connection with conn.open() but now returns retry(query) without closing it. The removed try/finally previously guaranteed that conn.close() ran whether the retry succeeded or raised. As a result, every call leaks an open connection, potentially exhausting the connection pool and causing subsequent database operations to fail.",
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore the try/finally structure so conn.close() is always called, for example: `try:\n    return retry(query)\nfinally:\n    conn.close()`.",
+              "title": "Database connection is never closed"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 20715,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 20702,
+              "prompt_hash": "6af5440d29973344d3068f36ea504acbbc5cf41303275cb1e9fd39a6cb0d1a08",
+              "response_hash": "fae3b77e38f07ddc3f86b408548efc3df4b1b3625c6b975de376b6ac17d5bd48",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 20669,
+              "usage": {
+                "completion_tokens": 542,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 947,
+                "total_tokens": 1489
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 542,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 947,
+          "total_tokens": 1489
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "error_handling",
+            "confidence": "medium",
+            "description": "The change converts a propagated ValueError into a None return value. Previously the exception was explicitly re-raised, indicating that callers were expected to observe the failure. After this change, any caller that relies on emit() raising to detect an invalid event or callback result will instead continue execution with a None result, which can lead to unchecked None dereferences, incorrect state updates, or silently dropped events. The failure is also indistinguishable from a callback that legitimately returns None.",
+            "evidence": "except ValueError: return None",
+            "file_path": "events/dispatch.py",
+            "id": "dcd-679176047b81",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore `except ValueError: raise` to preserve the original error-propagation contract, or, if None is intentionally a sentinel for failure, update every caller to check for it explicitly and ensure the callback's normal return type cannot legitimately be None.",
+            "title": "ValueError is silently swallowed and replaced with None"
+          }
+        ],
+        "case_id": "e2e-ctx-04-callback-exception-swallowed",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "error_handling",
+              "confidence": "medium",
+              "description": "The change converts a propagated ValueError into a None return value. Previously the exception was explicitly re-raised, indicating that callers were expected to observe the failure. After this change, any caller that relies on emit() raising to detect an invalid event or callback result will instead continue execution with a None result, which can lead to unchecked None dereferences, incorrect state updates, or silently dropped events. The failure is also indistinguishable from a callback that legitimately returns None.",
+              "end_line": 4,
+              "evidence": "except ValueError: return None",
+              "file_path": "events/dispatch.py",
+              "severity": "medium",
+              "start_line": 4,
+              "suggested_remediation": "Restore `except ValueError: raise` to preserve the original error-propagation contract, or, if None is intentionally a sentinel for failure, update every caller to check for it explicitly and ensure the callback's normal return type cannot legitimately be None.",
+              "title": "ValueError is silently swallowed and replaced with None"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "error_handling",
+              "expected_allowed_categories": [
+                "error_handling",
+                "logic_error"
+              ],
+              "expected_category": "error_handling",
+              "expected_file_path": "events/dispatch.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "events/dispatch.py",
+              "finding_id": "dcd-679176047b81",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "ValueError is silently swallowed and replaced with None"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "error_handling",
+              "confidence": "medium",
+              "description": "The change converts a propagated ValueError into a None return value. Previously the exception was explicitly re-raised, indicating that callers were expected to observe the failure. After this change, any caller that relies on emit() raising to detect an invalid event or callback result will instead continue execution with a None result, which can lead to unchecked None dereferences, incorrect state updates, or silently dropped events. The failure is also indistinguishable from a callback that legitimately returns None.",
+              "evidence": "except ValueError: return None",
+              "file_path": "events/dispatch.py",
+              "id": "dcd-679176047b81",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore `except ValueError: raise` to preserve the original error-propagation contract, or, if None is intentionally a sentinel for failure, update every caller to check for it explicitly and ensure the callback's normal return type cannot legitimately be None.",
+              "title": "ValueError is silently swallowed and replaced with None"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 26322,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 26309,
+              "prompt_hash": "e6dbe42823d91b2470a093f363cda2ea92cc6aaf9958d331dcd1cf54137ecb8d",
+              "response_hash": "e0e321c040269533a941ee8873b27a311289e625cead1cbca5cb13fbeffa78ca",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 26288,
+              "usage": {
+                "completion_tokens": 575,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 947,
+                "total_tokens": 1522
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 575,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 947,
+          "total_tokens": 1522
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "type_mismatch",
+            "confidence": "high",
+            "description": "The override unconditionally returns None, changing the method's result from the resolved identifier mapping to a null value. Callers that consume the returned mapping will fail when indexing or accessing it, and every resolution through this plugin will produce no result.",
+            "evidence": "def resolve(self, x): return None",
+            "file_path": "plugins/custom.py",
+            "id": "dcd-5cc62f4c8cef",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore the previous result, for example `return {'id': x}`, or return None only when resolution genuinely fails and ensure all callers handle that case.",
+            "title": "resolve() now always returns None instead of a resolved result"
+          }
+        ],
+        "case_id": "e2e-ctx-05-null-plugin-result",
+        "category_mismatch_detections": 1,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The override unconditionally returns None, changing the method's result from the resolved identifier mapping to a null value. Callers that consume the returned mapping will fail when indexing or accessing it, and every resolution through this plugin will produce no result.",
+              "end_line": 4,
+              "evidence": "def resolve(self, x): return None",
+              "file_path": "plugins/custom.py",
+              "severity": "medium",
+              "start_line": 4,
+              "suggested_remediation": "Restore the previous result, for example `return {'id': x}`, or return None only when resolution genuinely fails and ensure all callers handle that case.",
+              "title": "resolve() now always returns None instead of a resolved result"
+            }
+          ],
+          "category_mismatches": [
+            {
+              "category": "type_mismatch",
+              "expected_allowed_categories": [
+                "null_handling",
+                "correctness"
+              ],
+              "expected_category": "null_handling",
+              "expected_file_path": "plugins/custom.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "plugins/custom.py",
+              "finding_id": "dcd-5cc62f4c8cef",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "title": "resolve() now always returns None instead of a resolved result"
+            }
+          ],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "null_handling",
+                "correctness"
+              ],
+              "category": "null_handling",
+              "file_path": "plugins/custom.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No validated finding matched this defect. Checked: finding 'dcd-5cc62f4c8cef' (category 'type_mismatch' not in ['correctness', 'null_handling']).",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [
+            {
+              "category": "type_mismatch",
+              "file_path": "plugins/custom.py",
+              "finding_id": "dcd-5cc62f4c8cef",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "Against expected defect #1 (plugins/custom.py:4-4): category mismatch ('type_mismatch' not in ['correctness', 'null_handling'])",
+              "reasons": [
+                "Against expected defect #1 (plugins/custom.py:4-4): category mismatch ('type_mismatch' not in ['correctness', 'null_handling'])"
+              ],
+              "severity": "medium",
+              "title": "resolve() now always returns None instead of a resolved result"
+            }
+          ],
+          "validated_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The override unconditionally returns None, changing the method's result from the resolved identifier mapping to a null value. Callers that consume the returned mapping will fail when indexing or accessing it, and every resolution through this plugin will produce no result.",
+              "evidence": "def resolve(self, x): return None",
+              "file_path": "plugins/custom.py",
+              "id": "dcd-5cc62f4c8cef",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore the previous result, for example `return {'id': x}`, or return None only when resolution genuinely fails and ensure all callers handle that case.",
+              "title": "resolve() now always returns None instead of a resolved result"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 1,
+        "http_status": null,
+        "latency_ms": 55445,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 55430,
+              "prompt_hash": "c00a9ec3ba3bd5312baa2eb9df62a1b89c96c4110536de3a869331d51943a203",
+              "response_hash": "8ced0f0e3b8a71623f0a5fc03db31c0a7ef485b7f9339a40632c3a5e595ecc47",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 55389,
+              "usage": {
+                "completion_tokens": 1012,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 953,
+                "total_tokens": 1965
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 1012,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 953,
+          "total_tokens": 1965
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "boundary_condition",
+            "confidence": "high",
+            "description": "Changing the loop condition to `start <= len(items)` allows the loop to execute when `start` equals the number of items. This invokes the callback with an empty slice after all items have been processed, and also invokes it once for an initially empty collection. Consumers may therefore receive a spurious empty page.",
+            "evidence": "while start <= len(items):",
+            "file_path": "paging/core.py",
+            "id": "dcd-738619150bc7",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 3
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly avoid invoking the callback when the remaining slice is empty.",
+            "title": "Pagination emits an extra empty page"
+          }
+        ],
+        "case_id": "e2e-ctx-06-page-boundary-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "boundary_condition",
+              "confidence": "high",
+              "description": "Changing the loop condition to `start <= len(items)` allows the loop to execute when `start` equals the number of items. This invokes the callback with an empty slice after all items have been processed, and also invokes it once for an initially empty collection. Consumers may therefore receive a spurious empty page.",
+              "end_line": 3,
+              "evidence": "while start <= len(items):",
+              "file_path": "paging/core.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly avoid invoking the callback when the remaining slice is empty.",
+              "title": "Pagination emits an extra empty page"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "boundary_condition",
+              "expected_allowed_categories": [
+                "boundary_condition",
+                "correctness"
+              ],
+              "expected_category": "boundary_condition",
+              "expected_file_path": "paging/core.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "paging/core.py",
+              "finding_id": "dcd-738619150bc7",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "severity": "medium",
+              "severity_match": true,
+              "title": "Pagination emits an extra empty page"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "boundary_condition",
+              "confidence": "high",
+              "description": "Changing the loop condition to `start <= len(items)` allows the loop to execute when `start` equals the number of items. This invokes the callback with an empty slice after all items have been processed, and also invokes it once for an initially empty collection. Consumers may therefore receive a spurious empty page.",
+              "evidence": "while start <= len(items):",
+              "file_path": "paging/core.py",
+              "id": "dcd-738619150bc7",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly avoid invoking the callback when the remaining slice is empty.",
+              "title": "Pagination emits an extra empty page"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 38642,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 38628,
+              "prompt_hash": "1fc89d7935dde6eba359b94891108690bb0fb216239eed06dc94048880edc245",
+              "response_hash": "1e35987e88f1b3199108ca5d734fb31f039142274f8bdc935ea19841b66602cb",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 38596,
+              "usage": {
+                "completion_tokens": 471,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 972,
+                "total_tokens": 1443
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 471,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 972,
+          "total_tokens": 1443
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "A mutable default is shared between function invocations.",
+            "evidence": "def worker(pending=[], barrier=None):",
+            "file_path": "asyncq/worker.py",
+            "id": "dcd-259c4dbe7399",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+            "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+          }
+        ],
+        "case_id": "e2e-ctx-07-async-shared-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "The default value for `pending` is a single list object created when the function is defined. Every call that omits `pending` appends to and returns that same list, so repeated calls accumulate stale `'ready'` entries and can leak state between otherwise independent invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Use `pending=None` and initialize a fresh list inside the function: `pending = [] if pending is None else pending`.",
+              "title": "Mutable default argument causes shared state across worker calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "correctness",
+                "concurrency",
+                "state_mutation"
+              ],
+              "expected_category": "concurrency",
+              "expected_file_path": "asyncq/worker.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "asyncq/worker.py",
+              "finding_id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "asyncq/worker.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "Mutable default argument causes shared state across worker calls"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 13289,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 13274,
+              "prompt_hash": "28e6d2a69002b3feb5356440c1a426c22840cc6fc7c2e9ee567463b451093bac",
+              "response_hash": "f9db3adde72681b6e73682630920af6540da75901c30ebadea952a3336c01c58",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 13242,
+              "usage": {
+                "completion_tokens": 323,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 985,
+                "total_tokens": 1308
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 323,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 985,
+          "total_tokens": 1308
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "logic_error",
+            "confidence": "high",
+            "description": "The override no longer delegates to BasePolicy.authorize and instead returns True for any input, including unauthorized users or None. Callers relying on InternalPolicy to enforce the base authorization checks will grant access to principals that should be rejected.",
+            "evidence": "def authorize(self, user): return True",
+            "file_path": "auth/internal.py",
+            "id": "dcd-b090ef22dc0b",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore `return super().authorize(user)`, or explicitly validate the user against the required internal-policy conditions before returning True.",
+            "title": "InternalPolicy unconditionally authorizes every user"
+          }
+        ],
+        "case_id": "e2e-ctx-08-override-skips-validation",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The override no longer delegates to BasePolicy.authorize and instead returns True for any input, including unauthorized users or None. Callers relying on InternalPolicy to enforce the base authorization checks will grant access to principals that should be rejected.",
+              "end_line": 4,
+              "evidence": "def authorize(self, user): return True",
+              "file_path": "auth/internal.py",
+              "severity": "high",
+              "start_line": 4,
+              "suggested_remediation": "Restore `return super().authorize(user)`, or explicitly validate the user against the required internal-policy conditions before returning True.",
+              "title": "InternalPolicy unconditionally authorizes every user"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "logic_error",
+              "expected_allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "expected_category": "logic_error",
+              "expected_file_path": "auth/internal.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "auth/internal.py",
+              "finding_id": "dcd-b090ef22dc0b",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "InternalPolicy unconditionally authorizes every user"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The override no longer delegates to BasePolicy.authorize and instead returns True for any input, including unauthorized users or None. Callers relying on InternalPolicy to enforce the base authorization checks will grant access to principals that should be rejected.",
+              "evidence": "def authorize(self, user): return True",
+              "file_path": "auth/internal.py",
+              "id": "dcd-b090ef22dc0b",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore `return super().authorize(user)`, or explicitly validate the user against the required internal-policy conditions before returning True.",
+              "title": "InternalPolicy unconditionally authorizes every user"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 29266,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 29252,
+              "prompt_hash": "537566e4fbc424df3f63f2bb25bd38b752d312479214ddcb0633bd0878fff6e1",
+              "response_hash": "053969d9922f9d2281dddfda2187ab353d69a2aa607fc369c816b53d9b2ab468",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 29219,
+              "usage": {
+                "completion_tokens": 809,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 953,
+                "total_tokens": 1762
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 809,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 953,
+          "total_tokens": 1762
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-09-indirect-serializer-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "type_mismatch",
+                "correctness"
+              ],
+              "category": "type_mismatch",
+              "file_path": "adapters/id.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 9423,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 9411,
+              "prompt_hash": "662ae6f70ce1d027b16ac2c9a3721d1ccd0cd955608ef80124b6c1a2ea803b66",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 9387,
+              "usage": {
+                "completion_tokens": 268,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 895,
+                "total_tokens": 1163
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 268,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 895,
+          "total_tokens": 1163
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "The constructor registers `self.callback`, which is the bound method `self.on_event`. `close()` instead passes a newly created lambda to `bus.off()`. This is a different callback object from the one registered, so the listener is not removed. The controller continues receiving events after being closed, causing leaked subscriptions and potentially continued mutation of `self.events`.",
+            "evidence": "self.bus.off(lambda event: self.on_event(event))",
+            "file_path": "ui/controller.py",
+            "id": "dcd-8e5962856e3d",
+            "line_range": {
+              "end_line": 8,
+              "start_line": 8
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Unsubscribe the exact callback that was registered, for example: `self.bus.off(self.callback)`.",
+            "title": "close() does not remove the registered event listener"
+          }
+        ],
+        "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The constructor registers `self.callback`, which is the bound method `self.on_event`. `close()` instead passes a newly created lambda to `bus.off()`. This is a different callback object from the one registered, so the listener is not removed. The controller continues receiving events after being closed, causing leaked subscriptions and potentially continued mutation of `self.events`.",
+              "end_line": 8,
+              "evidence": "self.bus.off(lambda event: self.on_event(event))",
+              "file_path": "ui/controller.py",
+              "severity": "medium",
+              "start_line": 8,
+              "suggested_remediation": "Unsubscribe the exact callback that was registered, for example: `self.bus.off(self.callback)`.",
+              "title": "close() does not remove the registered event listener"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "logic_error"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "ui/controller.py",
+              "expected_line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "file_path": "ui/controller.py",
+              "finding_id": "dcd-8e5962856e3d",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "severity": "medium",
+              "severity_match": true,
+              "title": "close() does not remove the registered event listener"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The constructor registers `self.callback`, which is the bound method `self.on_event`. `close()` instead passes a newly created lambda to `bus.off()`. This is a different callback object from the one registered, so the listener is not removed. The controller continues receiving events after being closed, causing leaked subscriptions and potentially continued mutation of `self.events`.",
+              "evidence": "self.bus.off(lambda event: self.on_event(event))",
+              "file_path": "ui/controller.py",
+              "id": "dcd-8e5962856e3d",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Unsubscribe the exact callback that was registered, for example: `self.bus.off(self.callback)`.",
+              "title": "close() does not remove the registered event listener"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 15952,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 15938,
+              "prompt_hash": "5f8ad56b1d4438ee4064a7dd532d929aeca4ddd2f0e74a3008537ae50e25113f",
+              "response_hash": "089d72755aa33a731fa63a845b65b855a6acb6f011abfc4ec5d3b2c12c510220",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 15903,
+              "usage": {
+                "completion_tokens": 466,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1013,
+                "total_tokens": 1479
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 466,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 1013,
+          "total_tokens": 1479
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "logic_error",
+            "confidence": "high",
+            "description": "The new condition returns True whenever role is None, including when allowed() is called without an argument. In an authorization helper, this can grant access to requests or principals whose role was not supplied instead of rejecting them, creating an authorization bypass.",
+            "evidence": "def allowed(role=None): return role is None or role == 'admin'",
+            "file_path": "auth/roles.py",
+            "id": "dcd-142d23f6697b",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Require an explicit authorized role, for example `def allowed(role=None): return role == 'admin'`, or explicitly reject a missing role before evaluating permissions.",
+            "title": "Missing role is now treated as authorized"
+          }
+        ],
+        "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The new condition returns True whenever role is None, including when allowed() is called without an argument. In an authorization helper, this can grant access to requests or principals whose role was not supplied instead of rejecting them, creating an authorization bypass.",
+              "end_line": 1,
+              "evidence": "def allowed(role=None): return role is None or role == 'admin'",
+              "file_path": "auth/roles.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Require an explicit authorized role, for example `def allowed(role=None): return role == 'admin'`, or explicitly reject a missing role before evaluating permissions.",
+              "title": "Missing role is now treated as authorized"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "logic_error",
+              "expected_allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "expected_category": "logic_error",
+              "expected_file_path": "auth/roles.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "auth/roles.py",
+              "finding_id": "dcd-142d23f6697b",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Missing role is now treated as authorized"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The new condition returns True whenever role is None, including when allowed() is called without an argument. In an authorization helper, this can grant access to requests or principals whose role was not supplied instead of rejecting them, creating an authorization bypass.",
+              "evidence": "def allowed(role=None): return role is None or role == 'admin'",
+              "file_path": "auth/roles.py",
+              "id": "dcd-142d23f6697b",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Require an explicit authorized role, for example `def allowed(role=None): return role == 'admin'`, or explicitly reject a missing role before evaluating permissions.",
+              "title": "Missing role is now treated as authorized"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 23572,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 23554,
+              "prompt_hash": "733b0f3561780c5db70e81c0091fe1ff0a73ad57b32a9308695352a02fe20057",
+              "response_hash": "10f83662e025c07e59d956401c63e5a3b1ded6334c51eb2ffb12c2b900a54496",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 23520,
+              "usage": {
+                "completion_tokens": 619,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 913,
+                "total_tokens": 1532
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 619,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 913,
+          "total_tokens": 1532
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "The previous implementation used a finally block to close the source after reading it. The new implementation yields source.read() without closing the source, so callers that rely on chunks() to release file handles or other resources will leak them after iteration.",
+            "evidence": "yield source.read()",
+            "file_path": "streams/stream.py",
+            "id": "dcd-ba3390af265f",
+            "line_range": {
+              "end_line": 2,
+              "start_line": 2
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore cleanup with try/finally, for example: try:\n        yield source.read()\n    finally:\n        source.close()",
+            "title": "chunks no longer closes the source"
+          }
+        ],
+        "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The previous implementation used a finally block to close the source after reading it. The new implementation yields source.read() without closing the source, so callers that rely on chunks() to release file handles or other resources will leak them after iteration.",
+              "end_line": 2,
+              "evidence": "yield source.read()",
+              "file_path": "streams/stream.py",
+              "severity": "medium",
+              "start_line": 2,
+              "suggested_remediation": "Restore cleanup with try/finally, for example: try:\n        yield source.read()\n    finally:\n        source.close()",
+              "title": "chunks no longer closes the source"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "streams/stream.py",
+              "expected_line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "file_path": "streams/stream.py",
+              "finding_id": "dcd-ba3390af265f",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "chunks no longer closes the source"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The previous implementation used a finally block to close the source after reading it. The new implementation yields source.read() without closing the source, so callers that rely on chunks() to release file handles or other resources will leak them after iteration.",
+              "evidence": "yield source.read()",
+              "file_path": "streams/stream.py",
+              "id": "dcd-ba3390af265f",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore cleanup with try/finally, for example: try:\n        yield source.read()\n    finally:\n        source.close()",
+              "title": "chunks no longer closes the source"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 10370,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 10358,
+              "prompt_hash": "5b417657a753eb7ebcc0e0dc5ffcb29f59fd2d6f3aa1a22735fdfd8dd16f225d",
+              "response_hash": "669b6a910820b4cabe06b952cf72584421076e8ff588cb6672a55312ba29c41d",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 10327,
+              "usage": {
+                "completion_tokens": 364,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 925,
+                "total_tokens": 1289
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 364,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 925,
+          "total_tokens": 1289
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_unrelated",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 14163,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 14151,
+              "prompt_hash": "9452ff678c3d7a7a849f69a771c169e9d167766fd800f0b44aec6d89e2725eaa",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 14120,
+              "usage": {
+                "completion_tokens": 363,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 921,
+                "total_tokens": 1284
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 363,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 921,
+          "total_tokens": 1284
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-14-copy-on-write-session",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 8509,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 8495,
+              "prompt_hash": "2da766589f8f96330b80bb4d39947064854db2c2b7f611eb4774b5cb1b544101",
+              "response_hash": "6e96a492bc9fa40d22212c5be0396a203f3dbd4916cf97ebe2f66b6d54fa4a9a",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 8473,
+              "usage": {
+                "completion_tokens": 239,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 921,
+                "total_tokens": 1160
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 239,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 921,
+          "total_tokens": 1160
+        }
+      }
+    ],
+    "on": [
+      {
+        "actual_findings": [
+          {
+            "category": "type_mismatch",
+            "confidence": "medium",
+            "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but now returns the raw input value. Any callers that consume the decoded token as a claims mapping and access `decoded['sub']` will instead receive the original value, causing incorrect authentication behavior or a KeyError/TypeError depending on the input type.",
+            "evidence": "def decode(x): return x",
+            "file_path": "auth/token.py",
+            "id": "dcd-cf3a48154e90",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw value consistently.",
+            "title": "decode() no longer returns the expected claims mapping"
+          }
+        ],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "medium",
+              "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but now returns the raw input value. Any callers that consume the decoded token as a claims mapping and access `decoded['sub']` will instead receive the original value, causing incorrect authentication behavior or a KeyError/TypeError depending on the input type.",
+              "end_line": 1,
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw value consistently.",
+              "title": "decode() no longer returns the expected claims mapping"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "type_mismatch",
+              "expected_allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "expected_category": "type_mismatch",
+              "expected_file_path": "auth/token.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "auth/token.py",
+              "finding_id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "decode() no longer returns the expected claims mapping"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "medium",
+              "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but now returns the raw input value. Any callers that consume the decoded token as a claims mapping and access `decoded['sub']` will instead receive the original value, causing incorrect authentication behavior or a KeyError/TypeError depending on the input type.",
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller and the function's documented contract to handle the raw value consistently.",
+              "title": "decode() no longer returns the expected claims mapping"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 33163,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 33151,
+              "prompt_hash": "099429be817db96e4fee3c7a3728c0816ebb23263ae2c594a182f511d4830194",
+              "response_hash": "1f78e19dd9d2d65c95e5dc615104f554a403e4d53651612578def9de53dc33e9",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 33128,
+              "usage": {
+                "completion_tokens": 722,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 894,
+                "total_tokens": 1616
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 722,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 894,
+          "total_tokens": 1616
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "A mutable default is shared between function invocations.",
+            "evidence": "def build(values={}): return values",
+            "file_path": "cache/session.py",
+            "id": "dcd-28e0cef2f90d",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+            "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+          }
+        ],
+        "case_id": "e2e-ctx-02-shared-session-state",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "The default `{}` is created once when the function is defined, and `build()` returns that same dictionary. Any caller that mutates the result will affect all later calls that omit the argument, causing state to leak between sessions or requests. The function also now returns explicitly supplied dictionaries without copying them, so callers can unexpectedly mutate the caller's input.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Use `def build(values=None): return dict(values or {})` so each call returns an independent dictionary and the default is not shared.",
+              "title": "Mutable default dictionary is shared and returned by reference"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "correctness",
+                "state_mutation"
+              ],
+              "expected_category": "state_mutation",
+              "expected_file_path": "cache/session.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "cache/session.py",
+              "finding_id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "cache/session.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "Mutable default dictionary is shared and returned by reference"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 38003,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 37990,
+              "prompt_hash": "319bc510f3654e44c89d28a7c0b5f605002ad19e1e28855df05d8ff052edb187",
+              "response_hash": "dbd8803cd6b9c83a4e1919b4503c56b95c3eee02dd968c9e81f7ddb0ea17fad6",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 37966,
+              "usage": {
+                "completion_tokens": 706,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1103,
+                "total_tokens": 1809
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 124,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 706,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 1103,
+          "total_tokens": 1809
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "run() opens the connection but no longer closes it after retry(query) returns or raises an exception. The removed try/finally guaranteed cleanup on every exit path; without it, each invocation can leave the connection open, causing connection exhaustion or resource leaks.",
+            "evidence": "conn.open()\n    return retry(query)",
+            "file_path": "db/retry.py",
+            "id": "dcd-f0cd53a58215",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 2
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore cleanup with a try/finally block, for example: `conn.open()\\ntry:\\n    return retry(query)\\nfinally:\\n    conn.close()`.",
+            "title": "Database connection is never closed"
+          }
+        ],
+        "case_id": "e2e-ctx-03-retry-leaks-resource",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "end_line": 3,
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            },
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "run() opens the connection but no longer closes it after retry(query) returns or raises an exception. The removed try/finally guaranteed cleanup on every exit path; without it, each invocation can leave the connection open, causing connection exhaustion or resource leaks.",
+              "end_line": 3,
+              "evidence": "conn.open()\n    return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "medium",
+              "start_line": 2,
+              "suggested_remediation": "Restore cleanup with a try/finally block, for example: `conn.open()\\ntry:\\n    return retry(query)\\nfinally:\\n    conn.close()`.",
+              "title": "Database connection is never closed"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "correctness",
+                "resource_management"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "db/retry.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "db/retry.py",
+              "finding_id": "dcd-f0cd53a58215",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 2
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "Database connection is never closed"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "resource_management",
+              "file_path": "db/retry.py",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "run() opens the connection but no longer closes it after retry(query) returns or raises an exception. The removed try/finally guaranteed cleanup on every exit path; without it, each invocation can leave the connection open, causing connection exhaustion or resource leaks.",
+              "evidence": "conn.open()\n    return retry(query)",
+              "file_path": "db/retry.py",
+              "id": "dcd-f0cd53a58215",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 2
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore cleanup with a try/finally block, for example: `conn.open()\\ntry:\\n    return retry(query)\\nfinally:\\n    conn.close()`.",
+              "title": "Database connection is never closed"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 22762,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 22747,
+              "prompt_hash": "729b445e79279bf1a8e2375e34a1542907cc085c0b9c4eb480790de3ca9594a4",
+              "response_hash": "c64dfcd553f86f84e5e9fdd0c17032feb4fd2cecbe7f5d35a0001e2dc3ff6b09",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 22714,
+              "usage": {
+                "completion_tokens": 668,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1298,
+                "total_tokens": 1966
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 2,
+            "diagnostics": [],
+            "estimated_tokens": 258,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 668,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 1298,
+          "total_tokens": 1966
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "error_handling",
+            "confidence": "high",
+            "description": "The previous implementation re-raised ValueError raised by the callback, allowing callers to detect a failed dispatch. The new implementation catches that exception and returns None, so callers such as api/submit.py:submit cannot distinguish a callback failure from a callback that legitimately returned None. This can cause failed or invalid event dispatches to be treated as successful while hiding the underlying error.",
+            "evidence": "except ValueError: return None",
+            "file_path": "events/dispatch.py",
+            "id": "dcd-679176047b81",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore `except ValueError: raise`, or handle the failure explicitly at the call site with a result that distinguishes an error from a legitimate None return.",
+            "title": "Callback ValueError is silently converted to a None result"
+          }
+        ],
+        "case_id": "e2e-ctx-04-callback-exception-swallowed",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "error_handling",
+              "confidence": "high",
+              "description": "The previous implementation re-raised ValueError raised by the callback, allowing callers to detect a failed dispatch. The new implementation catches that exception and returns None, so callers such as api/submit.py:submit cannot distinguish a callback failure from a callback that legitimately returned None. This can cause failed or invalid event dispatches to be treated as successful while hiding the underlying error.",
+              "end_line": 4,
+              "evidence": "except ValueError: return None",
+              "file_path": "events/dispatch.py",
+              "severity": "medium",
+              "start_line": 4,
+              "suggested_remediation": "Restore `except ValueError: raise`, or handle the failure explicitly at the call site with a result that distinguishes an error from a legitimate None return.",
+              "title": "Callback ValueError is silently converted to a None result"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "error_handling",
+              "expected_allowed_categories": [
+                "error_handling",
+                "logic_error"
+              ],
+              "expected_category": "error_handling",
+              "expected_file_path": "events/dispatch.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "events/dispatch.py",
+              "finding_id": "dcd-679176047b81",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "Callback ValueError is silently converted to a None result"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "error_handling",
+              "confidence": "high",
+              "description": "The previous implementation re-raised ValueError raised by the callback, allowing callers to detect a failed dispatch. The new implementation catches that exception and returns None, so callers such as api/submit.py:submit cannot distinguish a callback failure from a callback that legitimately returned None. This can cause failed or invalid event dispatches to be treated as successful while hiding the underlying error.",
+              "evidence": "except ValueError: return None",
+              "file_path": "events/dispatch.py",
+              "id": "dcd-679176047b81",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore `except ValueError: raise`, or handle the failure explicitly at the call site with a result that distinguishes an error from a legitimate None return.",
+              "title": "Callback ValueError is silently converted to a None result"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 111880,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 111862,
+              "prompt_hash": "319630601a77bf805584d0c7be9add3e08724b6dea2a6b2315520512b0d38afb",
+              "response_hash": "d713439f6f03739ef95ba5ba4034adb77c1790302ddf23a8e9d5c5a653f1c93a",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 111836,
+              "usage": {
+                "completion_tokens": 1308,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1165,
+                "total_tokens": 2473
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 135,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 1308,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 1165,
+          "total_tokens": 2473
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "null_handling",
+            "confidence": "medium",
+            "description": "The changed implementation unconditionally returns None, whereas the previous implementation always returned a dictionary containing the resolved id. Callers that consume the result of resolve, such as code indexing it for 'id' or accessing attributes on it, will now receive None and may fail with TypeError or AttributeError. Unless the base plugin contract explicitly permits None and all callers handle it, this changes the method's established return behavior and breaks plugin resolution.",
+            "evidence": "def resolve(self, x): return None",
+            "file_path": "plugins/custom.py",
+            "id": "dcd-53b278f34e99",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore the previous mapping return, or update the base contract and every caller to explicitly handle None before dereferencing the result.",
+            "title": "CustomPlugin.resolve now returns None instead of a result mapping"
+          }
+        ],
+        "case_id": "e2e-ctx-05-null-plugin-result",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "null_handling",
+              "confidence": "medium",
+              "description": "The changed implementation unconditionally returns None, whereas the previous implementation always returned a dictionary containing the resolved id. Callers that consume the result of resolve, such as code indexing it for 'id' or accessing attributes on it, will now receive None and may fail with TypeError or AttributeError. Unless the base plugin contract explicitly permits None and all callers handle it, this changes the method's established return behavior and breaks plugin resolution.",
+              "end_line": 4,
+              "evidence": "def resolve(self, x): return None",
+              "file_path": "plugins/custom.py",
+              "severity": "high",
+              "start_line": 4,
+              "suggested_remediation": "Restore the previous mapping return, or update the base contract and every caller to explicitly handle None before dereferencing the result.",
+              "title": "CustomPlugin.resolve now returns None instead of a result mapping"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "null_handling",
+              "expected_allowed_categories": [
+                "null_handling",
+                "correctness"
+              ],
+              "expected_category": "null_handling",
+              "expected_file_path": "plugins/custom.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "plugins/custom.py",
+              "finding_id": "dcd-53b278f34e99",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "CustomPlugin.resolve now returns None instead of a result mapping"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "null_handling",
+              "confidence": "medium",
+              "description": "The changed implementation unconditionally returns None, whereas the previous implementation always returned a dictionary containing the resolved id. Callers that consume the result of resolve, such as code indexing it for 'id' or accessing attributes on it, will now receive None and may fail with TypeError or AttributeError. Unless the base plugin contract explicitly permits None and all callers handle it, this changes the method's established return behavior and breaks plugin resolution.",
+              "evidence": "def resolve(self, x): return None",
+              "file_path": "plugins/custom.py",
+              "id": "dcd-53b278f34e99",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore the previous mapping return, or update the base contract and every caller to explicitly handle None before dereferencing the result.",
+              "title": "CustomPlugin.resolve now returns None instead of a result mapping"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 97463,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 97449,
+              "prompt_hash": "6bcc569e9d2f5c72e8fcc02974898ac4364ddf3e4eaca78d47f2d0d139f0b682",
+              "response_hash": "35e10add01d206af35aa89b873c8a4edaa9f22f166a1bb93a10645dc6e89236e",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 97420,
+              "usage": {
+                "completion_tokens": 1358,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1152,
+                "total_tokens": 2510
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 125,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 1358,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 1152,
+          "total_tokens": 2510
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "boundary_condition",
+            "confidence": "high",
+            "description": "The loop condition now allows start to equal len(items), so the callback is invoked with an empty slice when the input is empty or its length is an exact multiple of size. For example, with three items and size three, the callback receives the three-item page and then an additional empty page. Consumers may process an unintended empty page or report an incorrect page count.",
+            "evidence": "while start <= len(items):",
+            "file_path": "paging/core.py",
+            "id": "dcd-738619150bc7",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 3
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly skip invoking the callback when the slice is empty.",
+            "title": "Pagination emits an extra empty page"
+          }
+        ],
+        "case_id": "e2e-ctx-06-page-boundary-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "boundary_condition",
+              "confidence": "high",
+              "description": "The loop condition now allows start to equal len(items), so the callback is invoked with an empty slice when the input is empty or its length is an exact multiple of size. For example, with three items and size three, the callback receives the three-item page and then an additional empty page. Consumers may process an unintended empty page or report an incorrect page count.",
+              "end_line": 3,
+              "evidence": "while start <= len(items):",
+              "file_path": "paging/core.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly skip invoking the callback when the slice is empty.",
+              "title": "Pagination emits an extra empty page"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "boundary_condition",
+              "expected_allowed_categories": [
+                "boundary_condition",
+                "correctness"
+              ],
+              "expected_category": "boundary_condition",
+              "expected_file_path": "paging/core.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "paging/core.py",
+              "finding_id": "dcd-738619150bc7",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "severity": "medium",
+              "severity_match": true,
+              "title": "Pagination emits an extra empty page"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "boundary_condition",
+              "confidence": "high",
+              "description": "The loop condition now allows start to equal len(items), so the callback is invoked with an empty slice when the input is empty or its length is an exact multiple of size. For example, with three items and size three, the callback receives the three-item page and then an additional empty page. Consumers may process an unintended empty page or report an incorrect page count.",
+              "evidence": "while start <= len(items):",
+              "file_path": "paging/core.py",
+              "id": "dcd-738619150bc7",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore the condition to `while start < len(items):`, or explicitly skip invoking the callback when the slice is empty.",
+              "title": "Pagination emits an extra empty page"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 73487,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 73472,
+              "prompt_hash": "1fc89d7935dde6eba359b94891108690bb0fb216239eed06dc94048880edc245",
+              "response_hash": "efe0627fa51ec9e7f83c09830e871d073f0dd25eaa4094a4d8af04128839a830",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 73439,
+              "usage": {
+                "completion_tokens": 1219,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 972,
+                "total_tokens": 2191
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 1219,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 972,
+          "total_tokens": 2191
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "A mutable default is shared between function invocations.",
+            "evidence": "def worker(pending=[], barrier=None):",
+            "file_path": "asyncq/worker.py",
+            "id": "dcd-259c4dbe7399",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+            "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+          }
+        ],
+        "case_id": "e2e-ctx-07-async-shared-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "The default value for `pending` is evaluated once when the function is defined, so the same list is reused for every call that omits the argument. Because `worker` appends to this list in place, repeated calls such as `worker(barrier=barrier)` accumulate multiple `'ready'` entries and return the shared list, causing callers to observe stale state from previous invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Use `pending=None` and initialize a fresh list inside the function: `pending = [] if pending is None else pending`.",
+              "title": "Mutable default list causes state to persist across worker calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "correctness",
+                "concurrency",
+                "state_mutation"
+              ],
+              "expected_category": "concurrency",
+              "expected_file_path": "asyncq/worker.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "asyncq/worker.py",
+              "finding_id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "asyncq/worker.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "medium",
+              "title": "Mutable default list causes state to persist across worker calls"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 18306,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 18288,
+              "prompt_hash": "b5dd7d61440c9ef0e87c037782f48673350b241361f444744e3d04964a7f26eb",
+              "response_hash": "237a56912dc0214d2fe07b51387261d37baebcaa9a5724e89b5701df80909692",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 18253,
+              "usage": {
+                "completion_tokens": 394,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1193,
+                "total_tokens": 1587
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 128,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 394,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 1193,
+          "total_tokens": 1587
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "logic_error",
+            "confidence": "high",
+            "description": "The implementation was changed from delegating to BasePolicy.authorize(user) to unconditionally returning True. As a result, InternalPolicy bypasses the inherited authorization checks and permits every user, including users that the base policy would reject.",
+            "evidence": "def authorize(self, user): return True",
+            "file_path": "auth/internal.py",
+            "id": "dcd-b090ef22dc0b",
+            "line_range": {
+              "end_line": 4,
+              "start_line": 4
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore the base-policy delegation (`return super().authorize(user)`) or explicitly validate that the user is an authorized internal user before returning True.",
+            "title": "InternalPolicy now authorizes every user"
+          }
+        ],
+        "case_id": "e2e-ctx-08-override-skips-validation",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The implementation was changed from delegating to BasePolicy.authorize(user) to unconditionally returning True. As a result, InternalPolicy bypasses the inherited authorization checks and permits every user, including users that the base policy would reject.",
+              "end_line": 4,
+              "evidence": "def authorize(self, user): return True",
+              "file_path": "auth/internal.py",
+              "severity": "high",
+              "start_line": 4,
+              "suggested_remediation": "Restore the base-policy delegation (`return super().authorize(user)`) or explicitly validate that the user is an authorized internal user before returning True.",
+              "title": "InternalPolicy now authorizes every user"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "logic_error",
+              "expected_allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "expected_category": "logic_error",
+              "expected_file_path": "auth/internal.py",
+              "expected_line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "file_path": "auth/internal.py",
+              "finding_id": "dcd-b090ef22dc0b",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "InternalPolicy now authorizes every user"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "logic_error",
+              "confidence": "high",
+              "description": "The implementation was changed from delegating to BasePolicy.authorize(user) to unconditionally returning True. As a result, InternalPolicy bypasses the inherited authorization checks and permits every user, including users that the base policy would reject.",
+              "evidence": "def authorize(self, user): return True",
+              "file_path": "auth/internal.py",
+              "id": "dcd-b090ef22dc0b",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore the base-policy delegation (`return super().authorize(user)`) or explicitly validate that the user is an authorized internal user before returning True.",
+              "title": "InternalPolicy now authorizes every user"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 25964,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 25949,
+              "prompt_hash": "537566e4fbc424df3f63f2bb25bd38b752d312479214ddcb0633bd0878fff6e1",
+              "response_hash": "862cc1486de10f7aff1aebee85e43dd1d79ce3836bccda8e43833c3a292f47cc",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 25904,
+              "usage": {
+                "completion_tokens": 577,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 953,
+                "total_tokens": 1530
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 577,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 953,
+          "total_tokens": 1530
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-09-indirect-serializer-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "type_mismatch",
+                "correctness"
+              ],
+              "category": "type_mismatch",
+              "file_path": "adapters/id.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 9057,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 9044,
+              "prompt_hash": "662ae6f70ce1d027b16ac2c9a3721d1ccd0cd955608ef80124b6c1a2ea803b66",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 9021,
+              "usage": {
+                "completion_tokens": 202,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 895,
+                "total_tokens": 1097
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 202,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 895,
+          "total_tokens": 1097
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "The callback registered with the bus is self.callback, which was assigned to self.on_event in __init__. close() instead passes a newly created lambda to bus.off(). Since this lambda is a different object from the registered callback, the original listener is not removed. The controller remains subscribed after close, continues processing events, and may be retained by the bus.",
+            "evidence": "+        self.bus.off(lambda event: self.on_event(event))",
+            "file_path": "ui/controller.py",
+            "id": "dcd-5e600158d2c6",
+            "line_range": {
+              "end_line": 8,
+              "start_line": 8
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Remove the exact callback that was registered: `self.bus.off(self.callback)`.",
+            "title": "close() does not remove the registered event callback"
+          }
+        ],
+        "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The callback registered with the bus is self.callback, which was assigned to self.on_event in __init__. close() instead passes a newly created lambda to bus.off(). Since this lambda is a different object from the registered callback, the original listener is not removed. The controller remains subscribed after close, continues processing events, and may be retained by the bus.",
+              "end_line": 8,
+              "evidence": "+        self.bus.off(lambda event: self.on_event(event))",
+              "file_path": "ui/controller.py",
+              "severity": "medium",
+              "start_line": 8,
+              "suggested_remediation": "Remove the exact callback that was registered: `self.bus.off(self.callback)`.",
+              "title": "close() does not remove the registered event callback"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "logic_error"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "ui/controller.py",
+              "expected_line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "file_path": "ui/controller.py",
+              "finding_id": "dcd-5e600158d2c6",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "severity": "medium",
+              "severity_match": true,
+              "title": "close() does not remove the registered event callback"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The callback registered with the bus is self.callback, which was assigned to self.on_event in __init__. close() instead passes a newly created lambda to bus.off(). Since this lambda is a different object from the registered callback, the original listener is not removed. The controller remains subscribed after close, continues processing events, and may be retained by the bus.",
+              "evidence": "+        self.bus.off(lambda event: self.on_event(event))",
+              "file_path": "ui/controller.py",
+              "id": "dcd-5e600158d2c6",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Remove the exact callback that was registered: `self.bus.off(self.callback)`.",
+              "title": "close() does not remove the registered event callback"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 29963,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 29947,
+              "prompt_hash": "5f8ad56b1d4438ee4064a7dd532d929aeca4ddd2f0e74a3008537ae50e25113f",
+              "response_hash": "a2a7afb6a749c97c0c571ec5652d3abd934a3a51f8e92208b9964104e6f63d0f",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 29922,
+              "usage": {
+                "completion_tokens": 548,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1013,
+                "total_tokens": 1561
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 548,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 1013,
+          "total_tokens": 1561
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "category": "logic_error",
+              "file_path": "auth/roles.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 5702,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 5688,
+              "prompt_hash": "733b0f3561780c5db70e81c0091fe1ff0a73ad57b32a9308695352a02fe20057",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 5663,
+              "usage": {
+                "completion_tokens": 186,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 913,
+                "total_tokens": 1099
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 186,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 913,
+          "total_tokens": 1099
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "The previous try/finally guaranteed that `source.close()` ran when the generator completed, raised, or was closed. After this change, `chunks` only reads from the source and never releases it. Unless every caller independently closes the source, file handles, connections, or other resources can remain open, and an exception from `source.read()` also bypasses cleanup.",
+            "evidence": "def chunks(source):\n    yield source.read()",
+            "file_path": "streams/stream.py",
+            "id": "dcd-4f94af3c992a",
+            "line_range": {
+              "end_line": 2,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore cleanup around the read, for example:\n\ndef chunks(source):\n    try:\n        yield source.read()\n    finally:\n        source.close()",
+            "title": "Generator no longer closes the source resource"
+          }
+        ],
+        "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The previous try/finally guaranteed that `source.close()` ran when the generator completed, raised, or was closed. After this change, `chunks` only reads from the source and never releases it. Unless every caller independently closes the source, file handles, connections, or other resources can remain open, and an exception from `source.read()` also bypasses cleanup.",
+              "end_line": 2,
+              "evidence": "def chunks(source):\n    yield source.read()",
+              "file_path": "streams/stream.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Restore cleanup around the read, for example:\n\ndef chunks(source):\n    try:\n        yield source.read()\n    finally:\n        source.close()",
+              "title": "Generator no longer closes the source resource"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "streams/stream.py",
+              "expected_line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "file_path": "streams/stream.py",
+              "finding_id": "dcd-4f94af3c992a",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 1
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "Generator no longer closes the source resource"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "The previous try/finally guaranteed that `source.close()` ran when the generator completed, raised, or was closed. After this change, `chunks` only reads from the source and never releases it. Unless every caller independently closes the source, file handles, connections, or other resources can remain open, and an exception from `source.read()` also bypasses cleanup.",
+              "evidence": "def chunks(source):\n    yield source.read()",
+              "file_path": "streams/stream.py",
+              "id": "dcd-4f94af3c992a",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore cleanup around the read, for example:\n\ndef chunks(source):\n    try:\n        yield source.read()\n    finally:\n        source.close()",
+              "title": "Generator no longer closes the source resource"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 44313,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 44298,
+              "prompt_hash": "e6d596e42a90d538a4ae8116934eb9a2eec31ffe31707b3a34726704618d83b9",
+              "response_hash": "250ff5d57751a1483053171f3872dbd6a416aa5be53bfd9b2db73b13f10a242c",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 44266,
+              "usage": {
+                "completion_tokens": 508,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 1255,
+                "total_tokens": 1763
+              }
+            }
+          ],
+          "context": {
+            "behavioral_deltas": 2,
+            "diagnostics": [],
+            "estimated_tokens": 256,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 508,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 1255,
+          "total_tokens": 1763
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_unrelated",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 10908,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 10895,
+              "prompt_hash": "9452ff678c3d7a7a849f69a771c169e9d167766fd800f0b44aec6d89e2725eaa",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 10865,
+              "usage": {
+                "completion_tokens": 171,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 921,
+                "total_tokens": 1092
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 171,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 921,
+          "total_tokens": 1092
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-14-copy-on-write-session",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 13023,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 13009,
+              "prompt_hash": "2da766589f8f96330b80bb4d39947064854db2c2b7f611eb4774b5cb1b544101",
+              "response_hash": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 12982,
+              "usage": {
+                "completion_tokens": 317,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 921,
+                "total_tokens": 1238
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 317,
+          "estimated_cost_usd": null,
+          "is_estimated": true,
+          "prompt_tokens": 921,
+          "total_tokens": 1238
+        }
+      }
+    ]
+  },
+  "comparative_metrics": {
+    "complete_pair_ids": [
+      "e2e-ctx-01-return-contract-multiple-callers",
+      "e2e-ctx-02-shared-session-state",
+      "e2e-ctx-03-retry-leaks-resource",
+      "e2e-ctx-04-callback-exception-swallowed",
+      "e2e-ctx-05-null-plugin-result",
+      "e2e-ctx-06-page-boundary-callback",
+      "e2e-ctx-07-async-shared-callback",
+      "e2e-ctx-08-override-skips-validation",
+      "e2e-ctx-09-indirect-serializer-contract",
+      "e2e-ctx-10-unregisters-wrong-callback",
+      "e2e-ctx-11-permission-default-multiple-callers",
+      "e2e-ctx-12-generator-cleanup-after-yield",
+      "e2e-ctx-13-safe-signature-migration-three-callers",
+      "e2e-ctx-14-copy-on-write-session"
+    ],
+    "deltas": {
+      "delta_f1": 0.0395,
+      "delta_fp": -1,
+      "delta_latency_mean_ms": 13995.29,
+      "delta_precision": 0.0909,
+      "delta_recall": 0.0,
+      "delta_tokens": 2780,
+      "delta_tp": 0
+    },
+    "off": {
+      "completed_count": 14,
+      "f1": 0.8696,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0714,
+      "fn": 2,
+      "fp": 1,
+      "latency": {
+        "mean_ms": 24147.14,
+        "median_ms": 22143.5,
+        "p90_ms": 48028.0,
+        "total_s": 338.06
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 0.9091,
+      "recall": 0.8333,
+      "tokens": {
+        "completion_tokens": 7615,
+        "prompt_tokens": 13137,
+        "total_tokens": 20752
+      },
+      "total_attempted": 14,
+      "tp": 10,
+      "true_positives_per_review": 0.7143
+    },
+    "on": {
+      "completed_count": 14,
+      "f1": 0.9091,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0,
+      "fn": 2,
+      "fp": 0,
+      "latency": {
+        "mean_ms": 38142.43,
+        "median_ms": 27963.5,
+        "p90_ms": 104671.5,
+        "total_s": 533.99
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 1.0,
+      "recall": 0.8333,
+      "tokens": {
+        "completion_tokens": 8884,
+        "prompt_tokens": 14648,
+        "total_tokens": 23532
+      },
+      "total_attempted": 14,
+      "tp": 10,
+      "true_positives_per_review": 0.7143
+    },
+    "paired_case_count": 14
+  },
+  "global_usage": {
+    "completion_tokens": 21587,
+    "estimated_cost_usd": null,
+    "is_estimated": true,
+    "prompt_tokens": 30064,
+    "total_tokens": 51651
+  },
+  "goal": "GOAL 27 Real-World Benchmark & Model Selection",
+  "in_flight": null,
+  "is_simulated": false,
+  "manifest_sha256": "f0ee96abb98a426536c8460d7318209f5eed0d046dc8cb1b3ecfc6b44a154578",
+  "model_id": "minimaxai/minimax-m3.1-flash",
+  "provider": "nvidia",
+  "requests_made": 30
+}

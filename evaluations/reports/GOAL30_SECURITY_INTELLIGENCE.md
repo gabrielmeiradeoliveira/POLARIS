@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: SECURITY INTELLIGENCE ENGINE (FASE 30.6)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Arquivo Principal:** `src/polaris/guardrails/authorization.py`  
-**Testes:** `tests/test_security_path_traversal.py`, `tests/test_security_guardrails_2.py`  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Arquivo Principal:** `src/polaris/guardrails/authorization.py`
+**Testes:** `tests/test_security_path_traversal.py`, `tests/test_security_guardrails_2.py`
 
 ---
 

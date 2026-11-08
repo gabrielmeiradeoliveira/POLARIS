@@ -1,8 +1,8 @@
 # POLARIS — GOAL 29.1: Baseline de Arquitetura e Engenharia Offline
 
-> **Documento:** `GOAL29_BASELINE.md`  
-> **Data:** 2026-11-08T02:39:00Z  
-> **Branch Base:** `feat/goal29-ultimate-offline-engineering` (após commit `ac35eb5`)  
+> **Documento:** `GOAL29_BASELINE.md`
+> **Data:** 2026-11-08T02:39:00Z
+> **Branch Base:** `feat/goal29-ultimate-offline-engineering` (após commit `ac35eb5`)
 > **Status:** Baseline Inicial Aprovado (515/515 testes passando)
 
 ---

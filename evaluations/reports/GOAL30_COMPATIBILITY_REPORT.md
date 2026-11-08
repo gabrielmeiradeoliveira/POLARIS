@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: CLI, JSON E EXPLICABILIDADE (FASE 30.13)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Arquivo Principal:** `src/polaris/cli.py`  
-**Testes:** `tests/test_cli_goal30.py` (1 passed)  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Arquivo Principal:** `src/polaris/cli.py`
+**Testes:** `tests/test_cli_goal30.py` (1 passed)
 
 ---
 

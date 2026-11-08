@@ -1,9 +1,9 @@
 # POLARIS — GOAL 28: Documento de Arquitetura e Especificação Técnica
 ## Hybrid Review Engine, Security Guardrails & Cross-File Contract Analysis
 
-> **Status:** Fase 28.1 — Auditoria e Desenho Arquitetural  
-> **Modo:** Offline-first, determinístico, testável e estritamente opt-in  
-> **Branch de Trabalho:** `feat/goal28-hybrid-engine`  
+> **Status:** Fase 28.1 — Auditoria e Desenho Arquitetural
+> **Modo:** Offline-first, determinístico, testável e estritamente opt-in
+> **Branch de Trabalho:** `feat/goal28-hybrid-engine`
 > **Isolamento:** Os artefatos e dados do GOAL 27 permanecem congelados e intocados.
 
 ---

@@ -1,7 +1,7 @@
 # POLARIS — GOAL 28: Política de Arbitragem e Resolução de Conflitos
 
-> **Documento:** `GOAL28_ARBITRATION_POLICY.md`  
-> **Escopo:** Motor de Arbitragem e Consolidação (`polaris.intelligence.arbitration`)  
+> **Documento:** `GOAL28_ARBITRATION_POLICY.md`
+> **Escopo:** Motor de Arbitragem e Consolidação (`polaris.intelligence.arbitration`)
 > **Modo de Operação:** Determinístico, independente da ordem de entrada, auditável via Evidence Registry.
 
 ---

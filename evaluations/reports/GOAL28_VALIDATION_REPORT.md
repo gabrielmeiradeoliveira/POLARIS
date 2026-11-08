@@ -1,8 +1,8 @@
 # POLARIS — GOAL 28: Relatório de Validação e Hardening
 
-> **Documento:** `GOAL28_VALIDATION_REPORT.md`  
-> **Status:** Concluído com Sucesso  
-> **Branch:** `feat/goal28-hybrid-engine`  
+> **Documento:** `GOAL28_VALIDATION_REPORT.md`
+> **Status:** Concluído com Sucesso
+> **Branch:** `feat/goal28-hybrid-engine`
 > **Modo de Validação:** Execução ponta a ponta 100% offline, testes de regressão completos, zero consumo de cota externa.
 
 ---

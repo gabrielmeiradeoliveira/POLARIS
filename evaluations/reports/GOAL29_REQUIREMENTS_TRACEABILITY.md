@@ -1,7 +1,7 @@
 # POLARIS — GOAL 29: Matriz de Rastreabilidade de Requisitos (RTM)
 
-> **Documento:** `GOAL29_REQUIREMENTS_TRACEABILITY.md`  
-> **Data:** 2026-11-08T02:55:00Z  
+> **Documento:** `GOAL29_REQUIREMENTS_TRACEABILITY.md`
+> **Data:** 2026-11-08T02:55:00Z
 > **Status:** Auditoria e Reconciliação Técnica de Engenharia Offline
 
 ---

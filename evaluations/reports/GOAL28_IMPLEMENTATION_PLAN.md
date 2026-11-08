@@ -1,6 +1,6 @@
 # POLARIS — GOAL 28: Plano Detalhado de Implementação e Fases
 
-> **Status:** Fase 28.1 — Auditoria e Planejamento  
+> **Status:** Fase 28.1 — Auditoria e Planejamento
 > **Estratégia:** Implementação modular incremental, test-driven e offline-first.
 
 ---

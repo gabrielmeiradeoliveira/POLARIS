@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: SEMANTIC PROJECT GRAPH (FASE 30.2)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Arquivo Principal:** `src/polaris/context/semantic_graph.py`  
-**Testes:** `tests/test_semantic_graph.py` (3 passed)  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Arquivo Principal:** `src/polaris/context/semantic_graph.py`
+**Testes:** `tests/test_semantic_graph.py` (3 passed)
 
 ---
 

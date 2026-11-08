@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: ADVERSARIAL OFFLINE EVALUATION (FASE 30.14)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Runner:** `evaluations/goal30_adversarial_benchmark.py`  
-**Relatório:** `evaluations/reports/goal30_adversarial_benchmark.json`  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Runner:** `evaluations/goal30_adversarial_benchmark.py`
+**Relatório:** `evaluations/reports/goal30_adversarial_benchmark.json`
 
 ---
 

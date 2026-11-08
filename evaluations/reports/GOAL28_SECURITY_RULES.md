@@ -1,7 +1,7 @@
 # POLARIS — GOAL 28: Regras de Segurança e Guardrails Estáticos
 
-> **Documento:** `GOAL28_SECURITY_RULES.md`  
-> **Escopo:** Regras determinísticas implementadas no Security Guardrail Engine (`polaris.guardrails`)  
+> **Documento:** `GOAL28_SECURITY_RULES.md`
+> **Escopo:** Regras determinísticas implementadas no Security Guardrail Engine (`polaris.guardrails`)
 > **Modo de Operação:** 100% offline, baseado em AST Python, zero execução dinâmica.
 
 ---

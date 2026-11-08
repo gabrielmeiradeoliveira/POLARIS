@@ -1,9 +1,9 @@
 # POLARIS — GOAL 29: Relatório Final de Aceitação e Engenharia Offline
 
-> **Documento:** `GOAL29_FINAL_ACCEPTANCE.md`  
-> **Status:** **ACCEPTED WITH LIMITATIONS**  
-> **Data de Conclusão:** 2026-11-08T02:46:00Z  
-> **Branch:** `feat/goal29-ultimate-offline-engineering`  
+> **Documento:** `GOAL29_FINAL_ACCEPTANCE.md`
+> **Status:** **ACCEPTED WITH LIMITATIONS**
+> **Data de Conclusão:** 2026-11-08T02:46:00Z
+> **Branch:** `feat/goal29-ultimate-offline-engineering`
 > **Modo:** 100% Offline, Zero Chamadas Externas, GOAL 27 Preservado e Congelado.
 
 ---

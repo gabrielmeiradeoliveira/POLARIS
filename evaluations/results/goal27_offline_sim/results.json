@@ -1,0 +1,3488 @@
+{
+  "arms": [
+    {
+      "arm": "off",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 783,
+            "total_tokens": 787
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-02-shared-session-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 135,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 794,
+            "total_tokens": 929
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-03-retry-leaks-resource",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 845,
+            "total_tokens": 849
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-04-callback-exception-swallowed",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 844,
+            "total_tokens": 848
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-05-null-plugin-result",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 855,
+            "total_tokens": 859
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-06-page-boundary-callback",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 861,
+            "total_tokens": 865
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-07-async-shared-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 136,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 885,
+            "total_tokens": 1021
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-08-override-skips-validation",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 862,
+            "total_tokens": 866
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-09-indirect-serializer-contract",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 784,
+            "total_tokens": 788
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 909,
+            "total_tokens": 913
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 806,
+            "total_tokens": 810
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 825,
+            "total_tokens": 829
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 794,
+            "total_tokens": 798
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-14-copy-on-write-session",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 806,
+            "total_tokens": 810
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-15-context-manager-retry",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 801,
+            "total_tokens": 805
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 819,
+            "total_tokens": 823
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-17-null-guard-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 798,
+            "total_tokens": 802
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 820,
+            "total_tokens": 824
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-19-locked-task-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1006,
+            "total_tokens": 1010
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-20-override-calls-super",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 0,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 926,
+            "total_tokens": 930
+          },
+          "true_positives": 0
+        }
+      ],
+      "stopped_reason": null
+    },
+    {
+      "arm": "on",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 783,
+            "total_tokens": 787
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-02-shared-session-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 135,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1009,
+            "total_tokens": 1144
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-03-retry-leaks-resource",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 2,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1193,
+            "total_tokens": 1197
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-04-callback-exception-swallowed",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1069,
+            "total_tokens": 1073
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-05-null-plugin-result",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1070,
+            "total_tokens": 1074
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-06-page-boundary-callback",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 5,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 861,
+            "total_tokens": 865
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-07-async-shared-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 2,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 136,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1104,
+            "total_tokens": 1240
+          },
+          "true_positives": 1
+        },
+        {
+          "case_id": "e2e-ctx-08-override-skips-validation",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 862,
+            "total_tokens": 866
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-09-indirect-serializer-contract",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 784,
+            "total_tokens": 788
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 2,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 909,
+            "total_tokens": 913
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 806,
+            "total_tokens": 810
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+          "error_category": null,
+          "false_negatives": 1,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1172,
+            "total_tokens": 1176
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 794,
+            "total_tokens": 798
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-14-copy-on-write-session",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 806,
+            "total_tokens": 810
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-15-context-manager-retry",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 801,
+            "total_tokens": 805
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 819,
+            "total_tokens": 823
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-17-null-guard-callback",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 798,
+            "total_tokens": 802
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 820,
+            "total_tokens": 824
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-19-locked-task-state",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 1006,
+            "total_tokens": 1010
+          },
+          "true_positives": 0
+        },
+        {
+          "case_id": "e2e-ctx-20-override-calls-super",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 0,
+          "http_status": null,
+          "latency_ms": 1,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 4,
+            "estimated_cost_usd": 0.0,
+            "is_estimated": true,
+            "prompt_tokens": 926,
+            "total_tokens": 930
+          },
+          "true_positives": 0
+        }
+      ],
+      "stopped_reason": null
+    }
+  ],
+  "benchmark_version": "1.0.0",
+  "campaign_id": "goal27-real-world-model-selection",
+  "checkpoint_cases": {
+    "off": [
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "category": "type_mismatch",
+              "file_path": "auth/token.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 783,
+          "total_tokens": 787
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+            "evidence": "def build(values={}): return values",
+            "file_path": "cache/session.py",
+            "id": "dcd-28e0cef2f90d",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+            "title": "Mutable default argument shared across function calls"
+          }
+        ],
+        "case_id": "e2e-ctx-02-shared-session-state",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "state_mutation",
+                "correctness"
+              ],
+              "expected_category": "state_mutation",
+              "expected_file_path": "cache/session.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "cache/session.py",
+              "finding_id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "cache/session.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "high",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 135,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 794,
+          "total_tokens": 929
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+            "evidence": "return retry(query)",
+            "file_path": "db/retry.py",
+            "id": "dcd-61fbd8ee1ae2",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 3
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+            "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+          }
+        ],
+        "case_id": "e2e-ctx-03-retry-leaks-resource",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "end_line": 3,
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "db/retry.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "db/retry.py",
+              "finding_id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 845,
+          "total_tokens": 849
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-04-callback-exception-swallowed",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "error_handling",
+                "logic_error"
+              ],
+              "category": "error_handling",
+              "file_path": "events/dispatch.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 844,
+          "total_tokens": 848
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-05-null-plugin-result",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "null_handling",
+                "correctness"
+              ],
+              "category": "null_handling",
+              "file_path": "plugins/custom.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 855,
+          "total_tokens": 859
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-06-page-boundary-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "boundary_condition"
+              ],
+              "category": "boundary_condition",
+              "file_path": "paging/core.py",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "medium"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 861,
+          "total_tokens": 865
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+            "evidence": "def worker(pending=[], barrier=None):",
+            "file_path": "asyncq/worker.py",
+            "id": "dcd-259c4dbe7399",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+            "title": "Mutable default argument shared across function calls"
+          }
+        ],
+        "case_id": "e2e-ctx-07-async-shared-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "state_mutation",
+                "concurrency",
+                "correctness"
+              ],
+              "expected_category": "concurrency",
+              "expected_file_path": "asyncq/worker.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "asyncq/worker.py",
+              "finding_id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "asyncq/worker.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "high",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 136,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 885,
+          "total_tokens": 1021
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-08-override-skips-validation",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "category": "logic_error",
+              "file_path": "auth/internal.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 862,
+          "total_tokens": 866
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-09-indirect-serializer-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "category": "type_mismatch",
+              "file_path": "adapters/id.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 784,
+          "total_tokens": 788
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "resource_management"
+              ],
+              "category": "resource_management",
+              "file_path": "ui/controller.py",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "medium"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 909,
+          "total_tokens": 913
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "category": "logic_error",
+              "file_path": "auth/roles.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 806,
+          "total_tokens": 810
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "category": "resource_management",
+              "file_path": "streams/stream.py",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 825,
+          "total_tokens": 829
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_unrelated",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 794,
+          "total_tokens": 798
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-14-copy-on-write-session",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 806,
+          "total_tokens": 810
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-15-context-manager-retry",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 801,
+          "total_tokens": 805
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 819,
+          "total_tokens": 823
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-17-null-guard-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 798,
+          "total_tokens": 802
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 820,
+          "total_tokens": 824
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-19-locked-task-state",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1006,
+          "total_tokens": 1010
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-20-override-calls-super",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 0,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 926,
+          "total_tokens": 930
+        }
+      }
+    ],
+    "on": [
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "category": "type_mismatch",
+              "file_path": "auth/token.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 783,
+          "total_tokens": 787
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+            "evidence": "def build(values={}): return values",
+            "file_path": "cache/session.py",
+            "id": "dcd-28e0cef2f90d",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+            "title": "Mutable default argument shared across function calls"
+          }
+        ],
+        "case_id": "e2e-ctx-02-shared-session-state",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "end_line": 1,
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "state_mutation",
+                "correctness"
+              ],
+              "expected_category": "state_mutation",
+              "expected_file_path": "cache/session.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "cache/session.py",
+              "finding_id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "cache/session.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "high",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "evidence": "def build(values={}): return values",
+              "file_path": "cache/session.py",
+              "id": "dcd-28e0cef2f90d",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 124,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 135,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1009,
+          "total_tokens": 1144
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "resource_management",
+            "confidence": "high",
+            "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+            "evidence": "return retry(query)",
+            "file_path": "db/retry.py",
+            "id": "dcd-61fbd8ee1ae2",
+            "line_range": {
+              "end_line": 3,
+              "start_line": 3
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+            "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+          }
+        ],
+        "case_id": "e2e-ctx-03-retry-leaks-resource",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "end_line": 3,
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "severity": "medium",
+              "start_line": 3,
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "resource_management",
+              "expected_allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "expected_category": "resource_management",
+              "expected_file_path": "db/retry.py",
+              "expected_line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "file_path": "db/retry.py",
+              "finding_id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "resource_management",
+              "confidence": "high",
+              "description": "An explicit close call for a caller-provided resource was removed without a replacement close path.",
+              "evidence": "return retry(query)",
+              "file_path": "db/retry.py",
+              "id": "dcd-61fbd8ee1ae2",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore deterministic cleanup or explicitly transfer lifecycle ownership.",
+              "title": "[DET-CALLER-RESOURCE-CLOSE-REMOVED] Caller resource cleanup removed"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 2,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 2,
+            "diagnostics": [],
+            "estimated_tokens": 258,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1193,
+          "total_tokens": 1197
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-04-callback-exception-swallowed",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "error_handling",
+                "logic_error"
+              ],
+              "category": "error_handling",
+              "file_path": "events/dispatch.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 135,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1069,
+          "total_tokens": 1073
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-05-null-plugin-result",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "null_handling",
+                "correctness"
+              ],
+              "category": "null_handling",
+              "file_path": "plugins/custom.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 125,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1070,
+          "total_tokens": 1074
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-06-page-boundary-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "boundary_condition"
+              ],
+              "category": "boundary_condition",
+              "file_path": "paging/core.py",
+              "line_range": {
+                "end_line": 3,
+                "start_line": 3
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "medium"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 5,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 861,
+          "total_tokens": 865
+        }
+      },
+      {
+        "actual_findings": [
+          {
+            "category": "state_mutation",
+            "confidence": "high",
+            "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+            "evidence": "def worker(pending=[], barrier=None):",
+            "file_path": "asyncq/worker.py",
+            "id": "dcd-259c4dbe7399",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+            "title": "Mutable default argument shared across function calls"
+          }
+        ],
+        "case_id": "e2e-ctx-07-async-shared-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "A mutable default is shared between function invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Use None as the default and allocate a new container inside the function.",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            },
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "end_line": 1,
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "state_mutation",
+              "expected_allowed_categories": [
+                "state_mutation",
+                "concurrency",
+                "correctness"
+              ],
+              "expected_category": "concurrency",
+              "expected_file_path": "asyncq/worker.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "asyncq/worker.py",
+              "finding_id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "Mutable default argument shared across function calls"
+            }
+          ],
+          "rejected_candidates": [
+            {
+              "category": "state_mutation",
+              "file_path": "asyncq/worker.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "Candidate finding was rejected during evidence and policy validation.",
+              "rejection_code": "FINDING_REJECTED",
+              "severity": "high",
+              "title": "[DET-MUTABLE-DEFAULT] Mutable default argument"
+            }
+          ],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "state_mutation",
+              "confidence": "high",
+              "description": "Using a mutable literal ([], {}, or set()) as a default parameter value causes state to persist and leak across subsequent invocations.",
+              "evidence": "def worker(pending=[], barrier=None):",
+              "file_path": "asyncq/worker.py",
+              "id": "dcd-259c4dbe7399",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Default the parameter to None and initialize a new container inside the function body.",
+              "title": "Mutable default argument shared across function calls"
+            }
+          ]
+        },
+        "duplicates_reduced": 1,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 2,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 1,
+            "diagnostics": [],
+            "estimated_tokens": 128,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 136,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1104,
+          "total_tokens": 1240
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-08-override-skips-validation",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "category": "logic_error",
+              "file_path": "auth/internal.py",
+              "line_range": {
+                "end_line": 4,
+                "start_line": 4
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 862,
+          "total_tokens": 866
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-09-indirect-serializer-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "category": "type_mismatch",
+              "file_path": "adapters/id.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 784,
+          "total_tokens": 788
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "resource_management"
+              ],
+              "category": "resource_management",
+              "file_path": "ui/controller.py",
+              "line_range": {
+                "end_line": 8,
+                "start_line": 8
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "medium"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 2,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 909,
+          "total_tokens": 913
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "logic_error",
+                "correctness"
+              ],
+              "category": "logic_error",
+              "file_path": "auth/roles.py",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 806,
+          "total_tokens": 810
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [
+            {
+              "allowed_categories": [
+                "resource_management",
+                "correctness"
+              ],
+              "category": "resource_management",
+              "file_path": "streams/stream.py",
+              "line_range": {
+                "end_line": 2,
+                "start_line": 2
+              },
+              "reason": "No candidate findings generated by provider/module for this case.",
+              "severity": "high"
+            }
+          ],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": {
+            "behavioral_deltas": 2,
+            "diagnostics": [],
+            "estimated_tokens": 256,
+            "max_allowed_tokens": 2000,
+            "omitted_snippets": 0,
+            "selected_files": 0,
+            "selected_snippets": 0,
+            "truncated": false
+          },
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 1,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1172,
+          "total_tokens": 1176
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_unrelated",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 794,
+          "total_tokens": 798
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-14-copy-on-write-session",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 806,
+          "total_tokens": 810
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-15-context-manager-retry",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 801,
+          "total_tokens": 805
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 819,
+          "total_tokens": 823
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-17-null-guard-callback",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 798,
+          "total_tokens": 802
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 820,
+          "total_tokens": 824
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-19-locked-task-state",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 1006,
+          "total_tokens": 1010
+        }
+      },
+      {
+        "actual_findings": [],
+        "case_id": "e2e-ctx-20-override-calls-super",
+        "category_mismatch_detections": 0,
+        "change_type": "clean_bug_fix",
+        "diagnostics": {
+          "candidate_findings": [],
+          "category_mismatches": [],
+          "matched_findings": [],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": []
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 1,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": null,
+          "context": null,
+          "model": "fake-deterministic-v1",
+          "provider": "fake"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 0,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 4,
+          "estimated_cost_usd": 0.0,
+          "is_estimated": true,
+          "prompt_tokens": 926,
+          "total_tokens": 930
+        }
+      }
+    ]
+  },
+  "comparative_metrics": {
+    "complete_pair_ids": [
+      "e2e-ctx-01-return-contract-multiple-callers",
+      "e2e-ctx-02-shared-session-state",
+      "e2e-ctx-03-retry-leaks-resource",
+      "e2e-ctx-04-callback-exception-swallowed",
+      "e2e-ctx-05-null-plugin-result",
+      "e2e-ctx-06-page-boundary-callback",
+      "e2e-ctx-07-async-shared-callback",
+      "e2e-ctx-08-override-skips-validation",
+      "e2e-ctx-09-indirect-serializer-contract",
+      "e2e-ctx-10-unregisters-wrong-callback",
+      "e2e-ctx-11-permission-default-multiple-callers",
+      "e2e-ctx-12-generator-cleanup-after-yield",
+      "e2e-ctx-13-safe-signature-migration-three-callers",
+      "e2e-ctx-14-copy-on-write-session",
+      "e2e-ctx-15-context-manager-retry",
+      "e2e-ctx-16-narrow-exception-preserves-contract",
+      "e2e-ctx-17-null-guard-callback",
+      "e2e-ctx-18-boundary-clamp-pagination",
+      "e2e-ctx-19-locked-task-state",
+      "e2e-ctx-20-override-calls-super"
+    ],
+    "deltas": {
+      "delta_f1": 0.0,
+      "delta_fp": 0,
+      "delta_latency_mean_ms": 1.05,
+      "delta_precision": 0.0,
+      "delta_recall": 0.0,
+      "delta_tokens": 1569,
+      "delta_tp": 0
+    },
+    "off": {
+      "completed_count": 20,
+      "f1": 0.4,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0,
+      "fn": 9,
+      "fp": 0,
+      "latency": {
+        "mean_ms": 0.3,
+        "median_ms": 0.0,
+        "p90_ms": 1.0,
+        "total_s": 0.01
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 1.0,
+      "recall": 0.25,
+      "tokens": {
+        "completion_tokens": 343,
+        "prompt_tokens": 16823,
+        "total_tokens": 17166
+      },
+      "total_attempted": 20,
+      "tp": 3,
+      "true_positives_per_review": 0.15
+    },
+    "on": {
+      "completed_count": 20,
+      "f1": 0.4,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0,
+      "fn": 9,
+      "fp": 0,
+      "latency": {
+        "mean_ms": 1.35,
+        "median_ms": 1.0,
+        "p90_ms": 2.0,
+        "total_s": 0.03
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 1.0,
+      "recall": 0.25,
+      "tokens": {
+        "completion_tokens": 343,
+        "prompt_tokens": 18392,
+        "total_tokens": 18735
+      },
+      "total_attempted": 20,
+      "tp": 3,
+      "true_positives_per_review": 0.15
+    },
+    "paired_case_count": 20
+  },
+  "global_usage": {
+    "completion_tokens": 686,
+    "estimated_cost_usd": 0.0,
+    "is_estimated": true,
+    "prompt_tokens": 35215,
+    "total_tokens": 35901
+  },
+  "goal": "GOAL 27 Real-World Benchmark & Model Selection",
+  "in_flight": null,
+  "is_simulated": true,
+  "manifest_sha256": "f0ee96abb98a426536c8460d7318209f5eed0d046dc8cb1b3ecfc6b44a154578",
+  "model_id": "fake-deterministic-v1",
+  "provider": "fake",
+  "requests_made": 40
+}

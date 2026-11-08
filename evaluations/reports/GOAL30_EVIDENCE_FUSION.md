@@ -1,9 +1,9 @@
 # POLARIS — GOAL 30: EVIDENCE FUSION ENGINE (FASE 30.10)
 
-**Data:** 2026-11-08  
-**Status:** IMPLEMENTED  
-**Arquivo Principal:** `src/polaris/arbitration/evidence_fusion.py`  
-**Testes:** `tests/test_evidence_fusion.py` (1 passed)  
+**Data:** 2026-11-08
+**Status:** IMPLEMENTED
+**Arquivo Principal:** `src/polaris/arbitration/evidence_fusion.py`
+**Testes:** `tests/test_evidence_fusion.py` (1 passed)
 
 ---
 
