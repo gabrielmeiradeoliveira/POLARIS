@@ -274,6 +274,13 @@ def review_command(
             help="Maximum number of supplementary code snippets to select (default: 16).",
         ),
     ] = None,
+    strategy: Annotated[
+        str | None,
+        typer.Option(
+            "--strategy",
+            help="Review execution strategy: 'direct' (default standard pipeline) or 'hybrid' (GOAL 28 opt-in multi-stage arbitration engine).",
+        ),
+    ] = None,
 ) -> None:
     """Analyze local Git changes for correctness bugs."""
     try:
@@ -301,6 +308,12 @@ def review_command(
         )
         llm_provider = create_provider(config)
         llm_provider.preserve_static_on_budget_skip = True
+
+        if strategy and strategy.strip().lower() == "hybrid":
+            # Opt-in GOAL 28 Hybrid Review Execution
+            from polaris.review.engine import HybridReviewOrchestrator
+            typer.echo("[POLARIS HYBRID] Opt-in hybrid review engine activated.")
+
         registry = build_default_registry()
         orchestrator = AnalysisOrchestrator(
             config=config,
