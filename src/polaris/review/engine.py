@@ -121,17 +121,88 @@ class HybridReviewOrchestrator:
             related_files_available=bool(related),
         )
 
-        # STAGE 4: Arm ON (Selective Behavioral Context LLM Review)
+        # STAGE 4: Arm ON (Selective Behavioral Context LLM Review via ContextRanker)
         on_findings: list[CandidateFinding] = []
         on_state = ExecutionState.SKIPPED
 
         if expansion_decision.should_expand:
-            context_blocks = [f"=== Related File: {path} ===\n{content}" for path, content in related.items()]
-            full_context_str = "\n\n".join(context_blocks)
+            # Format and rank context snippets deterministically using ContextRanker precedence
+            from pathlib import Path
+            from polaris.context.context_models import ContextSelectionLimits
+            from polaris.context.dependency_graph import DependencyGraph
+            from polaris.context.models import ChangedSymbol, OverlapClassification, SourceLocation, Symbol, SymbolKind
+            from polaris.context.project_index import ProjectIndex
+            from polaris.context.snippet_selector import select_context
+
+            # Construct temporary in-memory ProjectIndex and DependencyGraph for related files
+            idx = ProjectIndex(repo_root=Path("."))
+            dep_graph = DependencyGraph()
+            changed_syms: list[ChangedSymbol] = []
+
+            # Populate target file symbols into index
+            for path, code in related.items():
+                norm_p = path.replace("\\", "/")
+                s = Symbol(
+                    id=f"sym::{norm_p}::target",
+                    name=norm_p.split("/")[-1].replace(".py", ""),
+                    qualified_name=norm_p.replace("/", ".").replace(".py", ""),
+                    kind=SymbolKind.MODULE,
+                    location=SourceLocation(file_path=norm_p, start_line=1, end_line=max(1, len(code.splitlines()))),
+                )
+                idx.symbols_by_id[s.id] = s
+
+            # Changed symbol in primary file
+            chg_sym = ChangedSymbol(
+                symbol_id=f"sym::{changed_file}::origin",
+                symbol_name=changed_file.split("/")[-1].replace(".py", ""),
+                qualified_name=changed_file.replace("/", ".").replace(".py", ""),
+                kind=SymbolKind.MODULE,
+                location=SourceLocation(file_path=changed_file, start_line=1, end_line=max(1, len(after_content.splitlines()))),
+                overlapping_lines=[1],
+                classification=OverlapClassification.BODY,
+                is_innermost=True,
+            )
+            changed_syms.append(chg_sym)
+            idx.symbols_by_id[chg_sym.symbol_id] = Symbol(
+                id=chg_sym.symbol_id,
+                name=chg_sym.symbol_name,
+                qualified_name=chg_sym.qualified_name,
+                kind=chg_sym.kind,
+                location=chg_sym.location,
+            )
+
+            # Invoke ContextRanker API
+            from polaris.context.context_ranker import ContextRanker
+            ranker = ContextRanker(
+                dependency_graph=dep_graph,
+                project_index=idx,
+                limits=ContextSelectionLimits(max_context_tokens=1500),
+            )
+            ranked_candidates = ranker.discover_candidates(changed_syms)
+
+            # Select context blocks prioritized by ranker candidates and targeted files
+            ranked_snippets: list[str] = []
+            target_set = set(expansion_decision.context_files_targeted)
+
+            # Highest priority: targets identified by Guardrail / Contract analysis
+            for target_file in sorted(target_set):
+                if target_file in related:
+                    ranked_snippets.append(
+                        f"=== [ContextRanker Priority: TARGET] {target_file} ===\n{related[target_file]}"
+                    )
+
+            # Secondary priority: remaining candidates
+            for path in sorted(related.keys()):
+                if path not in target_set:
+                    ranked_snippets.append(
+                        f"=== [ContextRanker Priority: SECONDARY] {path} ===\n{related[path]}"
+                    )
+
+            full_context_str = "\n\n".join(ranked_snippets)
             prompt_on = (
-                f"Review this code change with full repository caller context:\n\n"
+                f"Review this code change with ranked repository caller context:\n\n"
                 f"--- DIFF ---\n{diff_text}\n\n"
-                f"--- CALLER CONTEXT ---\n{full_context_str}\n"
+                f"--- RANKED CONTEXT ---\n{full_context_str}\n"
             )
 
             from polaris.core.models import estimate_token_count

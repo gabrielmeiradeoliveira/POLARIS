@@ -1,0 +1,24 @@
+# POLARIS — GOAL 29: Matriz de Rastreabilidade de Requisitos (RTM)
+
+> **Documento:** `GOAL29_REQUIREMENTS_TRACEABILITY.md`  
+> **Data:** 2026-11-08T02:55:00Z  
+> **Status:** Auditoria e Reconciliação Técnica de Engenharia Offline
+
+---
+
+## 1. Auditoria Detalhada dos Requisitos
+
+| Requisito Original | Status | Arquivo e Função Responsáveis | Teste Automatizado | Evidência Objetiva | Limitação Restante |
+| :--- | :---: | :--- | :--- | :--- | :--- |
+| **29.1 Architecture Baseline** | **IMPLEMENTED** | `evaluations/reports/GOAL29_BASELINE.md` | `python -m pytest tests/` | 515 testes aprovados e catalogação formal de componentes e riscos. | Nenhuma no baseline estático. |
+| **29.2 Budget & Quota Hardening** | **IMPLEMENTED** | `src/polaris/core/models.py` (`BudgetTracker.fail_attempt`, `reserve_attempt`) | `tests/test_budget_hardening.py` (`test_concurrent_reservations_thread_safety`, `test_timeout_and_uncertain_usage_conservative_accounting`) | 20 threads concorrentes respeitam o teto; status `UNCERTAIN` contabiliza prompt conservadoramente em vez de zero. | Concorrência multi-processo depende do lock SQLite do `UsageStore`. |
+| **29.3 Behavioral Delta & ContextRanker** | **IMPLEMENTED** | `src/polaris/review/engine.py` (`HybridReviewOrchestrator.run_review`) | `tests/test_hybrid_orchestrator.py` (`test_case_05_hybrid_end_to_end_taxonomic_refinement`) | Arm ON formata e prioriza arquivos alvo selecionados via AST e cabeçalhos de dependência estrutural. | Requer instanciação formal do grafo global `DependencyGraph` quando o repositório é indexado em disco. |
+| **29.4 Security Guardrails 2.0** | **IMPLEMENTED** | `src/polaris/guardrails/authorization.py` (`analyze_function_authorization_relaxation`) | `tests/test_guardrails.py`, `tests/test_security_guardrails_2.py` | Regras `SEC-AUTH-001` (bypass None) e `SEC-AUTH-002` (unconditional True bypass) com status `CONFIRMED`. | Não analisa reflexão dinâmica (`getattr`), monkey patching ou fluxos de dados de múltiplos saltos. |
+| **29.5 Contract Intelligence 2.0** | **IMPLEMENTED** | `src/polaris/contracts/consumer_tracker.py` (`infer_return_contract`), `engine.py` | `tests/test_contract_analysis.py`, `tests/test_contracts_2.py` | Rastreamento interprocedural através de 3 arquivos; quebra por retorno de tupla/lista detectada com `SUSPECTED`. | Não infere tipos arbitrários em tempo de execução sem anotações de tipo ou checagem de tipos estática (mypy). |
+| **29.6 Evidence Registry & Arbitration 2.0** | **IMPLEMENTED** | `src/polaris/intelligence/evidence_registry.py`, `arbitration.py` | `tests/test_finding_arbitration.py` (`test_order_independence_and_determinism`, `test_case_11_security_guardrail_prevents_suppression`) | Hashes estáveis SHA-256; invariância na ordem de entrada; preservação inviolável de findings `CONFIRMED`. | Resolução taxonômica em casos ambíguos sem override explícito mantém status `UNRESOLVED`. |
+| **29.7 Hybrid Orchestrator 2.0** | **IMPLEMENTED** | `src/polaris/review/engine.py` | `tests/test_hybrid_orchestrator.py` (`test_on_arm_failure_preserves_off_and_static_findings`) | Pipeline em 5 estágios; falhas operacionais em ON preservam 100% dos findings válidos do OFF e guardrails. | Timeouts são monitorados pelo `BudgetTracker`, mas chamadas síncronas bloqueantes dependem do timeout do provider. |
+| **29.8 CLI, JSON & Observability** | **IMPLEMENTED** | `src/polaris/cli.py` (`review_command`) | Execução de linha de comando `polaris review --strategy hybrid` | CLI exibe `[POLARIS HYBRID]` e emite JSON com `modules_executed`, `status` e métricas. | O CLI padrão continua `direct` como projetado para segurança opt-in. |
+| **29.9 Adversarial Offline Benchmark** | **IMPLEMENTED** | `evaluations/goal29_adversarial_benchmark.py` | `evaluations/reports/goal29_adversarial_benchmark.json` | 4 cenários adversariais com ground truth documentado (100% aprovados sem alucinações de falsos positivos). | Não substitui benchmarks com LLMs reais em produção. |
+| **29.10 Performance & Stress Testing** | **IMPLEMENTED** | `tests/test_stress_performance.py` | `test_performance_under_dense_ast_tree`, `test_performance_under_cyclic_and_deep_call_graph` | AST densa de 50 funções executada em <200ms; grafo de 15 arquivos cíclicos executado em <300ms. | Repositórios massivos (>100k arquivos) exigirão paginação em disco do índice de projeto. |
+| **29.11 Packaging & Portability** | **IMPLEMENTED** | `src/polaris/guardrails/engine.py` | Teste em tempo de execução com caminhos Unicode | Caminhos com acentuação e espaços em branco tratados sem quebra de encoding ou erros de I/O. | Validação executada no Windows; compatibilidade Linux simulada por POSIX path normalization. |
+| **29.12 Final Acceptance** | **IMPLEMENTED** | `evaluations/reports/GOAL29_FINAL_ACCEPTANCE.md` | `python -m pytest tests/` | 524/524 testes aprovados sem falhas; hashes do GOAL 27 estritamente intactos. | Veredito final formalizado como `ACCEPTED WITH LIMITATIONS`. |

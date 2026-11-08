@@ -1,0 +1,156 @@
+{
+  "passed": true,
+  "total": 4,
+  "scenarios": [
+    {
+      "scenario_id": "adv-sec-01",
+      "passed": true,
+      "findings_count": 1,
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 1,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 1
+        }
+      }
+    },
+    {
+      "scenario_id": "adv-con-02",
+      "passed": true,
+      "findings_count": 1,
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "empty",
+        "expansion_decision": {
+          "should_expand": true,
+          "reasons": [
+            "Cross-file contract inconsistency detected; requires semantic caller verification."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": [
+            "web/client.py"
+          ]
+        },
+        "total_tokens": {
+          "prompt_tokens": 500,
+          "completion_tokens": 500,
+          "total_tokens": 1000,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 1,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 1
+        }
+      }
+    },
+    {
+      "scenario_id": "adv-clean-03",
+      "passed": true,
+      "findings_count": 0,
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "scenario_id": "adv-clean-04",
+      "passed": true,
+      "findings_count": 0,
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    }
+  ]
+}

@@ -169,4 +169,36 @@ def analyze_function_authorization_relaxation(
                 )
             )
 
+    # RULE SEC-AUTH-002: Predicate Inversion or Condition Removal (e.g., if is_admin -> if True, or return True)
+    if before_unparsed != after_unparsed:
+        if isinstance(after_expr, ast.Constant) and after_expr.value is True:
+            # Function unconditionally returns True after being conditional
+            start_line = getattr(after_func, "lineno", after_line)
+            end_line = getattr(after_func, "end_lineno", start_line)
+            findings.append(
+                SecurityFinding(
+                    finding_id=f"sec-guardrail-{file_path}-{after_func.name}-{start_line}-bypass",
+                    rule_id="SEC-AUTH-002",
+                    category=FindingCategory.LOGIC_ERROR,
+                    severity=Severity.CRITICAL,
+                    file_path=file_path,
+                    line_range=LineRange(start_line=start_line, end_line=end_line),
+                    title=f"[SEC-AUTH-002] Security check disabled: '{after_func.name}' unconditionally returns True",
+                    description=(
+                        f"In '{after_func.name}', prior check `{before_unparsed}` was replaced by constant `True`. "
+                        "All caller authorization gates are completely bypassed."
+                    ),
+                    evidence=GuardrailEvidence(
+                        rule_id="SEC-AUTH-002",
+                        symbol=after_func.name,
+                        file_path=file_path,
+                        line_range=LineRange(start_line=start_line, end_line=end_line),
+                        before_predicate=before_unparsed,
+                        after_predicate=after_unparsed,
+                        confidence=GuardrailConfidence.CONFIRMED,
+                        reason=f"Prior check `{before_unparsed}` removed and replaced with unconditional True.",
+                    ),
+                )
+            )
+
     return findings

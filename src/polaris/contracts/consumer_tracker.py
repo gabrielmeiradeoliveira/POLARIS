@@ -55,7 +55,14 @@ def infer_return_contract(func_node: ast.FunctionDef | ast.AsyncFunctionDef) -> 
             raw_expression=raw,
         )
 
-    # 3. Known non-dict literals (integer, string, boolean, float)
+    # 3. Known non-dict literals (integer, string, boolean, float) or tuples / lists
+    if isinstance(primary, (ast.Tuple, ast.List)):
+        return InferredContract(
+            kind=ContractKind.SCALAR_OR_PASSTHROUGH,
+            guaranteed_keys=[],
+            raw_expression=raw,
+        )
+
     if isinstance(primary, ast.Constant) and isinstance(primary.value, (int, str, bool, float)):
         return InferredContract(
             kind=ContractKind.SCALAR_OR_PASSTHROUGH,

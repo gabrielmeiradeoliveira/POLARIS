@@ -42,7 +42,7 @@ class ScriptedProvider(FakeProvider):
     def generate(self, request: ProviderRequest) -> ProviderResponse:
         self.call_count += 1
         prompt = request.user_prompt
-        is_on_prompt = "CALLER CONTEXT" in prompt
+        is_on_prompt = "RANKED CONTEXT" in prompt or "CALLER CONTEXT" in prompt
 
         if is_on_prompt and self.fail_on:
             raise RuntimeError("Simulated network failure on Arm ON")
