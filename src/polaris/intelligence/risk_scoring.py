@@ -6,9 +6,7 @@ based on severity, confidence, architectural exposure, and evidence.
 
 from __future__ import annotations
 
-from typing import Any
-
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class RiskBreakdown(BaseModel):

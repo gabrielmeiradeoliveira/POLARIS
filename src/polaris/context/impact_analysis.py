@@ -7,11 +7,10 @@ and contract boundaries resulting from code changes.
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polaris.context.semantic_graph import EdgeKind, GraphEntity, SemanticProjectGraph
+from polaris.context.semantic_graph import SemanticProjectGraph
 
 
 class ImpactClassification(StrEnum):

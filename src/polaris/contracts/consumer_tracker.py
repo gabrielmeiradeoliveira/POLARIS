@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-from typing import Any
 
 from polaris.contracts.models import ContractKind, InferredContract
 

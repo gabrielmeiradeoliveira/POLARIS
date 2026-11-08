@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-from typing import Any
 
 from polaris.core.models import FindingCategory, LineRange, Severity
 from polaris.guardrails.models import GuardrailConfidence, GuardrailEvidence, SecurityFinding
@@ -35,9 +34,9 @@ def _is_none_check(node: ast.AST) -> tuple[str, bool] | None:
             var_node = right
 
         if var_node and isinstance(var_node, ast.Name):
-            if isinstance(op, ast.Is) or isinstance(op, ast.Eq):
+            if isinstance(op, (ast.Is, ast.Eq)):
                 return (var_node.id, True)
-            if isinstance(op, ast.IsNot) or isinstance(op, ast.NotEq):
+            if isinstance(op, (ast.IsNot, ast.NotEq)):
                 return (var_node.id, False)
 
     return None

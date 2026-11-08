@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 SCHEMA_VERSION = "3.0.0"
+logger = logging.getLogger(__name__)
 
 
 class EntityKind(StrEnum):
@@ -184,7 +186,8 @@ class SemanticProjectGraph:
             try:
                 ent = GraphEntity.model_validate(ent_data)
                 graph.add_entity(ent)
-            except Exception:
+            except Exception as exc:
+                logger.debug("Falha ao desserializar entidade do grafo: %s", type(exc).__name__)
                 continue
 
         for edge_data in data.get("edges", []):
@@ -192,7 +195,8 @@ class SemanticProjectGraph:
                 edge = GraphEdge.model_validate(edge_data)
                 if edge.source_id in graph.entities and edge.target_id in graph.entities:
                     graph.add_edge(edge)
-            except Exception:
+            except Exception as exc:
+                logger.debug("Falha ao desserializar aresta do grafo: %s", type(exc).__name__)
                 continue
 
         return graph

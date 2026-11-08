@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-from typing import Any
 
 from polaris.core.models import CandidateFinding, Confidence
 from polaris.guardrails.authorization import analyze_function_authorization_relaxation

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass
-from typing import Any
 
 from polaris.contracts.consumer_tracker import (
     find_consumer_subscripts,
@@ -117,10 +116,15 @@ class CrossFileContractEngine:
 
             # Detect if a contract weakened / broke
             # Specific trigger: previously guaranteed keys, now SCALAR_OR_PASSTHROUGH, NONE or UNKNOWN
-            if before_contract and before_contract.kind == ContractKind.DICT_LITERAL and before_contract.guaranteed_keys:
-                if after_contract.kind != ContractKind.DICT_LITERAL or not set(before_contract.guaranteed_keys).issubset(
-                    set(after_contract.guaranteed_keys)
-                ):
+            if (
+                before_contract
+                and before_contract.kind == ContractKind.DICT_LITERAL
+                and before_contract.guaranteed_keys
+                and (
+                    after_contract.kind != ContractKind.DICT_LITERAL
+                    or not set(before_contract.guaranteed_keys).issubset(set(after_contract.guaranteed_keys))
+                )
+            ):
                     # Potential contract break! Trace downstream consumers across files
                     missing_keys = set(before_contract.guaranteed_keys) - set(after_contract.guaranteed_keys)
                     traced = self._trace_consumers(
@@ -200,9 +204,8 @@ class CrossFileContractEngine:
                         # Check if caller calls alias(...)
                         call_nodes: list[ast.Call] = []
                         for n in ast.walk(caller_func):
-                            if isinstance(n, ast.Call):
-                                if isinstance(n.func, ast.Name) and n.func.id == alias:
-                                    call_nodes.append(n)
+                            if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == alias:
+                                call_nodes.append(n)
 
                         if not call_nodes:
                             continue

@@ -1,4 +1,4 @@
-"""Hybrid Review Orchestrator for POLARIS (GOAL 28.5).
+"""Hybrid Review Orchestrator for POLARIS.
 
 Implements the multi-stage, evidence-backed review engine:
 1. Deterministic Static Phase (Security Guardrails & Cross-File Contracts)
@@ -6,6 +6,7 @@ Implements the multi-stage, evidence-backed review engine:
 3. Deterministic Context Expansion Policy Evaluation
 4. Selective Behavioral Context Phase (Arm ON: only when justified & budgeted)
 5. Multi-Source Finding Arbitration & Evidence Registry Consolidation
+6. Deep Intelligence & Evidence Fusion (Dataflow, Explainable Risk Scoring, Semantic Graph)
 """
 
 from __future__ import annotations
@@ -13,21 +14,22 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from polaris.arbitration.evidence_fusion import EvidenceFusionEngine, EvidenceSource, FusedEvidence
+from polaris.context.dataflow_engine import DataflowAnalysisEngine
 from polaris.contracts.engine import CrossFileContractEngine
 from polaris.core.models import (
+    BudgetTracker,
     CandidateFinding,
-    ExecutionBudget,
     TokenUsage,
 )
 from polaris.guardrails.engine import SecurityGuardrailEngine
 from polaris.intelligence.arbitration import (
-    ArbitrationResult,
     ExecutionState,
     FindingArbitrationEngine,
 )
+from polaris.intelligence.risk_scoring import ExplainableRiskScoring
 from polaris.providers.base import LLMProvider
 from polaris.review.models import (
-    ExpansionDecision,
     HybridExecutionTelemetry,
     HybridReviewResult,
     ReviewStrategy,
@@ -44,11 +46,13 @@ class HybridReviewOrchestrator:
         contract_engine: CrossFileContractEngine | None = None,
         expansion_policy: ContextExpansionPolicy | None = None,
         arbitration_engine: FindingArbitrationEngine | None = None,
+        dataflow_engine: DataflowAnalysisEngine | None = None,
     ) -> None:
         self.security_engine = security_engine or SecurityGuardrailEngine()
         self.contract_engine = contract_engine or CrossFileContractEngine()
         self.expansion_policy = expansion_policy or ContextExpansionPolicy()
         self.arbitration_engine = arbitration_engine or FindingArbitrationEngine()
+        self.dataflow_engine = dataflow_engine or DataflowAnalysisEngine()
 
     def run_review(
         self,
@@ -101,10 +105,12 @@ class HybridReviewOrchestrator:
                     combined_token_usage = combined_token_usage.add(resp.usage)
 
                 # Extract candidate findings (using provider findings if structured, or fallback)
-                if hasattr(resp, "findings") and getattr(resp, "findings"):
-                    off_findings = getattr(resp, "findings")
-                elif hasattr(provider, "last_candidates") and getattr(provider, "last_candidates"):
-                    off_findings = getattr(provider, "last_candidates")
+                resp_findings = getattr(resp, "findings", None)
+                prov_candidates = getattr(provider, "last_candidates", None)
+                if resp_findings:
+                    off_findings = resp_findings
+                elif prov_candidates:
+                    off_findings = prov_candidates
 
                 off_state = ExecutionState.SUCCESS if off_findings else ExecutionState.EMPTY
             except Exception:
@@ -128,11 +134,11 @@ class HybridReviewOrchestrator:
         if expansion_decision.should_expand:
             # Format and rank context snippets deterministically using ContextRanker precedence
             from pathlib import Path
+
             from polaris.context.context_models import ContextSelectionLimits
             from polaris.context.dependency_graph import DependencyGraph
             from polaris.context.models import ChangedSymbol, OverlapClassification, SourceLocation, Symbol, SymbolKind
             from polaris.context.project_index import ProjectIndex
-            from polaris.context.snippet_selector import select_context
 
             # Construct temporary in-memory ProjectIndex and DependencyGraph for related files
             idx = ProjectIndex(repo_root=Path("."))
@@ -217,12 +223,15 @@ class HybridReviewOrchestrator:
                     tracker.complete_attempt(res_on_id, resp_on.usage)
                     combined_token_usage = combined_token_usage.add(resp_on.usage)
 
-                if hasattr(resp_on, "findings") and getattr(resp_on, "findings"):
-                    on_findings = getattr(resp_on, "findings")
-                elif hasattr(provider, "last_candidates_on") and getattr(provider, "last_candidates_on"):
-                    on_findings = getattr(provider, "last_candidates_on")
-                elif hasattr(provider, "last_candidates") and getattr(provider, "last_candidates"):
-                    on_findings = getattr(provider, "last_candidates")
+                resp_on_findings = getattr(resp_on, "findings", None)
+                prov_candidates_on = getattr(provider, "last_candidates_on", None)
+                prov_candidates_fallback = getattr(provider, "last_candidates", None)
+                if resp_on_findings:
+                    on_findings = resp_on_findings
+                elif prov_candidates_on:
+                    on_findings = prov_candidates_on
+                elif prov_candidates_fallback:
+                    on_findings = prov_candidates_fallback
 
                 on_state = ExecutionState.SUCCESS if on_findings else ExecutionState.EMPTY
             except Exception:
@@ -271,3 +280,83 @@ class HybridReviewOrchestrator:
             arbitration=arbitration_result,
             telemetry=telemetry,
         )
+
+    def run_deep_review(
+        self,
+        changed_file: str,
+        before_content: str | None,
+        after_content: str,
+        diff_text: str,
+        provider: LLMProvider,
+        tracker: BudgetTracker,
+        related_files: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Execute deep analysis combining structural graphs, dataflow, and LLM passes."""
+        start_time = time.perf_counter()
+        related = related_files or {}
+
+        # 1. Base Hybrid Review Execution
+        base_result = self.run_review(
+            changed_file=changed_file,
+            before_content=before_content,
+            after_content=after_content,
+            diff_text=diff_text,
+            provider=provider,
+            tracker=tracker,
+            related_files=related,
+        )
+
+        # 2. Dataflow Taint Tracking
+        dataflow_flows = self.dataflow_engine.analyze_source(after_content)
+
+        # 3. Evidence Fusion
+        fused_evidences: list[FusedEvidence] = []
+        for finding in base_result.arbitration.findings:
+            fused_evidences.append(
+                FusedEvidence.create(
+                    source=EvidenceSource.SECURITY_GUARDRAIL if "SEC-" in finding.rule_id else EvidenceSource.CONTRACT_ENGINE,
+                    file_path=finding.file_path,
+                    line=finding.line_range.start_line,
+                    rule_or_category=finding.rule_id,
+                    description=finding.title,
+                    confidence=finding.confidence.value,
+                )
+            )
+
+        for flow in dataflow_flows:
+            fused_evidences.append(
+                FusedEvidence.create(
+                    source=EvidenceSource.DATAFLOW_ENGINE,
+                    file_path=changed_file,
+                    line=flow.line,
+                    rule_or_category="DATAFLOW-TAINT",
+                    description=flow.evidence,
+                    confidence=flow.status.value,
+                )
+            )
+
+        fused = EvidenceFusionEngine.fuse_evidences(fused_evidences)
+
+        # 4. Explainable Risk Scoring
+        risk_breakdowns: dict[str, Any] = {}
+        for ev in fused:
+            rb = ExplainableRiskScoring.calculate_finding_risk(
+                severity="HIGH",
+                confidence=ev.confidence,
+                impact_scope="DIRECT",
+            )
+            risk_breakdowns[ev.evidence_id] = rb.model_dump()
+
+        elapsed_ms = int((time.perf_counter() - start_time) * 1000)
+
+        return {
+            "base_review": base_result,
+            "fused_evidences": [e.model_dump() for e in fused],
+            "risk_scores": risk_breakdowns,
+            "dataflow_count": len(dataflow_flows),
+            "latency_ms": elapsed_ms,
+        }
+
+
+# Canonical alias for backwards compatibility
+HybridOrchestrator3 = HybridReviewOrchestrator

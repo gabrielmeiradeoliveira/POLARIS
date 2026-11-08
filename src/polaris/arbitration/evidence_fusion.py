@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import hashlib
 from enum import StrEnum
-from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class EvidenceSource(StrEnum):

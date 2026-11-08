@@ -8,12 +8,10 @@ from __future__ import annotations
 
 import hashlib
 from enum import StrEnum
-from pathlib import Path
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polaris.context.semantic_graph import EdgeKind, EntityKind, GraphEdge, GraphEntity, SemanticProjectGraph
+from polaris.context.semantic_graph import GraphEdge, GraphEntity, SemanticProjectGraph
 
 
 class FileChangeKind(StrEnum):

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import ast
 from enum import StrEnum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -122,9 +121,8 @@ class DataflowAnalysisEngine:
                     return tainted_vars[expr_node.id]
                 if isinstance(expr_node, ast.JoinedStr):  # f-string
                     for part in expr_node.values:
-                        if isinstance(part, ast.FormattedValue) and isinstance(part.value, ast.Name):
-                            if part.value.id in tainted_vars:
-                                return tainted_vars[part.value.id]
+                        if isinstance(part, ast.FormattedValue) and isinstance(part.value, ast.Name) and part.value.id in tainted_vars:
+                            return tainted_vars[part.value.id]
                 src = self._find_source(expr_node)
                 if src and not self._is_sanitized(expr_node):
                     return src

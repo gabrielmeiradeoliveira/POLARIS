@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import hashlib
 from enum import StrEnum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -88,7 +87,7 @@ class ArbitrationResult(BaseModel):
 
 def _compute_stable_id(file_path: str, start_line: int, symbol: str | None, category: str) -> str:
     norm_p = file_path.replace("\\", "/")
-    raw = f"{norm_p}:{start_line}:{symbol or ''}:{category}".encode("utf-8")
+    raw = f"{norm_p}:{start_line}:{symbol or ''}:{category}".encode()
     return f"polaris-arb-{hashlib.sha256(raw).hexdigest()[:16]}"
 
 
@@ -245,11 +244,13 @@ class FindingArbitrationEngine:
                 c_file = cl[0][3].replace("\\", "/")
                 c_line = cl[0][4]
                 c_sym = cl[0][5]
-                if c_file == norm_p and c_line.overlaps_or_adjacent(line_r, tolerance=1):
-                    # Check if symbol matches or either has no symbol
-                    if sym is None or c_sym is None or sym == c_sym:
-                        matched_cluster = cl
-                        break
+                if (
+                    c_file == norm_p
+                    and c_line.overlaps_or_adjacent(line_r, tolerance=1)
+                    and (sym is None or c_sym is None or sym == c_sym)
+                ):
+                    matched_cluster = cl
+                    break
 
             if matched_cluster is not None:
                 matched_cluster.append(item)
@@ -292,7 +293,6 @@ class FindingArbitrationEngine:
                 item[0] == EvidenceSource.STATIC_SECURITY and item[8].confidence == GuardrailConfidence.CONFIRMED
                 for item in cluster
             )
-            has_sec = any(item[0] == EvidenceSource.STATIC_SECURITY for item in cluster)
             has_contract = any(item[0] == EvidenceSource.STATIC_CONTRACT for item in cluster)
             has_off = EvidenceSource.OFF_DIFF_ONLY in sources_present
             has_on = EvidenceSource.ON_BEHAVIORAL_DELTA in sources_present
