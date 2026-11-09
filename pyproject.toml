@@ -37,6 +37,7 @@ web = [
 ]
 
 [project.scripts]
+deicide = "polaris.cli:main"
 polaris = "polaris.cli:main"
 
 [tool.setuptools.packages.find]
