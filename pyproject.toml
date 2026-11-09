@@ -13,7 +13,9 @@ authors = [
     { name = "POLARIS Contributors" }
 ]
 dependencies = [
+    "packaging>=24.0",
     "pydantic>=2.7.0",
+    "pyyaml>=6.0",
     "typer>=0.12.0",
 ]
 
