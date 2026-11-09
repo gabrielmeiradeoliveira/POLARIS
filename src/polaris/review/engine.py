@@ -184,7 +184,7 @@ class HybridReviewOrchestrator:
                 project_index=idx,
                 limits=ContextSelectionLimits(max_context_tokens=1500),
             )
-            ranked_candidates = ranker.discover_candidates(changed_syms)
+            ranker.discover_candidates(changed_syms)
 
             # Select context blocks prioritized by ranker candidates and targeted files
             ranked_snippets: list[str] = []

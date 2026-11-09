@@ -14,11 +14,17 @@ class SarifReportFormatter:
     """Generates standard SARIF v2.1.0 output for GitHub Security tab integration."""
 
     @classmethod
-    def to_sarif(cls, findings: list[CanonicalSecurityFinding]) -> dict[str, Any]:
-        """Convert canonical security findings into SARIF schema."""
+    def to_sarif(
+        cls,
+        findings: list[CanonicalSecurityFinding],
+        *,
+        baseline_states: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Convert canonical security findings into SARIF schema with optional baselineState."""
         rules = []
         results = []
         rule_ids = set()
+        states = baseline_states or {}
 
         for f in findings:
             if f.rule_or_cve not in rule_ids:
@@ -32,7 +38,7 @@ class SarifReportFormatter:
                     },
                 })
 
-            results.append({
+            result_item: dict[str, Any] = {
                 "ruleId": f.rule_or_cve,
                 "message": {"text": f.title},
                 "locations": [
@@ -45,7 +51,13 @@ class SarifReportFormatter:
                         }
                     }
                 ],
-            })
+            }
+
+            b_state = states.get(f.finding_id)
+            if b_state in ("new", "existing", "unchanged", "updated", "absent"):
+                result_item["baselineState"] = b_state
+
+            results.append(result_item)
 
         return {
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",

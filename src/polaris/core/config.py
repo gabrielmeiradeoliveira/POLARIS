@@ -215,6 +215,7 @@ class OutputFormat(StrEnum):
 
     TERMINAL = "terminal"
     JSON = "json"
+    SARIF = "sarif"
 
 
 class PolarisConfig(BaseModel):

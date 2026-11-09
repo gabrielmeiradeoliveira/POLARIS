@@ -20,6 +20,9 @@ class DockerfileDefectType(StrEnum):
     HARDCODED_SECRET = "HARDCODED_SECRET"  # noqa: S105
     INSECURE_CURL_BASH = "INSECURE_CURL_BASH"
     MISSING_HEALTHCHECK = "MISSING_HEALTHCHECK"
+    INSECURE_CHMOD_777 = "INSECURE_CHMOD_777"
+    ADD_INSTEAD_OF_COPY = "ADD_INSTEAD_OF_COPY"
+    INSECURE_PACKAGE_UPGRADE = "INSECURE_PACKAGE_UPGRADE"
 
 
 class DockerfileFinding(BaseModel):
@@ -85,6 +88,42 @@ class ContainerSecurityScanner:
                         instruction="[REDACTED SECRET INSTRUCTION]",
                         severity="CRITICAL",
                         remediation="Remove embedded credentials from Dockerfile. Inject secrets at runtime via container secret managers or environment variables.",
+                    )
+                )
+
+            # 4. Insecure chmod 777 / overly permissive file rights
+            if re.search(r"chmod\s+(?:-R\s+)?(?:777|a\+rwx)\b", line, re.IGNORECASE):
+                findings.append(
+                    DockerfileFinding(
+                        defect_type=DockerfileDefectType.INSECURE_CHMOD_777,
+                        line=idx,
+                        instruction=line,
+                        severity="HIGH",
+                        remediation="Avoid chmod 777. Grant minimal necessary read/execute permissions (e.g. 755 or 644).",
+                    )
+                )
+
+            # 5. Use of ADD instead of COPY for local files
+            if line.upper().startswith("ADD ") and not re.search(r"https?://|\.tar(?:\.gz|\.bz2|\.xz)?\b", line, re.IGNORECASE):
+                findings.append(
+                    DockerfileFinding(
+                        defect_type=DockerfileDefectType.ADD_INSTEAD_OF_COPY,
+                        line=idx,
+                        instruction=line,
+                        severity="LOW",
+                        remediation="Prefer COPY over ADD for copying local files; ADD can unintentionally unpack archives or trigger unexpected behavior.",
+                    )
+                )
+
+            # 6. Insecure package upgrade / unpinned cache updates
+            if re.search(r"\bapt-get\s+(?:dist-)?upgrade\b|\byum\s+update\b", line, re.IGNORECASE):
+                findings.append(
+                    DockerfileFinding(
+                        defect_type=DockerfileDefectType.INSECURE_PACKAGE_UPGRADE,
+                        line=idx,
+                        instruction=line,
+                        severity="MEDIUM",
+                        remediation="Avoid apt-get upgrade or yum update in Dockerfiles; pinning base images and explicit package versions ensures reproducibility.",
                     )
                 )
 

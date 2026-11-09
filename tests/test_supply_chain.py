@@ -3,7 +3,6 @@
 from polaris.supply_chain.scanner import (
     DiscoveredDependency,
     Ecosystem,
-    MatchedVulnerability,
     SupplyChainSecurityScanner,
     VulnerabilityAdvisory,
     VulnerabilityMatchStatus,
@@ -70,3 +69,27 @@ def test_cyclonedx_sbom_generation():
     assert len(sbom["components"]) == 2
     assert sbom["components"][0]["name"] == "lodash"
     assert sbom["components"][1]["name"] == "requests"
+
+
+def test_supply_chain_semantic_version_range_evaluations():
+    """Verify PEP 440 semantic version range matching edge cases (e.g., compound ranges, double digits)."""
+    eval_fn = SupplyChainSecurityScanner._evaluate_version_vulnerable
+
+    # Double digit version sorting check: 2.10.0 should NOT be < 2.2.0 in semver
+    assert not eval_fn("2.10.0", "<2.2.0")
+    assert eval_fn("2.1.9", "<2.2.0")
+    assert eval_fn("2.2.0", "<=2.2.0")
+    assert not eval_fn("2.2.1", "<=2.2.0")
+
+    # Compound ranges
+    assert eval_fn("1.5.0", ">=1.0.0,<2.0.0")
+    assert not eval_fn("2.0.0", ">=1.0.0,<2.0.0")
+    assert not eval_fn("0.9.9", ">=1.0.0,<2.0.0")
+
+    # Prerelease handling in PEP 440
+    assert eval_fn("0.9.9a1", "<1.0.0")
+    assert not eval_fn("1.0.0", "<1.0.0a1")
+
+    # Empty and invalid cases
+    assert not eval_fn("", "<2.0.0")
+    assert not eval_fn("1.0.0", "")

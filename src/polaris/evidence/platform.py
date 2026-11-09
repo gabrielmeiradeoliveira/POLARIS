@@ -22,6 +22,9 @@ class CanonicalFindingDomain(StrEnum):
     CODE_INTELLIGENCE = "CODE_INTELLIGENCE"
     SUPPLY_CHAIN = "SUPPLY_CHAIN"
     CONTAINER = "CONTAINER"
+    SECRETS = "SECRETS"
+    IAC = "IAC"
+    IMAGE_VULNERABILITY = "IMAGE_VULNERABILITY"
 
 
 class CanonicalSecurityFinding(BaseModel):

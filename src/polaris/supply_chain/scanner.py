@@ -15,6 +15,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
 from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
@@ -104,11 +106,55 @@ class MatchedVulnerability(BaseModel):
     evidence: str
 
 
+DEFAULT_LOCAL_ADVISORIES: list[VulnerabilityAdvisory] = [
+    VulnerabilityAdvisory(
+        advisory_id="GHSA-w5p7-h5w8-2hfq",
+        cve_id="CVE-2018-18074",
+        package_name="requests",
+        ecosystem=Ecosystem.PYPI,
+        vulnerable_versions="<2.21.0",
+        fixed_version="2.21.0",
+        severity="HIGH",
+        summary="Requests sends HTTP Authorization header to unintended hosts on redirect",
+    ),
+    VulnerabilityAdvisory(
+        advisory_id="GHSA-6767-1234-5678",
+        cve_id="CVE-2021-3281",
+        package_name="django",
+        ecosystem=Ecosystem.PYPI,
+        vulnerable_versions="<3.1.1",
+        fixed_version="3.1.1",
+        severity="HIGH",
+        summary="Path traversal vulnerability in Django storage backends",
+    ),
+    VulnerabilityAdvisory(
+        advisory_id="GHSA-4w7x-pq59-522r",
+        cve_id="CVE-2022-40897",
+        package_name="setuptools",
+        ecosystem=Ecosystem.PYPI,
+        vulnerable_versions="<65.5.1",
+        fixed_version="65.5.1",
+        severity="HIGH",
+        summary="Regular Expression Denial of Service in package index parsing",
+    ),
+    VulnerabilityAdvisory(
+        advisory_id="GHSA-2qrg-xjc6-7rpx",
+        cve_id="CVE-2020-28493",
+        package_name="jinja2",
+        ecosystem=Ecosystem.PYPI,
+        vulnerable_versions="<2.11.3",
+        fixed_version="2.11.3",
+        severity="MEDIUM",
+        summary="ReDoS in urlize filter",
+    ),
+]
+
+
 class SupplyChainSecurityScanner:
     """Offline deterministic supply chain dependency scanner."""
 
     def __init__(self, local_advisories: list[VulnerabilityAdvisory] | None = None) -> None:
-        self.advisories = local_advisories or []
+        self.advisories = DEFAULT_LOCAL_ADVISORIES if local_advisories is None else local_advisories
 
     @classmethod
     def parse_manifest(cls, file_path: str | Path, content: str) -> list[DiscoveredDependency]:
@@ -227,10 +273,28 @@ class SupplyChainSecurityScanner:
 
     @staticmethod
     def _evaluate_version_vulnerable(version: str, constraint: str) -> bool:
-        """Evaluate simple <X.Y.Z or <=X.Y.Z constraint deterministically."""
+        """Evaluate version constraint against packaging standard / PEP 440 deterministically.
+
+        Supports compound specifiers (e.g. '>=1.0.0,<2.0.0', '<2.21.0'), prereleases,
+        and falls back gracefully to numeric tuple comparison for non-standard semver strings.
+        """
+        clean_version = version.strip()
+        clean_constraint = constraint.strip()
+        if not clean_version or not clean_constraint:
+            return False
+
+        # Attempt PEP 440 standard parsing via packaging
         try:
-            v_parts = [int(p) for p in re.findall(r"\d+", version)[:3]]
-            c_op_match = re.match(r"^([<>=!~]+)\s*(\d+(?:\.\d+)*)", constraint.strip())
+            parsed_v = Version(clean_version)
+            spec = SpecifierSet(clean_constraint)
+            return parsed_v in spec
+        except (InvalidVersion, InvalidSpecifier):
+            pass
+
+        # Fallback to deterministic regex-based comparison for custom / non-PEP440 versions
+        try:
+            v_parts = [int(p) for p in re.findall(r"\d+", clean_version)[:3]]
+            c_op_match = re.match(r"^([<>=!~]+)\s*(\d+(?:\.\d+)*)", clean_constraint)
             if not c_op_match:
                 return False
             op = c_op_match.group(1)

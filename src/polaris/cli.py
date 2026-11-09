@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Annotated
 
@@ -13,7 +14,7 @@ from polaris.core.config import OutputFormat, PolarisConfig
 from polaris.core.errors import ExitCode, PolarisError
 from polaris.core.models import BudgetTracker, ExecutionBudget
 from polaris.core.orchestrator import AnalysisOrchestrator
-from polaris.core.registry import ModuleRegistry
+from polaris.core.registry import ModuleRegistry, build_default_scanner_registry
 from polaris.evaluation.history import CorpusKind, append_manifest, build_manifest, write_trend_reports
 from polaris.evaluation.runner import evaluate_corpus, load_fixtures_from_file
 from polaris.integrations.github.client import GitHubClient
@@ -166,7 +167,7 @@ def review_command(
         typer.Option(
             "--format",
             "-f",
-            help="Report output format: 'terminal' or 'json'.",
+            help="Report output format: 'terminal', 'json', or 'sarif'.",
         ),
     ] = "terminal",
     repo: Annotated[
@@ -281,6 +282,27 @@ def review_command(
             help="Review execution strategy: 'direct' (default standard pipeline) or 'hybrid' (GOAL 28 opt-in multi-stage arbitration engine).",
         ),
     ] = None,
+    baseline_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--baseline",
+            help="Path to an existing security baseline file to compare findings against.",
+        ),
+    ] = None,
+    save_baseline_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--save-baseline",
+            help="Path to save the current analysis findings as a new security baseline.",
+        ),
+    ] = None,
+    fail_on_new: Annotated[
+        bool | None,
+        typer.Option(
+            "--fail-on-new/--no-fail-on-new",
+            help="Enforce quality gate evaluation strictly on new security regressions compared to baseline.",
+        ),
+    ] = None,
 ) -> None:
     """Analyze local Git changes for correctness bugs."""
     try:
@@ -350,10 +372,215 @@ def review_command(
             # Update report model with goal30 intelligence payload
             report = report.model_copy(update={"goal30_intelligence": {"analyses": deep_results}})
 
-        if config.output_format == OutputFormat.JSON:
-            typer.echo(format_json_report(report))
+        # Execute deterministic security scanners on analyzed / changed files (and untracked files in local diff mode)
+        scanner_registry = build_default_scanner_registry()
+        logger = logging.getLogger(__name__)
+        raw_scanner_results = []
+        scanned_files_set = set(report.files_analyzed)
+
+        # In local uncommitted diff review (base_revision is None), include untracked repository files in scan scope
+        if config.base_revision is None:
+            try:
+                import subprocess
+                res_untracked = subprocess.run(
+                    ["git", "-c", f"safe.directory={config.repo_path}", "-C", str(config.repo_path), "ls-files", "--others", "--exclude-standard"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5.0,
+                )
+                if res_untracked.returncode == 0:
+                    for line in res_untracked.stdout.splitlines():
+                        clean_u = line.strip().replace("\\", "/").lstrip("./")
+                        if clean_u:
+                            scanned_files_set.add(clean_u)
+            except Exception as exc:
+                logger.debug("Failed discovering untracked files for scanner coverage: %s", type(exc).__name__)
+
+        effective_scanned_files = sorted(scanned_files_set)
+        scanner_parse_errors: list[str] = []
+        from polaris.security.contracts import ScannerReportParseError
+
+        for fpath in effective_scanned_files:
+            full_p = Path(config.repo_path) / fpath
+            if full_p.is_file():
+                try:
+                    fcontent = full_p.read_text(encoding="utf-8", errors="replace")
+                    raw_scanner_results.extend(scanner_registry.run_scanners_on_file(fpath, fcontent))
+                except ScannerReportParseError as exc:
+                    scanner_parse_errors.append(f"{fpath}: {exc.message}")
+                    logger.warning("Security scanner report parse error in %s: %s", fpath, exc.message)
+                except OSError as exc:
+                    logger.debug("Failed reading file %s for scanning: %s", fpath, type(exc).__name__)
+
+        if scanner_parse_errors:
+            typer.echo(f"Security Scanner Report Parse Error: {scanner_parse_errors[0]}", err=True)
+            raise typer.Exit(code=int(ExitCode.CONFIGURATION_ERROR))
+
+        from polaris.evidence.platform import CanonicalFindingDomain, CanonicalSecurityFinding
+        from polaris.policy.quality_gate import GateDecision, PolarisSecurityPolicy, SecurityQualityGateEngine
+        from polaris.reporting.sarif import SarifReportFormatter
+
+        canonical_findings: list[CanonicalSecurityFinding] = []
+
+        # Map Code Review findings
+        for f in report.findings:
+            seed = f"CODE::{f.file_path}::{f.line_range.start_line}::{f.category.value}"
+            import hashlib
+            fid = f"find:{hashlib.sha256(seed.encode()).hexdigest()[:16]}"
+            canonical_findings.append(
+                CanonicalSecurityFinding(
+                    finding_id=fid,
+                    domain=CanonicalFindingDomain.CODE_INTELLIGENCE,
+                    title=f.title,
+                    severity=f.severity.value.upper(),
+                    confidence=f.confidence.value.upper(),
+                    file_path=f.file_path,
+                    line=f.line_range.start_line,
+                    rule_or_cve=f.category.value,
+                    evidence_text=f.evidence,
+                    remediation_hint=f.suggested_remediation or "",
+                    risk_score=90.0 if f.severity.value.upper() == "CRITICAL" else 60.0,
+                )
+            )
+
+        # Map Scanner results
+        for sr in raw_scanner_results:
+            if sr.scanner_id == "container_security":
+                domain = CanonicalFindingDomain.CONTAINER
+            elif sr.scanner_id == "docker_scout":
+                domain = CanonicalFindingDomain.IMAGE_VULNERABILITY
+            elif sr.scanner_id == "secret_detection":
+                domain = CanonicalFindingDomain.SECRETS
+            elif sr.scanner_id == "iac_security":
+                domain = CanonicalFindingDomain.IAC
+            else:
+                domain = CanonicalFindingDomain.SUPPLY_CHAIN
+            import hashlib
+            seed = f"{sr.scanner_id.upper()}::{sr.file_path}::{sr.line}::{sr.rule_id}"
+            fid = f"find:{hashlib.sha256(seed.encode()).hexdigest()[:16]}"
+            canonical_findings.append(
+                CanonicalSecurityFinding(
+                    finding_id=fid,
+                    domain=domain,
+                    title=sr.title,
+                    severity=sr.severity.upper(),
+                    confidence=sr.confidence.upper(),
+                    file_path=sr.file_path,
+                    line=sr.line,
+                    rule_or_cve=sr.rule_id,
+                    evidence_text=sr.description,
+                    remediation_hint=sr.remediation,
+                    risk_score=90.0 if sr.severity.upper() == "CRITICAL" else 65.0,
+                )
+            )
+
+        from polaris.policy.baseline import (
+            BaselineError,
+            SecurityBaselineEngine,
+        )
+
+        baseline_summary = None
+        sarif_states: dict[str, str] = {}
+
+        # 1. Handle baseline loading and comparison if requested
+        if baseline_path is not None:
+            try:
+                loaded_baseline = SecurityBaselineEngine.load_from_file(baseline_path)
+            except BaselineError as exc:
+                typer.echo(f"Error loading baseline: {exc.message}", err=True)
+                raise typer.Exit(code=int(ExitCode.CONFIGURATION_ERROR)) from exc
+
+            is_curr_complete = report.status == "completed"
+            trunc_reasons = [f"{w.code}: {w.message}" for w in report.warnings if "BUDGET" in w.code or "TRUNCAT" in w.code]
+            baseline_summary = SecurityBaselineEngine.compare(
+                current_findings=canonical_findings,
+                baseline=loaded_baseline,
+                current_files_analyzed=effective_scanned_files,
+                current_is_complete=is_curr_complete,
+                current_incompleteness_reasons=trunc_reasons,
+            )
+
+            # Map SARIF baseline states
+            for cf in baseline_summary.existing_findings:
+                sarif_states[cf.finding.finding_id] = "existing"
+            for cf in baseline_summary.new_findings:
+                sarif_states[cf.finding.finding_id] = "new"
+
+        # 2. Handle saving baseline if requested
+        if save_baseline_path is not None:
+            try:
+                is_curr_complete = report.status == "completed"
+                trunc_reasons = [f"{w.code}: {w.message}" for w in report.warnings if "BUDGET" in w.code or "TRUNCAT" in w.code]
+                new_baseline = SecurityBaselineEngine.create_baseline(
+                    findings=canonical_findings,
+                    files_analyzed=effective_scanned_files,
+                    repository_root=str(config.repo_path),
+                    base_revision=config.base_revision,
+                    is_complete=is_curr_complete,
+                    incompleteness_reasons=trunc_reasons,
+                )
+                SecurityBaselineEngine.save_to_file(new_baseline, save_baseline_path, overwrite=True)
+            except BaselineError as exc:
+                typer.echo(f"Error saving baseline: {exc.message}", err=True)
+                raise typer.Exit(code=int(ExitCode.CONFIGURATION_ERROR)) from exc
+
+        # 3. Evaluate Quality Gate Policy
+        policy = PolarisSecurityPolicy.load_from_repo(config.repo_path)
+        gate_decision = GateDecision.PASS
+        blocking: list[str] = []
+
+        is_curr_complete = report.status == "completed"
+        trunc_reasons = [f"{w.code}: {w.message}" for w in report.warnings if "BUDGET" in w.code or "TRUNCAT" in w.code]
+
+        should_fail_on_new = bool(fail_on_new or (policy and policy.fail_on_new))
+        if policy is not None or should_fail_on_new:
+            eval_findings = canonical_findings
+            if should_fail_on_new and baseline_summary is not None:
+                eval_findings = [it.finding for it in baseline_summary.new_findings]
+
+            gate_decision, blocking = SecurityQualityGateEngine.evaluate(
+                eval_findings,
+                policy=policy,
+                is_complete=is_curr_complete,
+                incompleteness_reasons=trunc_reasons,
+            )
+
+        if config.output_format == OutputFormat.SARIF:
+            sarif_dict = SarifReportFormatter.to_sarif(canonical_findings, baseline_states=sarif_states)
+            typer.echo(json.dumps(sarif_dict, indent=2))
+        elif config.output_format == OutputFormat.JSON:
+            report_dict = json.loads(format_json_report(report))
+            if baseline_summary is not None:
+                report_dict["baseline_comparison"] = baseline_summary.model_dump()
+            typer.echo(json.dumps(report_dict, indent=2))
         else:
             typer.echo(format_terminal_report(report))
+            if raw_scanner_results:
+                typer.echo("\nAdditional Security Scanner Findings:")
+                for sr in raw_scanner_results:
+                    typer.echo(f"  [{sr.severity.upper()}] {sr.file_path}:{sr.line} - {sr.title} ({sr.rule_id})")
+            if baseline_summary is not None:
+                typer.echo("\n--- Security Baseline Comparison ---")
+                typer.echo(f"  Complete: {baseline_summary.is_complete}")
+                typer.echo(
+                    f"  Findings: NEW={baseline_summary.counts['new']}, "
+                    f"EXISTING={baseline_summary.counts['existing']}, "
+                    f"RESOLVED={baseline_summary.counts['resolved']}"
+                )
+                if baseline_summary.new_findings:
+                    typer.echo("  New Findings:")
+                    for it in baseline_summary.new_findings:
+                        typer.echo(f"    + [{it.finding.severity}] {it.finding.file_path}:{it.finding.line} - {it.finding.title}")
+                if baseline_summary.resolved_findings:
+                    typer.echo("  Resolved Findings:")
+                    for it in baseline_summary.resolved_findings:
+                        typer.echo(f"    - [{it.finding.severity}] {it.finding.file_path}:{it.finding.line} - {it.finding.title}")
+
+        if gate_decision == GateDecision.FAIL:
+            typer.echo(f"\n[POLARIS QUALITY GATE] FAILED: {len(blocking)} blocking violation(s) found.", err=True)
+            for blk in blocking:
+                typer.echo(f"  - {blk}", err=True)
+            raise typer.Exit(code=1)
 
         raise typer.Exit(code=int(ExitCode.SUCCESS))
 
@@ -390,7 +617,7 @@ def usage_command(
         typer.Option(
             "--format",
             "-f",
-            help="Report output format: 'terminal' or 'json'.",
+            help="Report output format: 'terminal', 'json', or 'sarif'.",
         ),
     ] = "terminal",
     scope: Annotated[
