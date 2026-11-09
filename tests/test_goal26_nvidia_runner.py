@@ -109,8 +109,6 @@ def test_comparative_metrics_excludes_missing_on_case() -> None:
 
 
 def test_resume_rejects_ambiguous_inflight_without_provider_calls(tmp_path) -> None:
-def test_resume_rejects_ambiguous_inflight_without_provider_calls(tmp_path) -> None:
-    import hashlib
     from evaluations.goal26_nvidia_runner import _write_partial
 
     manifest = load_manifest()

@@ -1,0 +1,412 @@
+{
+  "arms": [
+    {
+      "arm": "off",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 37135,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 1039,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 894,
+            "total_tokens": 1933
+          },
+          "true_positives": 1
+        }
+      ],
+      "stopped_reason": null
+    },
+    {
+      "arm": "on",
+      "cases": [
+        {
+          "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+          "error_category": null,
+          "false_negatives": 0,
+          "false_positives": 0,
+          "findings_count": 1,
+          "http_status": null,
+          "latency_ms": 28053,
+          "operational_state": "completed",
+          "retries_attempted": 0,
+          "status": "completed",
+          "tokens": {
+            "completion_tokens": 722,
+            "estimated_cost_usd": null,
+            "is_estimated": false,
+            "prompt_tokens": 894,
+            "total_tokens": 1616
+          },
+          "true_positives": 1
+        }
+      ],
+      "stopped_reason": null
+    }
+  ],
+  "benchmark_version": "1.0.0",
+  "campaign_id": "goal27-real-world-model-selection",
+  "checkpoint_cases": {
+    "off": [
+      {
+        "actual_findings": [
+          {
+            "category": "type_mismatch",
+            "confidence": "high",
+            "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but it now returns the raw input. If x is a token string or another non-mapping value, callers that access the decoded claims as a mapping, such as decode(x)['sub'], will fail with a TypeError or return incorrect data.",
+            "evidence": "def decode(x): return x",
+            "file_path": "auth/token.py",
+            "id": "dcd-cf3a48154e90",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "high",
+            "suggested_remediation": "Restore the mapping return value, or update every caller and explicitly define the new return contract.",
+            "title": "decode no longer returns a claims mapping"
+          }
+        ],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but it now returns the raw input. If x is a token string or another non-mapping value, callers that access the decoded claims as a mapping, such as decode(x)['sub'], will fail with a TypeError or return incorrect data.",
+              "end_line": 1,
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "severity": "high",
+              "start_line": 1,
+              "suggested_remediation": "Restore the mapping return value, or update every caller and explicitly define the new return contract.",
+              "title": "decode no longer returns a claims mapping"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "type_mismatch",
+              "expected_allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "expected_category": "type_mismatch",
+              "expected_file_path": "auth/token.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "auth/token.py",
+              "finding_id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "high",
+              "severity_match": true,
+              "title": "decode no longer returns a claims mapping"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously returned a dictionary containing the subject under the 'sub' key, but it now returns the raw input. If x is a token string or another non-mapping value, callers that access the decoded claims as a mapping, such as decode(x)['sub'], will fail with a TypeError or return incorrect data.",
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "high",
+              "suggested_remediation": "Restore the mapping return value, or update every caller and explicitly define the new return contract.",
+              "title": "decode no longer returns a claims mapping"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 37135,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 37117,
+              "prompt_hash": "099429be817db96e4fee3c7a3728c0816ebb23263ae2c594a182f511d4830194",
+              "response_hash": "b55bfc7fcbb46317b5b3969167d6134aba79da123bbb9d689e3d81fdb8144c18",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 37071,
+              "usage": {
+                "completion_tokens": 1039,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 894,
+                "total_tokens": 1933
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 0,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 1039,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 894,
+          "total_tokens": 1933
+        }
+      }
+    ],
+    "on": [
+      {
+        "actual_findings": [
+          {
+            "category": "type_mismatch",
+            "confidence": "high",
+            "description": "The function previously always returned a dictionary containing the 'sub' claim, but it now returns the input unchanged. For a non-mapping input such as a token string, callers that expect to access decoded claims with result['sub'] will receive a string and raise a TypeError; callers expecting a mapping may also fail validation or serialization.",
+            "evidence": "def decode(x): return x",
+            "file_path": "auth/token.py",
+            "id": "dcd-cf3a48154e90",
+            "line_range": {
+              "end_line": 1,
+              "start_line": 1
+            },
+            "module_id": "code_review",
+            "severity": "medium",
+            "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller to handle the new return type and explicitly decode the token before accessing claims.",
+            "title": "decode no longer returns a claims dictionary"
+          }
+        ],
+        "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+        "category_mismatch_detections": 0,
+        "change_type": "defect_introduction",
+        "diagnostics": {
+          "candidate_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously always returned a dictionary containing the 'sub' claim, but it now returns the input unchanged. For a non-mapping input such as a token string, callers that expect to access decoded claims with result['sub'] will receive a string and raise a TypeError; callers expecting a mapping may also fail validation or serialization.",
+              "end_line": 1,
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "severity": "medium",
+              "start_line": 1,
+              "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller to handle the new return type and explicitly decode the token before accessing claims.",
+              "title": "decode no longer returns a claims dictionary"
+            }
+          ],
+          "category_mismatches": [],
+          "matched_findings": [
+            {
+              "category": "type_mismatch",
+              "expected_allowed_categories": [
+                "correctness",
+                "type_mismatch"
+              ],
+              "expected_category": "type_mismatch",
+              "expected_file_path": "auth/token.py",
+              "expected_line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "file_path": "auth/token.py",
+              "finding_id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "severity": "medium",
+              "severity_match": false,
+              "title": "decode no longer returns a claims dictionary"
+            }
+          ],
+          "rejected_candidates": [],
+          "unmatched_expected": [],
+          "unmatched_findings": [],
+          "validated_findings": [
+            {
+              "category": "type_mismatch",
+              "confidence": "high",
+              "description": "The function previously always returned a dictionary containing the 'sub' claim, but it now returns the input unchanged. For a non-mapping input such as a token string, callers that expect to access decoded claims with result['sub'] will receive a string and raise a TypeError; callers expecting a mapping may also fail validation or serialization.",
+              "evidence": "def decode(x): return x",
+              "file_path": "auth/token.py",
+              "id": "dcd-cf3a48154e90",
+              "line_range": {
+                "end_line": 1,
+                "start_line": 1
+              },
+              "module_id": "code_review",
+              "severity": "medium",
+              "suggested_remediation": "Restore the previous return contract with `return {'sub': x}`, or update every caller to handle the new return type and explicitly decode the token before accessing claims.",
+              "title": "decode no longer returns a claims dictionary"
+            }
+          ]
+        },
+        "duplicates_reduced": 0,
+        "error": null,
+        "error_category": null,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "http_status": null,
+        "latency_ms": 28053,
+        "legitimate_rejected": 0,
+        "observability": {
+          "attempts": [
+            {
+              "attempt_number": 1,
+              "configured_attempt_timeout_seconds": 120.0,
+              "error_category": null,
+              "http_status": null,
+              "latency_ms": 28034,
+              "prompt_hash": "099429be817db96e4fee3c7a3728c0816ebb23263ae2c594a182f511d4830194",
+              "response_hash": "eedfb7a218d82c8564eefa64c48efc12a42cd726962ee9970e6fced973acd008",
+              "retry_reason": null,
+              "termination_reason": "completed",
+              "transport_duration_ms": 27999,
+              "usage": {
+                "completion_tokens": 722,
+                "estimated_cost_usd": null,
+                "is_estimated": false,
+                "prompt_tokens": 894,
+                "total_tokens": 1616
+              }
+            }
+          ],
+          "context": null,
+          "model": "minimaxai/minimax-m3.1-flash",
+          "provider": "nvidia"
+        },
+        "operational_state": "completed",
+        "provenance": "synthetic_benchmark",
+        "retries_attempted": 0,
+        "severity_mismatches": 1,
+        "status": "completed",
+        "true_positives": 1,
+        "undetected_expected_defects": 0,
+        "usage": {
+          "completion_tokens": 722,
+          "estimated_cost_usd": null,
+          "is_estimated": false,
+          "prompt_tokens": 894,
+          "total_tokens": 1616
+        }
+      }
+    ]
+  },
+  "comparative_metrics": {
+    "complete_pair_ids": [
+      "e2e-ctx-01-return-contract-multiple-callers"
+    ],
+    "deltas": {
+      "delta_f1": 0.0,
+      "delta_fp": 0,
+      "delta_latency_mean_ms": -9082,
+      "delta_precision": 0.0,
+      "delta_recall": 0.0,
+      "delta_tokens": -317,
+      "delta_tp": 0
+    },
+    "off": {
+      "completed_count": 1,
+      "f1": 1.0,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "latency": {
+        "mean_ms": 37135,
+        "median_ms": 37135,
+        "p90_ms": 37135,
+        "total_s": 37.13
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tokens": {
+        "completion_tokens": 1039,
+        "prompt_tokens": 894,
+        "total_tokens": 1933
+      },
+      "total_attempted": 1,
+      "tp": 1,
+      "true_positives_per_review": 1.0
+    },
+    "on": {
+      "completed_count": 1,
+      "f1": 1.0,
+      "failed_count": 0,
+      "false_positives_per_review": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "latency": {
+        "mean_ms": 28053,
+        "median_ms": 28053,
+        "p90_ms": 28053,
+        "total_s": 28.05
+      },
+      "operational_failure_rate": 0.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tokens": {
+        "completion_tokens": 722,
+        "prompt_tokens": 894,
+        "total_tokens": 1616
+      },
+      "total_attempted": 1,
+      "tp": 1,
+      "true_positives_per_review": 1.0
+    },
+    "paired_case_count": 1
+  },
+  "global_usage": {
+    "completion_tokens": 1761,
+    "estimated_cost_usd": null,
+    "is_estimated": false,
+    "prompt_tokens": 1788,
+    "total_tokens": 3549
+  },
+  "goal": "GOAL 27 Real-World Benchmark & Model Selection",
+  "in_flight": {
+    "arm": "off",
+    "case_id": "e2e-ctx-02-shared-session-state"
+  },
+  "is_simulated": false,
+  "manifest_sha256": "f0ee96abb98a426536c8460d7318209f5eed0d046dc8cb1b3ecfc6b44a154578",
+  "model_id": "minimaxai/minimax-m3.1-flash",
+  "provider": "nvidia",
+  "requests_made": 2
+}

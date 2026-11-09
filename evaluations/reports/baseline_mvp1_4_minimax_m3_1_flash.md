@@ -1,17 +1,17 @@
 # POLARIS MVP 1.4 Baseline Evaluation Report
 
-**Model Identifier:** `minimaxai/minimax-m3.1-flash`  
-**Provider:** NVIDIA API (`NvidiaProvider`)  
-**Evaluation Date:** October 25, 2026  
-**Benchmark Suite:** MVP 1.4 Valid Bug Introduction Benchmark (`evaluations/fixtures/bug_introduction_benchmark.json`)  
-**Benchmark Version:** 1.0.0  
-**Evaluation Mode:** End-to-End Live Model Review (`--end-to-end`)  
+**Model Identifier:** `minimaxai/minimax-m3.1-flash`
+**Provider:** NVIDIA API (`NvidiaProvider`)
+**Evaluation Date:** October 25, 2026
+**Benchmark Suite:** MVP 1.4 Valid Bug Introduction Benchmark (`evaluations/fixtures/bug_introduction_benchmark.json`)
+**Benchmark Version:** 1.0.0
+**Evaluation Mode:** End-to-End Live Model Review (`--end-to-end`)
 
 ---
 
 ## 1. Executive Summary
 
-This report establishes the empirical code review baseline for POLARIS MVP 1.4 evaluated against `minimaxai/minimax-m3.1-flash`. 
+This report establishes the empirical code review baseline for POLARIS MVP 1.4 evaluated against `minimaxai/minimax-m3.1-flash`.
 
 The benchmark evaluates the model's ability to detect authentic and reconstructed bug-introducing changes while maintaining zero false positives on clean bug fixes, refactorings, and documentation updates.
 

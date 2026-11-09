@@ -1,0 +1,717 @@
+{
+  "benchmark_version": "3.0.0-audited",
+  "total_scenarios": 100,
+  "positive_count": 50,
+  "negative_count": 50,
+  "tp": 50,
+  "fp": 1,
+  "tn": 49,
+  "fn": 0,
+  "precision": 0.9803921568627451,
+  "recall": 1.0,
+  "f1_score": 0.99009900990099,
+  "false_positive_rate": 0.02,
+  "execution_time_ms": 9,
+  "scenarios": [
+    {
+      "scenario_id": "df_pos_1",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_2",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_3",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_4",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_5",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_6",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_7",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_8",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_9",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_10",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_11",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_12",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_13",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_14",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_pos_15",
+      "domain": "DATAFLOW",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_1",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_2",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_3",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_4",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": true,
+      "status": "FAILED"
+    },
+    {
+      "scenario_id": "df_neg_5",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_6",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_7",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_8",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_9",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_10",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_11",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_12",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_13",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_14",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "df_neg_15",
+      "domain": "DATAFLOW",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_0",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_1",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_2",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_3",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_4",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_5",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_6",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_7",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_8",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_9",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_10",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_11",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_12",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_13",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_14",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_15",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_pos_16",
+      "domain": "CONTRACT",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_0",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_1",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_2",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_3",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_4",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_5",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_6",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_7",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_8",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_9",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_10",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_11",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_12",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_13",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_14",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_15",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "contract_neg_16",
+      "domain": "CONTRACT",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_0",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_1",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_2",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_3",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_4",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_5",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_6",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_7",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_8",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_9",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_10",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_11",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_12",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_13",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_14",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_15",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_16",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_pos_17",
+      "domain": "SECURITY",
+      "expected": true,
+      "detected": true,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_0",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_1",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_2",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_3",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_4",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_5",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_6",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_7",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_8",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_9",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_10",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_11",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_12",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_13",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_14",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_15",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_16",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    },
+    {
+      "scenario_id": "sec_neg_17",
+      "domain": "SECURITY",
+      "expected": false,
+      "detected": false,
+      "status": "PASSED"
+    }
+  ]
+}

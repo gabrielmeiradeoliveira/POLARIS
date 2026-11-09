@@ -1,0 +1,17 @@
+{
+  "total_scenarios": 40,
+  "tp": 20,
+  "fp": 0,
+  "tn": 20,
+  "fn": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "duration_ms": 0,
+  "token_economics": {
+    "unoptimized_tokens_projected": 100000,
+    "gateway_tokens_consumed": 5000,
+    "skipped_calls_count": 40,
+    "token_savings_percentage": 95.0
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "campaign_id": "goal27-real-world-model-selection",
+  "goal": "GOAL 27 Real-World Benchmark & Model Selection",
+  "benchmark_version": "1.0.0",
+  "fixtures": "evaluations/fixtures/end_to_end_context_benchmark.json",
+  "fixture_sha256": "1901684d08c4b6cba33edeaa186782ec3b778fad9af7cf2f043eed91913e2357",
+  "verified_corpus": "evaluations/fixtures/real_world_verified_benchmark.json",
+  "verified_corpus_sha256": "c2cd0994d31d639d9571971ddece7ed99303ecb44ebde7d479c0f3cfac54071b",
+  "system_prompt_sha256": "b64788fc1e2dd78d5c2488b9f9aed0c883d00ad88f392c8d45631ad09847e50f",
+  "case_order": [
+    "e2e-ctx-01-return-contract-multiple-callers",
+    "e2e-ctx-02-shared-session-state",
+    "e2e-ctx-03-retry-leaks-resource",
+    "e2e-ctx-04-callback-exception-swallowed",
+    "e2e-ctx-05-null-plugin-result",
+    "e2e-ctx-06-page-boundary-callback",
+    "e2e-ctx-07-async-shared-callback",
+    "e2e-ctx-08-override-skips-validation",
+    "e2e-ctx-09-indirect-serializer-contract",
+    "e2e-ctx-10-unregisters-wrong-callback",
+    "e2e-ctx-11-permission-default-multiple-callers",
+    "e2e-ctx-12-generator-cleanup-after-yield",
+    "e2e-ctx-13-safe-signature-migration-three-callers",
+    "e2e-ctx-14-copy-on-write-session",
+    "e2e-ctx-15-context-manager-retry",
+    "e2e-ctx-16-narrow-exception-preserves-contract",
+    "e2e-ctx-17-null-guard-callback",
+    "e2e-ctx-18-boundary-clamp-pagination",
+    "e2e-ctx-19-locked-task-state",
+    "e2e-ctx-20-override-calls-super"
+  ],
+  "arms": ["off", "on"],
+  "external_execution_authorized": true,
+  "candidate_models": [
+    {
+      "model_id": "fake-deterministic-v1",
+      "provider": "fake",
+      "context_window_tokens": 131072,
+      "pricing_tier": "free_offline_simulation",
+      "cost_per_million_input": 0.0,
+      "cost_per_million_output": 0.0,
+      "is_baseline": true,
+      "availability": "offline_available"
+    },
+    {
+      "model_id": "minimaxai/minimax-m3.1-flash",
+      "provider": "nvidia",
+      "context_window_tokens": 131072,
+      "pricing_tier": "nvidia_developer_free_tier",
+      "cost_per_million_input": 0.0,
+      "cost_per_million_output": 0.0,
+      "is_baseline": false,
+      "availability": "verified_available"
+    },
+    {
+      "model_id": "z-ai/glm-5.3-flash",
+      "provider": "nvidia",
+      "context_window_tokens": 131072,
+      "pricing_tier": "nvidia_developer_free_tier",
+      "cost_per_million_input": 0.0,
+      "cost_per_million_output": 0.0,
+      "is_baseline": false,
+      "availability": "unresponsive_timeout"
+    }
+  ],
+  "execution": {
+    "max_requests": 40,
+    "max_total_tokens": 100000,
+    "max_retries": 1,
+    "request_timeout_seconds": 120.0,
+    "attempt_deadline_seconds": 120.0,
+    "case_deadline_seconds": 130.0,
+    "max_elapsed_seconds": 1800.0,
+    "sequential": true,
+    "repeated_operational_failure_threshold": 4
+  },
+  "inference": {
+    "temperature": 0.0,
+    "max_output_tokens": 4096,
+    "provider_output_cap": "max_tokens"
+  },
+  "input_reservation": {
+    "max_wire_payload_bytes": 16000,
+    "provider_tokenizer_overhead_tokens": 512,
+    "guarantee": "conservative_wire_byte_and_overhead_bound"
+  },
+  "context": {
+    "production_parity": true,
+    "max_context_tokens": 2000,
+    "behavioral_delta_reserved_tokens": 500
+  },
+  "success_criteria": {
+    "min_precision": 0.90,
+    "min_recall": 0.75,
+    "max_operational_failure_rate": 0.05
+  },
+  "comparison_policy": "Only case IDs completed in both arms are scored comparatively; incomplete pairs are excluded from comparative metrics.",
+  "stop_conditions": [
+    "token_limit",
+    "execution_limit",
+    "quota_exhausted",
+    "deadline",
+    "repeated_operational_failure"
+  ],
+  "credentials_policy": "Read NVIDIA_API_KEY or POLARIS_API_KEY only via PolarisConfig; never serialize credentials."
+}

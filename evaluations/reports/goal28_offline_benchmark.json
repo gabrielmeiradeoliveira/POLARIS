@@ -1,0 +1,869 @@
+{
+  "status": "success",
+  "total_cases": 20,
+  "cases": [
+    {
+      "case_id": "e2e-ctx-01-return-contract-multiple-callers",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-02-shared-session-state",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-03-retry-leaks-resource",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-04-callback-exception-swallowed",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-05-null-plugin-result",
+      "findings_count": 1,
+      "findings": [
+        {
+          "finding_id": "polaris-arb-f1dbd204fdb2a3cb",
+          "category": "null_handling",
+          "severity": "high",
+          "status": "corroborated",
+          "file_path": "plugins/base.py",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "symbol": null,
+          "title": "Unhandled null in plugin execution",
+          "description": "Callers do not guard against None return from plugin execute()",
+          "primary_evidence": "plugin returns None",
+          "provenance": [
+            {
+              "source": "off_diff_only",
+              "original_category": "type_mismatch",
+              "original_severity": "medium",
+              "original_title": "Plugin return type mismatch",
+              "original_description": "Plugin returns None where object was expected",
+              "evidence_id": "ev-0a129e88aa160716"
+            },
+            {
+              "source": "on_behavioral_delta",
+              "original_category": "null_handling",
+              "original_severity": "high",
+              "original_title": "Unhandled null in plugin execution",
+              "original_description": "Callers do not guard against None return from plugin execute()",
+              "evidence_id": "ev-b467aca2bd2d9890"
+            }
+          ],
+          "evidence_ids": [
+            "ev-0a129e88aa160716",
+            "ev-b467aca2bd2d9890"
+          ],
+          "limitations": [],
+          "arbitration_notes": [
+            "Rule C: Taxonomic discrepancy resolved in favor of Arm ON's contextual finding 'null_handling' over Arm OFF's 'type_mismatch' without duplicate findings."
+          ]
+        }
+      ],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "success",
+        "on_arm_state": "success",
+        "expansion_decision": {
+          "should_expand": true,
+          "reasons": [
+            "Arm OFF emitted finding with context-sensitive category 'type_mismatch'; requires caller context to refine diagnosis and eliminate false positives."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": [
+            "plugins/base.py"
+          ]
+        },
+        "total_tokens": {
+          "prompt_tokens": 500,
+          "completion_tokens": 500,
+          "total_tokens": 1000,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 1,
+          "on_findings_count": 1,
+          "consolidated_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-06-page-boundary-callback",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-07-async-shared-callback",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-08-override-skips-validation",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-09-indirect-serializer-contract",
+      "findings_count": 1,
+      "findings": [
+        {
+          "finding_id": "polaris-arb-f480862667336a45",
+          "category": "type_mismatch",
+          "severity": "high",
+          "status": "suspected",
+          "file_path": "adapters/id.py",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "symbol": "encode",
+          "title": "[CONTRACT-001] Cross-file contract violation: 'encode' breaks key 'value' expected by 'messaging/publish.py'",
+          "description": "Function 'encode' changed return contract from `{'value': x}` to `x`. Downstream consumer `publish` at messaging/publish.py:2 indexes `['value']`.",
+          "primary_evidence": "Contract break: 'encode' in 'adapters/id.py' no longer guarantees key 'value', which is required by consumer 'publish' in 'messaging/publish.py' at line 2.",
+          "provenance": [
+            {
+              "source": "static_contract",
+              "original_category": "type_mismatch",
+              "original_severity": "high",
+              "original_title": "[CONTRACT-001] Cross-file contract violation: 'encode' breaks key 'value' expected by 'messaging/publish.py'",
+              "original_description": "Function 'encode' changed return contract from `{'value': x}` to `x`. Downstream consumer `publish` at messaging/publish.py:2 indexes `['value']`.",
+              "evidence_id": "ev-5b6cb7ddd7f78252"
+            }
+          ],
+          "evidence_ids": [
+            "ev-5b6cb7ddd7f78252"
+          ],
+          "limitations": [
+            "Parameter type of 'x' cannot be proven statically without runtime annotations; passthrough may evaluate to dict or scalar."
+          ],
+          "arbitration_notes": [
+            "Rule D: Static contract violation detected with unproven parameter type; uncertainty preserved as SUSPECTED."
+          ]
+        }
+      ],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "empty",
+        "expansion_decision": {
+          "should_expand": true,
+          "reasons": [
+            "Cross-file contract inconsistency detected; requires semantic caller verification."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": [
+            "messaging/publish.py"
+          ]
+        },
+        "total_tokens": {
+          "prompt_tokens": 500,
+          "completion_tokens": 500,
+          "total_tokens": 1000,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 1,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-10-unregisters-wrong-callback",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-11-permission-default-multiple-callers",
+      "findings_count": 1,
+      "findings": [
+        {
+          "finding_id": "polaris-arb-11781bf8a89b9c14",
+          "category": "logic_error",
+          "severity": "high",
+          "status": "confirmed",
+          "file_path": "auth/roles.py",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "symbol": "allowed",
+          "title": "[SEC-AUTH-001] Authorization relaxation in 'allowed' allows unauthenticated/default access",
+          "description": "In 'allowed', the authorization condition was changed from `role == 'admin'` to `role is None or role == 'admin'`. Access is now granted when 'role' is None, weakening prior access controls.",
+          "primary_evidence": "role is None in return condition",
+          "provenance": [
+            {
+              "source": "off_diff_only",
+              "original_category": "logic_error",
+              "original_severity": "high",
+              "original_title": "Authorization check relaxed to accept None",
+              "original_description": "Allows unauthenticated caller access",
+              "evidence_id": "ev-4cff6e1de533285d"
+            },
+            {
+              "source": "static_security",
+              "original_category": "logic_error",
+              "original_severity": "high",
+              "original_title": "[SEC-AUTH-001] Authorization relaxation in 'allowed' allows unauthenticated/default access",
+              "original_description": "In 'allowed', the authorization condition was changed from `role == 'admin'` to `role is None or role == 'admin'`. Access is now granted when 'role' is None, weakening prior access controls.",
+              "evidence_id": "ev-dd771833c65ea567"
+            }
+          ],
+          "evidence_ids": [
+            "ev-4cff6e1de533285d",
+            "ev-dd771833c65ea567"
+          ],
+          "limitations": [],
+          "arbitration_notes": [
+            "Rule A & Rule B: Static security confirmed and corroborated by Arm OFF; Arm ON omitted finding (disputed by context)."
+          ]
+        }
+      ],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "success",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 1,
+          "con_findings_count": 0,
+          "off_findings_count": 1,
+          "on_findings_count": 0,
+          "consolidated_count": 1
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-12-generator-cleanup-after-yield",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-13-safe-signature-migration-three-callers",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-14-copy-on-write-session",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-15-context-manager-retry",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-16-narrow-exception-preserves-contract",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-17-null-guard-callback",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-18-boundary-clamp-pagination",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-19-locked-task-state",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    },
+    {
+      "case_id": "e2e-ctx-20-override-calls-super",
+      "findings_count": 0,
+      "findings": [],
+      "telemetry": {
+        "strategy": "hybrid",
+        "static_security_run": true,
+        "static_contract_run": true,
+        "off_arm_state": "empty",
+        "on_arm_state": "skipped",
+        "expansion_decision": {
+          "should_expand": false,
+          "reasons": [
+            "Trivial or self-contained change: no cross-file contract or contextual ambiguity detected."
+          ],
+          "budget_permitted": true,
+          "quota_permitted": true,
+          "context_files_targeted": []
+        },
+        "total_tokens": {
+          "prompt_tokens": 250,
+          "completion_tokens": 250,
+          "total_tokens": 500,
+          "is_estimated": false,
+          "estimated_cost_usd": null
+        },
+        "latency_ms": 0,
+        "partial_failure": false,
+        "details": {
+          "sec_findings_count": 0,
+          "con_findings_count": 0,
+          "off_findings_count": 0,
+          "on_findings_count": 0,
+          "consolidated_count": 0
+        }
+      }
+    }
+  ]
+}
