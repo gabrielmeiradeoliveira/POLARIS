@@ -160,12 +160,15 @@ def main(argv: list[str] | None = None) -> int:
             }
         profile_hash = "default"
         if args.server:
-            eff = fetch_effective_profile(args.server, config.project_key)
-            profile_hash = str(eff.get("profileHash") or "default")
-            raw_disabled = eff.get("disabledRules", [])
-            disabled = [str(r) for r in (raw_disabled if isinstance(raw_disabled, list) else []) if str(r).strip()]
-            if disabled:
-                env_overrides = {"POLARIS_DISABLED_RULES": ",".join(disabled)}
+            try:
+                eff = fetch_effective_profile(args.server, config.project_key)
+                profile_hash = str(eff.get("profileHash") or "default")
+                raw_disabled = eff.get("disabledRules", [])
+                disabled = [str(r) for r in (raw_disabled if isinstance(raw_disabled, list) else []) if str(r).strip()]
+                if disabled:
+                    env_overrides = {**(env_overrides or {}), "POLARIS_DISABLED_RULES": ",".join(disabled)}
+            except Exception as exc:
+                all_diagnostics.append({"type": "profile_fetch_warning", "message": str(exc)})
 
         use_cache = not getattr(args, "no_cache", False)
         clear_cache = getattr(args, "clear_cache", False)
