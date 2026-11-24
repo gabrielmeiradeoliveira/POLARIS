@@ -107,3 +107,17 @@ Entregar relatório
 - Um teste aprovado não implica aprovação integral de um GOAL; validação documental não comprova funcionamento do produto; build aprovado não comprova funcionamento em runtime; código experimental (`poc/`) não equivale a código definitivo.
 - Critérios obrigatórios pendentes impedem `COMPLETED`; alterações de escopo exigem autorização humana; evidências históricas não podem ser apagadas ou modificadas retroativamente.
 - Não fabricar logs, métricas, resultados ou evidências.
+
+
+---
+
+## 8. Padrão Obrigatório de Commits (Conventional Commits)
+
+Todo commit deve seguir o formato:
+`<tipo>(<escopo>): <descrição objetiva no imperativo>`
+
+- **Tipos permitidos:** `feat`, `fix`, `perf`, `refactor`, `test`, `ci`, `docs`, `chore`.
+- **Descreva O QUE mudou**, nunca apenas o número do GOAL ou da release.
+- **Commits atômicos:** separar mudanças distintas em commits independentes por responsabilidade.
+- **Referência ao GOAL (opcional):** colocar no corpo do commit (ex.: `Refs: GOAL-019`), nunca no título.
+- **Tamanho do título:** máximo de 72 caracteres, em minúsculas após `:`, sem ponto final.
