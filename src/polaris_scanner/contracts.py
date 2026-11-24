@@ -10,7 +10,9 @@ CONTRACT_SCHEMA_VERSION = "1.0.0"
 VALID_ANALYSIS_STATUSES = ("COMPLETED", "COMPLETED_WITH_WARNINGS", "FAILED")
 VALID_SEVERITIES = ("INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER")
 VALID_CONFIDENCE_LEVELS = ("HIGH", "MEDIUM", "LOW")
-VALID_LANGUAGES = ("python", "csharp", "java", "sql")
+VALID_LANGUAGES = (
+    "python", "csharp", "java", "sql", "terraform", "typescript", "html", "php", "shell", "kotlin", "rust", "cpp"
+)
 
 
 def is_valid_relative_posix_path(path_str: str) -> bool:
