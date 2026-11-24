@@ -1,9 +1,18 @@
 services:
   postgres:
     image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-polaris}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-polaris}
+      POSTGRES_DB: ${POSTGRES_DB:-polaris}
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     volumes:
       - ./deploy/postgres-low-spec.conf:/etc/postgresql/postgresql.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-polaris} -d ${POSTGRES_DB:-polaris}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
@@ -17,15 +26,22 @@ services:
     environment:
       WEB_CONCURRENCY: "1"
       POLARIS_INGEST_BATCH_SIZE: "500"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris}@postgres:5432/${POSTGRES_DB:-polaris}
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
           memory: 256M
           cpus: "1.0"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   web:
     build:
