@@ -1,10 +1,13 @@
-import sys
+import importlib.util
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "analyzers" / "sql"))
-
-from semantic_engine import resolve_sql_semantics
+_SQL_SEMANTIC_PATH = Path(__file__).resolve().parents[3] / "analyzers" / "sql" / "semantic_engine.py"
+_SPEC = importlib.util.spec_from_file_location("polaris_sql_semantic_engine", _SQL_SEMANTIC_PATH)
+assert _SPEC is not None and _SPEC.loader is not None
+_MOD = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MOD)
+resolve_sql_semantics = _MOD.resolve_sql_semantics
 
 
 class TestSqlSemanticAmbiguity(unittest.TestCase):
