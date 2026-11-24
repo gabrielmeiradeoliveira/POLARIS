@@ -2,9 +2,9 @@
   "ruleId": "JV-REL-008",
   "language": "java",
   "cases": [
-    {"caseId": "JV-REL-008-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.out.println(\"hi\"); } }\n"},
-    {"caseId": "JV-REL-008-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(int x) { System.out.println(x); } }\n"},
-    {"caseId": "JV-REL-008-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.err.println(\"err\"); } }\n"},
+    {"caseId": "JV-REL-008-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.out.print(\"hi\"); } }\n"},
+    {"caseId": "JV-REL-008-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(int x) { System.out.print(x); } }\n"},
+    {"caseId": "JV-REL-008-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.err.print(\"err\"); } }\n"},
     {"caseId": "JV-REL-008-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { String m() { return \"hi\"; } }\n"},
     {"caseId": "JV-REL-008-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { int x = 1; } }\n"},
     {"caseId": "JV-REL-008-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},

@@ -118,7 +118,7 @@ public final class JavaRulesEngine {
             {"JV-REL-005", "System.exit", "RELIABILITY", "MAJOR", "exit", "Avoid System.exit()"},
             {"JV-REL-006", "System.gc", "PERFORMANCE", "MAJOR", "gc", "Avoid System.gc()"},
             {"JV-REL-007", "printStackTrace", "MAINTAINABILITY", "MINOR", "printStackTrace", "Use logger instead of printStackTrace()"},
-            {"JV-REL-008", "System.out.println", "MAINTAINABILITY", "INFO", "println", "Use logger instead of System.out"},
+            {"JV-REL-008", "System.out.print", "MAINTAINABILITY", "INFO", "print", "Use logger instead of System.out.print"},
             {"JV-REL-009", "Thread.sleep", "PERFORMANCE", "MAJOR", "sleep", "Review Thread.sleep()"},
             {"JV-REL-010", "Thread.stop", "RELIABILITY", "BLOCKER", "stop", "Thread.stop() is unsafe"},
             {"JV-REL-011", "Thread.suspend", "RELIABILITY", "CRITICAL", "suspend", "Thread.suspend() is deadlock-prone"},
