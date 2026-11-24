@@ -23,21 +23,27 @@ class TestScannerAnalyzeCommand(unittest.TestCase):
             (root / "q.sql").write_text("SELECT * FROM t; DELETE FROM t;\n", encoding="utf-8")
             out_file = root / "report.json"
 
+            cmd = [
+                sys.executable,
+                "-m",
+                "polaris_scanner.cli",
+                "analyze",
+                "--target",
+                str(root),
+                "--project",
+                project_key,
+                "--output",
+                str(out_file),
+            ]
+            import socket
+            try:
+                with socket.create_connection(("127.0.0.1", 8000), timeout=0.5):
+                    cmd.extend(["--server", "http://127.0.0.1:8000"])
+            except OSError:
+                pass
+
             res = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "polaris_scanner.cli",
-                    "analyze",
-                    "--target",
-                    str(root),
-                    "--project",
-                    project_key,
-                    "--output",
-                    str(out_file),
-                    "--server",
-                    "http://127.0.0.1:8000",
-                ],
+                cmd,
                 cwd=str(repo_root),
                 env=env,
                 capture_output=True,
