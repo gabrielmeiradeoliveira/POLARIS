@@ -217,16 +217,19 @@ def list_issues(
     if rule_id:
         clauses.append("rule_id = %s")
         params.append(rule_id)
-    where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+    where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+    count_sql = "SELECT COUNT(*) FROM issues" + where + ";"
+    select_sql = (
+        "SELECT id, project_key, rule_id, severity, language, file_path, start_line, message, status, assignee, cwe, flow_steps FROM issues"
+        + where
+        + " ORDER BY id DESC LIMIT %s OFFSET %s;"
+    )
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute(f"SELECT COUNT(*) FROM issues {where};", params)
+            cur.execute(count_sql, params)
             cnt_row = cur.fetchone()
             total = cnt_row[0] if cnt_row else 0
-            cur.execute(
-                f"SELECT id, project_key, rule_id, severity, language, file_path, start_line, message, status, assignee, cwe, flow_steps FROM issues {where} ORDER BY id DESC LIMIT %s OFFSET %s;",
-                [*params, limit, offset],
-            )
+            cur.execute(select_sql, [*params, limit, offset])
             rows = cur.fetchall()
     items = [
         {
