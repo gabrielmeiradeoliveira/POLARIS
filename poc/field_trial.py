@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "src"))
 sys.path.insert(0, str(REPO_ROOT / "analyzers" / "legacy"))
 sys.path.insert(0, str(REPO_ROOT / "analyzers" / "terraform"))
@@ -27,7 +28,7 @@ from polaris_shell_analyzer import analyze_shell_content
 from polaris_kotlin_analyzer import analyze_kotlin_content
 from polaris_rust_analyzer import analyze_rust_content
 from polaris_cpp_analyzer import analyze_cpp_content
-from torture_corpus_generator import generate_hostile_corpus
+from poc.torture_corpus_generator import generate_hostile_corpus
 
 
 def run_field_trial(report_md: Path, audit_json: Path) -> dict:

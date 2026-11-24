@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT / "poc"))
+sys.path.insert(0, str(REPO_ROOT))
 
-from field_trial import run_field_trial
+from poc.field_trial import run_field_trial
 
 
 class TestPocV3Hardening(unittest.TestCase):
