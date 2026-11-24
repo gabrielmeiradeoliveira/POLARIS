@@ -1,6 +1,10 @@
+import sys
 import unittest
+from pathlib import Path
 
-from analyzers.sql.semantic_engine import resolve_sql_semantics
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "analyzers" / "sql"))
+
+from semantic_engine import resolve_sql_semantics
 
 
 class TestSqlSemanticAmbiguity(unittest.TestCase):
