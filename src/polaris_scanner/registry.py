@@ -85,4 +85,13 @@ def default_analyzer_specs() -> tuple[AnalyzerSpec, ...]:
             command=(python_exe, "analyzers/sql/polaris_sql_analyzer.py"),
             capabilities=("sqlglot", "multi-dialect"),
         ),
+        AnalyzerSpec(
+            id="polaris-terraform-analyzer",
+            version="3.0.0",
+            language="terraform",
+            extensions=(".tf", ".tfvars"),
+            contract_version="1.0.0",
+            command=(python_exe, "analyzers/terraform/polaris_tf_analyzer.py"),
+            capabilities=("hcl", "iac-security"),
+        ),
     )
