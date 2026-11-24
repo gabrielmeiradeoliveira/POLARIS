@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-MNT-004",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-MNT-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(a, b, c, d):\n    if a:\n        if b:\n            if c:\n                if d:\n                    return 1\n    return 0\n"},
+    {"caseId": "PY-MNT-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(xs):\n    for x in xs:\n        if x:\n            while x > 0:\n                if x == 1:\n                    break\n                x -= 1\n"},
+    {"caseId": "PY-MNT-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "def h(a, b, c, d):\n    try:\n        if a:\n            if b:\n                if c:\n                    return d\n    except Exception:\n        pass\n"},
+    {"caseId": "PY-MNT-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(a):\n    if a:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-MNT-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(a, b):\n    if a and b:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-MNT-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-MNT-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f(a, b, c):\n    if a:\n        if b:\n            if c:\n                return 1\n    return 0\n"},
+    {"caseId": "PY-MNT-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f():\n    return 1\n"}
+  ]
+}

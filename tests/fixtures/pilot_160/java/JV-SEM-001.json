@@ -1,0 +1,54 @@
+{
+  "ruleId": "JV-SEM-001",
+  "language": "java",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { System.out.println(1); } }"
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { System.err.println(1); } }"
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { System.out.println(\"a\"); } }"
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void m() { int x = 1; } }"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void println() {} void m() { println(); } }"
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C {}"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "// System.out.println(1);"
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "class C { void m() { System.out.println(\n1\n); } }"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "ruleId": "PY-SEC-001",
+  "language": "python",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "password = \"secret123\""
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "api_key = \"key_abc_123\""
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "secret = \"tok_xyz\""
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "password = None"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "name = \"alice\""
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "x = 1"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "# password = \"secret123\""
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "def f():\n password = \"s3cr3t\""
+    }
+  ]
+}

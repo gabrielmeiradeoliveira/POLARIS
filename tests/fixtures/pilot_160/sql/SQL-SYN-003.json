@@ -1,0 +1,54 @@
+{
+  "ruleId": "SQL-SYN-003",
+  "language": "sql",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT DISTINCT a FROM t GROUP BY a;"
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT DISTINCT a, b FROM t GROUP BY a, b;"
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT DISTINCT u.id FROM users u GROUP BY u.id;"
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT DISTINCT a FROM t;"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT a FROM t GROUP BY a;"
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT a, COUNT(*) FROM t GROUP BY a;"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "-- SELECT DISTINCT a FROM t GROUP BY a;"
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "SELECT DISTINCT\n a\nFROM t GROUP BY a;"
+    }
+  ]
+}

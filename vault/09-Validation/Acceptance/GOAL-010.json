@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-010",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G10-001", "description": "Quality Gates com avaliação PASSED/FAILED/NOT_COMPUTED", "sourceRequirement": "GOAL-010#61-63", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_governance_api.py -v", "relatedFiles": ["src/polaris_server/gates_service.py", "src/polaris_server/domain_core.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "Avaliação determinística OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-REL-004",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-REL-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void M() { goto done; done: return; } }\n"},
+    {"caseId": "CS-REL-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void M(int x) { switch (x) { case 1: goto case 2; case 2: break; } } }\n"},
+    {"caseId": "CS-REL-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void M(int x) { if (x > 0) goto end; end: ; } }\n"},
+    {"caseId": "CS-REL-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void M(int x) { if (x > 0) return; } }\n"},
+    {"caseId": "CS-REL-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void M(int x) { switch (x) { case 1: break; default: break; } } }\n"},
+    {"caseId": "CS-REL-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void M() { for (int i = 0; i < 3; i++) { break; } } }\n"},
+    {"caseId": "CS-REL-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void M() { var s = \"goto end;\"; } }\n"},
+    {"caseId": "CS-REL-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void M() { int gotoCount = 0; } }\n"}
+  ]
+}

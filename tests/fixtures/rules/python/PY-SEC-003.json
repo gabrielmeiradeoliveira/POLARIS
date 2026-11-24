@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-003",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-003-POS-1", "kind": "positive", "expectedPositive": true, "code": "import requests\nrequests.get('https://example.com', verify=False)\n"},
+    {"caseId": "PY-SEC-003-POS-2", "kind": "positive", "expectedPositive": true, "code": "import requests\nrequests.post('https://example.com', data={}, verify=False)\n"},
+    {"caseId": "PY-SEC-003-POS-3", "kind": "positive", "expectedPositive": true, "code": "def fetch(u):\n    return requests.get(u, verify=False)\n"},
+    {"caseId": "PY-SEC-003-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import requests\nrequests.get('https://example.com', verify=True)\n"},
+    {"caseId": "PY-SEC-003-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import requests\nrequests.get('https://example.com')\n"},
+    {"caseId": "PY-SEC-003-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-003-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'verify=False'\n"},
+    {"caseId": "PY-SEC-003-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "verify = False\n"}
+  ]
+}

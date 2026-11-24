@@ -1,0 +1,54 @@
+{
+  "ruleId": "SQL-CTX-001",
+  "language": "sql",
+  "cases": [
+    {
+      "caseId": "SQL-CTX-001-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "DELETE FROM users;"
+    },
+    {
+      "caseId": "SQL-CTX-001-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "UPDATE users SET active = 0;"
+    },
+    {
+      "caseId": "SQL-CTX-001-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "DELETE FROM logs;"
+    },
+    {
+      "caseId": "SQL-CTX-001-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "DELETE FROM users WHERE id = 1;"
+    },
+    {
+      "caseId": "SQL-CTX-001-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "UPDATE users SET active = 0 WHERE id = 1;"
+    },
+    {
+      "caseId": "SQL-CTX-001-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT id FROM users;"
+    },
+    {
+      "caseId": "SQL-CTX-001-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "-- DELETE FROM users;"
+    },
+    {
+      "caseId": "SQL-CTX-001-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "UPDATE\r\n  users\r\nSET\r\n  a = 1;"
+    }
+  ]
+}

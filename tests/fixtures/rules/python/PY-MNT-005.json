@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-MNT-005",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-MNT-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f():\n    pass\n"},
+    {"caseId": "PY-MNT-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(x):\n    pass\n"},
+    {"caseId": "PY-MNT-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "async def h():\n    pass\n"},
+    {"caseId": "PY-MNT-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f():\n    return 1\n"},
+    {"caseId": "PY-MNT-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(x):\n    print(x)\n"},
+    {"caseId": "PY-MNT-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-MNT-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f():\n    x = 1\n    pass\n"},
+    {"caseId": "PY-MNT-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C:\n    pass\n"}
+  ]
+}

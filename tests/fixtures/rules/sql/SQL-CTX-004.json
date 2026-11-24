@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-004",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "DROP TABLE users;\n"},
+    {"caseId": "SQL-CTX-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "DROP VIEW IF EXISTS v_orders;\n"},
+    {"caseId": "SQL-CTX-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "DROP INDEX idx_name;\n"},
+    {"caseId": "SQL-CTX-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "CREATE TABLE users (id INT);\n"},
+    {"caseId": "SQL-CTX-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "DELETE FROM users WHERE id = 1;\n"},
+    {"caseId": "SQL-CTX-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'DROP TABLE users' AS txt;\n"},
+    {"caseId": "SQL-CTX-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT drop_flag FROM audit_log;\n"}
+  ]
+}

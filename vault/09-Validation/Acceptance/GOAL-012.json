@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-012",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G12-001", "description": "Snapshots históricos, séries temporais e comparação entre análises", "sourceRequirement": "GOAL-012#78-80", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_history_service.py -v", "relatedFiles": ["src/polaris_server/history_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "1/1 OK", "observedResult": "1/1 OK", "limitations": "Nenhuma" }
+  ]
+}

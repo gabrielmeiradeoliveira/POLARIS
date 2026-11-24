@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEM-DEAD-001",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEM-DEAD-001-POS-1", "kind": "positive", "code": "def f():\n    x = 1\n    x = 2\n    return x\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-DEAD-001-POS-2", "kind": "positive", "code": "def g():\n    y = 10\n    return 0\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-DEAD-001-POS-3", "kind": "positive", "code": "def h():\n    a = 5\n    a = 6\n    return a\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-DEAD-001-NEG-1", "kind": "negative", "code": "def f():\n    x = 1\n    return x\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-DEAD-001-NEG-2", "kind": "negative", "code": "def g(a):\n    b = a + 1\n    return b\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-DEAD-001-NEG-3", "kind": "negative", "code": "def h():\n    _ = 1\n    return 0\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-DEAD-001-EDGE-1", "kind": "edge", "code": "def empty():\n    pass\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-DEAD-001-EDGE-2", "kind": "edge", "code": "def used_then_reassigned():\n    x = 1\n    y = x + 1\n    x = 2\n    return x + y\n", "expectedPositive": false}
+  ]
+}

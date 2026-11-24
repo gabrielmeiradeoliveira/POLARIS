@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-019",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-019-POS-1", "kind": "positive", "expectedPositive": true, "code": "code = compile('x = 1', '<string>', 'exec')\n"},
+    {"caseId": "PY-SEC-019-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f(s):\n    return compile(s, '<mem>', 'eval')\n"},
+    {"caseId": "PY-SEC-019-POS-3", "kind": "positive", "expectedPositive": true, "code": "c = compile('1+1', 'a.py', 'eval')\n"},
+    {"caseId": "PY-SEC-019-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import re\np = re.compile(r'\\d+')\n"},
+    {"caseId": "PY-SEC-019-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import ast\ntree = ast.parse('x = 1')\n"},
+    {"caseId": "PY-SEC-019-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-019-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'compile(x)'\n"},
+    {"caseId": "PY-SEC-019-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def my_compile(x):\n    return x\n"}
+  ]
+}

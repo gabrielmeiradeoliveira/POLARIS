@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-SEM-UNREACH-001",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-SEM-UNREACH-001-POS-1", "kind": "positive", "code": "class J { int f() { return 1; int x = 2; } }", "expected": true},
+    {"caseId": "JV-SEM-UNREACH-001-POS-2", "kind": "positive", "code": "class J { void g() { throw new RuntimeException(); int y = 3; } }", "expected": true},
+    {"caseId": "JV-SEM-UNREACH-001-POS-3", "kind": "positive", "code": "class J { int h(boolean b) { if (b) { return 1; int z = 0; } return 2; } }", "expected": true},
+    {"caseId": "JV-SEM-UNREACH-001-NEG-1", "kind": "negative", "code": "class J { int f(int x) { if (x > 0) { return 1; } return 0; } }", "expected": false},
+    {"caseId": "JV-SEM-UNREACH-001-NEG-2", "kind": "negative", "code": "class J { void g() { int x = 1; } }", "expected": false},
+    {"caseId": "JV-SEM-UNREACH-001-NEG-3", "kind": "negative", "code": "class J { int h() { return 42; } }", "expected": false},
+    {"caseId": "JV-SEM-UNREACH-001-EDGE-1", "kind": "edge", "code": "class J { void empty() { } }", "expected": false},
+    {"caseId": "JV-SEM-UNREACH-001-EDGE-2", "kind": "edge", "code": "class J { void loop() { for (int i = 0; i < 3; i++) { continue; int d = i; } } }", "expected": true}
+  ]
+}

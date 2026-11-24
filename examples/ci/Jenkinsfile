@@ -1,0 +1,10 @@
+pipeline {
+  agent any
+  stages {
+    stage('POLARIS Scan') {
+      steps {
+        sh 'python -m polaris_scanner.cli analyze --target src --project "$JOB_NAME" --branch "$BRANCH_NAME" --server "$POLARIS_URL" --output polaris-report.json'
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEM-RES-001",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEM-RES-001-POS-1", "kind": "positive", "code": "def f(p):\n    fh = open(p)\n    return fh.read()\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-RES-001-POS-2", "kind": "positive", "code": "def g(p):\n    fh = open(p, 'w')\n    fh.write('hi')\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-RES-001-POS-3", "kind": "positive", "code": "def h(p, flag):\n    fh = open(p)\n    if flag:\n        return None\n    fh.close()\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-RES-001-NEG-1", "kind": "negative", "code": "def f(p):\n    with open(p) as fh:\n        return fh.read()\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-RES-001-NEG-2", "kind": "negative", "code": "def g(p):\n    fh = open(p)\n    data = fh.read()\n    fh.close()\n    return data\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-RES-001-NEG-3", "kind": "negative", "code": "def h():\n    return 42\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-RES-001-EDGE-1", "kind": "edge", "code": "def empty():\n    pass\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-RES-001-EDGE-2", "kind": "edge", "code": "def closed_in_branch(p, flag):\n    fh = open(p)\n    if flag:\n        fh.close()\n    else:\n        fh.close()\n", "expectedPositive": false}
+  ]
+}

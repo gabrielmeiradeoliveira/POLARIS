@@ -1,0 +1,54 @@
+{
+  "ruleId": "SQL-CTX-002",
+  "language": "sql",
+  "cases": [
+    {
+      "caseId": "SQL-CTX-002-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "SQL-CTX-002-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "SQL-CTX-002-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "SQL-CTX-002-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "SQL-CTX-002-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "SQL-CTX-002-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "SQL-CTX-002-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "SQL-CTX-002-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "observedPositive": true
+    }
+  ]
+}

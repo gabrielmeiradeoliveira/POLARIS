@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-011",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-011-POS-1", "kind": "positive", "expectedPositive": true, "code": "import marshal\nmarshal.loads(data)\n"},
+    {"caseId": "PY-SEC-011-POS-2", "kind": "positive", "expectedPositive": true, "code": "import marshal\nwith open('a.bin', 'rb') as f:\n    marshal.load(f)\n"},
+    {"caseId": "PY-SEC-011-POS-3", "kind": "positive", "expectedPositive": true, "code": "def dec(b):\n    return marshal.loads(b)\n"},
+    {"caseId": "PY-SEC-011-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import json\njson.loads(data)\n"},
+    {"caseId": "PY-SEC-011-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import marshal\nmarshal.dumps(1)\n"},
+    {"caseId": "PY-SEC-011-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-011-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'marshal.loads(x)'\n"},
+    {"caseId": "PY-SEC-011-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def loads(x):\n    return x\n"}
+  ]
+}

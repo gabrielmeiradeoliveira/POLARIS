@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-008",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-008-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users LIMIT 10;\n"},
+    {"caseId": "SQL-CTX-008-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT name FROM items WHERE active = 1 LIMIT 5;\n"},
+    {"caseId": "SQL-CTX-008-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM orders LIMIT 1;\n"},
+    {"caseId": "SQL-CTX-008-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users ORDER BY id LIMIT 10;\n"},
+    {"caseId": "SQL-CTX-008-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT name FROM items ORDER BY name DESC LIMIT 5;\n"},
+    {"caseId": "SQL-CTX-008-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-008-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'LIMIT 10' AS txt;\n"},
+    {"caseId": "SQL-CTX-008-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users ORDER BY created_at;\n"}
+  ]
+}

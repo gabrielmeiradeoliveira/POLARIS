@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEM-NULL-001",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEM-NULL-001-POS-1", "kind": "positive", "code": "def f():\n    x = None\n    return x.strip()\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-NULL-001-POS-2", "kind": "positive", "code": "def g(flag):\n    val = None if flag else 'ok'\n    return val.upper()\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-NULL-001-POS-3", "kind": "positive", "code": "def h():\n    obj = None\n    y = obj.attr\n    return y\n", "expectedPositive": true},
+    {"caseId": "PY-SEM-NULL-001-NEG-1", "kind": "negative", "code": "def f():\n    x = 'hello'\n    return x.strip()\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-NULL-001-NEG-2", "kind": "negative", "code": "def g(x):\n    if x is not None:\n        return x.strip()\n    return ''\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-NULL-001-NEG-3", "kind": "negative", "code": "def h():\n    d = dict()\n    return d.get('a')\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-NULL-001-EDGE-1", "kind": "edge", "code": "def empty():\n    x = None\n    return x\n", "expectedPositive": false},
+    {"caseId": "PY-SEM-NULL-001-EDGE-2", "kind": "edge", "code": "def reassigned():\n    x = None\n    x = 'safe'\n    return x.strip()\n", "expectedPositive": false}
+  ]
+}

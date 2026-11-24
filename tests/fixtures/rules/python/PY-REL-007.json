@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-007",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-007-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(flag):\n    return flag == True\n"},
+    {"caseId": "PY-REL-007-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(flag):\n    return flag == False\n"},
+    {"caseId": "PY-REL-007-POS-3", "kind": "positive", "expectedPositive": true, "code": "def h(flag):\n    if flag != True:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-007-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(flag):\n    return bool(flag)\n"},
+    {"caseId": "PY-REL-007-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(flag):\n    return not flag\n"},
+    {"caseId": "PY-REL-007-NEG-3", "kind": "negative", "expectedPositive": false, "code": "def h(x):\n    return x == 1\n"},
+    {"caseId": "PY-REL-007-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "flag = True\n"},
+    {"caseId": "PY-REL-007-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f(flag=False):\n    return flag\n"}
+  ]
+}

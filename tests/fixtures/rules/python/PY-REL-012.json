@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-012",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-012-POS-1", "kind": "positive", "expectedPositive": true, "code": "assert (1, 2)\n"},
+    {"caseId": "PY-REL-012-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f(a, b):\n    assert (a == 1, b == 2)\n"},
+    {"caseId": "PY-REL-012-POS-3", "kind": "positive", "expectedPositive": true, "code": "assert (False, 'msg')\n"},
+    {"caseId": "PY-REL-012-NEG-1", "kind": "negative", "expectedPositive": false, "code": "assert 1 == 1, 'msg'\n"},
+    {"caseId": "PY-REL-012-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def f(x):\n    assert x > 0\n"},
+    {"caseId": "PY-REL-012-NEG-3", "kind": "negative", "expectedPositive": false, "code": "t = (1, 2)\n"},
+    {"caseId": "PY-REL-012-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "assert (1 == 1)\n"},
+    {"caseId": "PY-REL-012-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f(a, b):\n    assert a and b\n"}
+  ]
+}

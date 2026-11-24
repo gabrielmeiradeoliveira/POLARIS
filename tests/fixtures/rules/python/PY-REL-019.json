@@ -1,0 +1,54 @@
+{
+  "ruleId": "PY-REL-019",
+  "language": "python",
+  "cases": [
+    {
+      "caseId": "PY-REL-019-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "PY-REL-019-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "PY-REL-019-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "PY-REL-019-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "PY-REL-019-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "PY-REL-019-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "PY-REL-019-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "PY-REL-019-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "observedPositive": true
+    }
+  ]
+}

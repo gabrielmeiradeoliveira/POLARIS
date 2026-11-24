@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-004",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f():\n    try:\n        return 1\n    finally:\n        return 2\n"},
+    {"caseId": "PY-REL-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g():\n    try:\n        x = 1\n    finally:\n        return x\n"},
+    {"caseId": "PY-REL-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "def h():\n    try:\n        pass\n    except ValueError:\n        pass\n    finally:\n        return None\n"},
+    {"caseId": "PY-REL-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f():\n    try:\n        return 1\n    finally:\n        print('done')\n"},
+    {"caseId": "PY-REL-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g():\n    try:\n        x = 1\n    finally:\n        x = 2\n    return x\n"},
+    {"caseId": "PY-REL-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "def h():\n    return 1\n"},
+    {"caseId": "PY-REL-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f():\n    try:\n        pass\n    finally:\n        def inner():\n            return 1\n"},
+    {"caseId": "PY-REL-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "try:\n    x = 1\nfinally:\n    x = 2\n"}
+  ]
+}

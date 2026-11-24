@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-010",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m(Thread t) { t.stop(); } }\n"},
+    {"caseId": "JV-REL-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { Thread.currentThread().stop(); } }\n"},
+    {"caseId": "JV-REL-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { new Thread().stop(); } }\n"},
+    {"caseId": "JV-REL-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void m(Thread t) { t.interrupt(); } }\n"},
+    {"caseId": "JV-REL-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m(Thread t) { t.start(); } }\n"},
+    {"caseId": "JV-REL-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"t.stop()\"; } }\n"},
+    {"caseId": "JV-REL-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { boolean stopRequested = false; }\n"}
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "POLARIS Acceptance Matrix",
+  "type": "object",
+  "required": ["schemaVersion", "goalId", "goalStatus", "criteria"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "goalId": { "type": "string", "pattern": "^GOAL-[0-9]{3}(-[A-Z0-9]+)?$" },
+    "goalStatus": { "type": "string", "enum": ["PROPOSED", "APPROVED", "IN_PROGRESS", "BLOCKED", "FAILED", "COMPLETED"] },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "sourceRequirement", "mandatory", "status", "validationCommand", "relatedFiles", "evidence", "expectedResult", "observedResult", "limitations"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "sourceRequirement": { "type": "string", "minLength": 1 },
+          "mandatory": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "NOT_EXECUTED"] },
+          "validationCommand": { "type": "string" },
+          "relatedFiles": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "expectedResult": { "type": "string" },
+          "observedResult": { "type": "string" },
+          "limitations": { "type": "string" }
+        }
+      }
+    }
+  }
+}

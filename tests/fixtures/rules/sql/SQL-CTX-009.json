@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-009",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-009-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users ORDER BY RANDOM();\n"},
+    {"caseId": "SQL-CTX-009-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users ORDER BY RAND() LIMIT 5;\n"},
+    {"caseId": "SQL-CTX-009-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT name FROM items ORDER BY RANDOM() DESC;\n"},
+    {"caseId": "SQL-CTX-009-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users ORDER BY id;\n"},
+    {"caseId": "SQL-CTX-009-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users ORDER BY created_at DESC LIMIT 10;\n"},
+    {"caseId": "SQL-CTX-009-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-009-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'ORDER BY RANDOM()' AS txt;\n"},
+    {"caseId": "SQL-CTX-009-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT RAND() AS r FROM users;\n"}
+  ]
+}

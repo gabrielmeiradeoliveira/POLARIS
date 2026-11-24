@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-013",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G13-001", "description": "Importação segura de cobertura Cobertura XML e detecção determinística de duplicação", "sourceRequirement": "GOAL-013#85-89", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_advanced_analysis.py -v", "relatedFiles": ["src/polaris_server/coverage_duplication.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" }
+  ]
+}

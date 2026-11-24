@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-004",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(cur, uid):\n    cur.execute(f'SELECT * FROM users WHERE id = {uid}')\n"},
+    {"caseId": "PY-SEC-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(conn, name):\n    conn.execute(f\"DELETE FROM items WHERE name = '{name}'\")\n"},
+    {"caseId": "PY-SEC-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "cur.execute(f'SELECT * FROM t WHERE x = {val}')\n"},
+    {"caseId": "PY-SEC-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(cur, uid):\n    cur.execute('SELECT * FROM users WHERE id = %s', (uid,))\n"},
+    {"caseId": "PY-SEC-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(cur):\n    cur.execute('SELECT 1')\n"},
+    {"caseId": "PY-SEC-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "msg = f'hello {name}'\n"},
+    {"caseId": "PY-SEC-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "s = 'cur.execute(f\"SELECT\")'\n"}
+  ]
+}

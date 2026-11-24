@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-017",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-017-POS-1", "kind": "positive", "expectedPositive": true, "code": "import telnetlib\ntn = telnetlib.Telnet('localhost')\n"},
+    {"caseId": "PY-SEC-017-POS-2", "kind": "positive", "expectedPositive": true, "code": "import telnetlib\ndef connect(h):\n    return telnetlib.Telnet(h, 23)\n"},
+    {"caseId": "PY-SEC-017-POS-3", "kind": "positive", "expectedPositive": true, "code": "import telnetlib\nwith telnetlib.Telnet('127.0.0.1') as t:\n    pass\n"},
+    {"caseId": "PY-SEC-017-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import socket\ns = socket.socket()\n"},
+    {"caseId": "PY-SEC-017-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import ssl\nctx = ssl.create_default_context()\n"},
+    {"caseId": "PY-SEC-017-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-017-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'telnetlib.Telnet'\n"},
+    {"caseId": "PY-SEC-017-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def Telnet(h):\n    return h\n"}
+  ]
+}

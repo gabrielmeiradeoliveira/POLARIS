@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-009",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G9-001", "description": "Quality Profiles com ativação/desativação de regras e associação a projetos", "sourceRequirement": "GOAL-009#55-56", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_governance_api.py -v", "relatedFiles": ["src/polaris_server/profiles_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "CRUD de profiles OK", "observedResult": "3/3 OK", "limitations": "Perfis padrão pré-carregados para 4 linguagens" }
+  ]
+}

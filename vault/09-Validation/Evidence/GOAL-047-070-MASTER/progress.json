@@ -1,0 +1,18 @@
+{
+  "masterGoalId": "GOAL-047-070-MASTER",
+  "codename": "POLARIS Deep Analysis",
+  "targetVersion": "POLARIS 2.3",
+  "status": "IN_PROGRESS",
+  "currentCycle": "Cycle A",
+  "currentTask": "GOAL-047 / GOAL-048 / Vertical V1 (Nullability)",
+  "baseline": {
+    "pilot": "20/20 rules, 160/160 cases, 0 errors",
+    "rejectionAndMutations": "2/2 OK",
+    "pythonSemanticUnit": "4/4 OK",
+    "scannerIntegration": "4/4 OK",
+    "e2eAndBrowser": "2/2 OK",
+    "javaSemanticUnreach": "1/1 OK (JV-SEM-UNREACH-001)",
+    "sqlSemanticAmbiguity": "1/1 OK (ambiguous_columns) + 80 dialects OK",
+    "catalogAll": "RULES_CHECKED=210 RULES_PASSED=24 CASES_EXECUTED=208 ERRORS=186"
+  }
+}

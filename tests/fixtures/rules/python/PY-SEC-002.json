@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-002",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "import subprocess\nsubprocess.run('ls', shell=True)\n"},
+    {"caseId": "PY-SEC-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "import subprocess\nsubprocess.Popen('echo hi', shell=True)\n"},
+    {"caseId": "PY-SEC-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "import subprocess\nsubprocess.call('dir', shell=True)\n"},
+    {"caseId": "PY-SEC-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import subprocess\nsubprocess.run(['ls', '-l'])\n"},
+    {"caseId": "PY-SEC-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import subprocess\nsubprocess.run(['ls'], shell=False)\n"},
+    {"caseId": "PY-SEC-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'shell=True'\n"},
+    {"caseId": "PY-SEC-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def run(cmd, shell=False):\n    return cmd\n"}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-002",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "try:\n    x = 1 / 0\nexcept Exception:\n    x = 0\n"},
+    {"caseId": "PY-REL-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "try:\n    int('a')\nexcept Exception as e:\n    print(e)\n"},
+    {"caseId": "PY-REL-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "def f():\n    try:\n        return 1\n    except Exception:\n        return 2\n"},
+    {"caseId": "PY-REL-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "try:\n    x = 1 / 0\nexcept ZeroDivisionError:\n    x = 0\n"},
+    {"caseId": "PY-REL-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "try:\n    int('a')\nexcept ValueError as e:\n    print(e)\n"},
+    {"caseId": "PY-REL-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "def f():\n    return 42\n"},
+    {"caseId": "PY-REL-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "try:\n    int('a')\nexcept (ValueError, TypeError):\n    pass\n"},
+    {"caseId": "PY-REL-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class MyException(Exception):\n    pass\n"}
+  ]
+}

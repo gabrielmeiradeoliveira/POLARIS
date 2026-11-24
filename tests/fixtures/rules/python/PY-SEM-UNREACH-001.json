@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEM-UNREACH-001",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEM-UNREACH-001-POS-1", "kind": "positive", "code": "def f():\n    return 1\n    x = 2\n", "expected": true},
+    {"caseId": "PY-SEM-UNREACH-001-POS-2", "kind": "positive", "code": "def g():\n    raise ValueError('bad')\n    print('dead')\n", "expected": true},
+    {"caseId": "PY-SEM-UNREACH-001-POS-3", "kind": "positive", "code": "def h(flag):\n    if flag:\n        return 0\n        y = 1\n    return 2\n", "expected": true},
+    {"caseId": "PY-SEM-UNREACH-001-NEG-1", "kind": "negative", "code": "def f(x):\n    if x > 0:\n        return 1\n    return 0\n", "expected": false},
+    {"caseId": "PY-SEM-UNREACH-001-NEG-2", "kind": "negative", "code": "def g():\n    x = 1\n    return x\n", "expected": false},
+    {"caseId": "PY-SEM-UNREACH-001-NEG-3", "kind": "negative", "code": "def h(items):\n    for i in items:\n        if i == 0:\n            break\n    return True\n", "expected": false},
+    {"caseId": "PY-SEM-UNREACH-001-EDGE-1", "kind": "edge", "code": "def empty():\n    pass\n", "expected": false},
+    {"caseId": "PY-SEM-UNREACH-001-EDGE-2", "kind": "edge", "code": "def loop_dead(items):\n    for i in items:\n        continue\n        z = i\n", "expected": true}
+  ]
+}

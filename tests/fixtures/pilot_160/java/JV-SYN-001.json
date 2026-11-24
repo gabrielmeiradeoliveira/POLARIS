@@ -1,0 +1,54 @@
+{
+  "ruleId": "JV-SYN-001",
+  "language": "java",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { try {} catch (Exception e) {} } }"
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { try { int x=1; } catch (RuntimeException e) {} } }"
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() { try {} catch (Throwable t) {} } }"
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void m() { try {} catch (Exception e) { e.printStackTrace(); } } }"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void m() { int x = 1; } }"
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C {}"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "// catch (Exception e) {}"
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "class C { void m() { try {} catch (Exception e)\n{} } }"
+    }
+  ]
+}

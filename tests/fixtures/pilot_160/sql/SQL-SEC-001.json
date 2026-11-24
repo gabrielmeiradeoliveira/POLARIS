@@ -1,0 +1,54 @@
+{
+  "ruleId": "SQL-SEC-001",
+  "language": "sql",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "GRANT ALL PRIVILEGES ON users TO public;"
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "GRANT ALL ON orders TO public;"
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "GRANT ALL PRIVILEGES ON *.* TO 'u'@'%';"
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "GRANT SELECT ON users TO reader;"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT id FROM users;"
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "REVOKE ALL ON users FROM public;"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "-- GRANT ALL"
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "GRANT ALL\nON users TO public;"
+    }
+  ]
+}

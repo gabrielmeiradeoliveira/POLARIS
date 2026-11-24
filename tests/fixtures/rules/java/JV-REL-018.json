@@ -1,0 +1,54 @@
+{
+  "ruleId": "JV-REL-018",
+  "language": "java",
+  "cases": [
+    {
+      "caseId": "JV-REL-018-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "JV-REL-018-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "JV-REL-018-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "JV-REL-018-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "JV-REL-018-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "JV-REL-018-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "JV-REL-018-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "JV-REL-018-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "observedPositive": true
+    }
+  ]
+}

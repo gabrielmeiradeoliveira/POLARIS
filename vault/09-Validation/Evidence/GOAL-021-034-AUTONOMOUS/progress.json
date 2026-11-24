@@ -1,0 +1,20 @@
+{
+  "goalId": "GOAL-021-034-AUTONOMOUS",
+  "masterId": "GOAL-021-034-MASTER",
+  "status": "IN_PROGRESS",
+  "currentPhase": "FASE 02",
+  "pilot": {
+    "rulesChecked": 20,
+    "rulesPassed": 11,
+    "casesExecuted": 160,
+    "errors": 9,
+    "elapsedSeconds": 3.3506
+  },
+  "regressions": {
+    "csharp90": "PASS",
+    "java90": "PASS",
+    "mutations24": "PASS",
+    "rejections10": "PASS"
+  },
+  "nextCommand": ".\\.venv\\Scripts\\python.exe scripts/validation/validate_rules.py --pilot"
+}

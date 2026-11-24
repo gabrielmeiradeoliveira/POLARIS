@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: polaris-changed-only
+        name: POLARIS SAST/Secrets (Changed Files Only)
+        entry: python -m polaris_scanner.cli analyze --changed-only
+        language: system
+        pass_filenames: false

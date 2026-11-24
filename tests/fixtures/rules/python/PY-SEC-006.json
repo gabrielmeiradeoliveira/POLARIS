@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-006",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-006-POS-1", "kind": "positive", "expectedPositive": true, "code": "import yaml\nyaml.load('a: 1')\n"},
+    {"caseId": "PY-SEC-006-POS-2", "kind": "positive", "expectedPositive": true, "code": "import yaml\ndef parse(s):\n    return yaml.load(s)\n"},
+    {"caseId": "PY-SEC-006-POS-3", "kind": "positive", "expectedPositive": true, "code": "import yaml\nyaml.load(stream, Loader=yaml.Loader)\n"},
+    {"caseId": "PY-SEC-006-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import yaml\nyaml.safe_load('a: 1')\n"},
+    {"caseId": "PY-SEC-006-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import yaml\nyaml.dump({'a': 1})\n"},
+    {"caseId": "PY-SEC-006-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-006-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'yaml.load(x)'\n"},
+    {"caseId": "PY-SEC-006-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def load(x):\n    return x\n"}
+  ]
+}

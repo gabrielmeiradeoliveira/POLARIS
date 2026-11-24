@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-003",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-003-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { ; } }\n"},
+    {"caseId": "JV-REL-003-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(boolean b) { if (b) ; } }\n"},
+    {"caseId": "JV-REL-003-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { int x = 1;; } }\n"},
+    {"caseId": "JV-REL-003-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { int x = 1; } }\n"},
+    {"caseId": "JV-REL-003-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m(boolean b) { if (b) { return; } } }\n"},
+    {"caseId": "JV-REL-003-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-003-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \";\"; } }\n"},
+    {"caseId": "JV-REL-003-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { for (int i = 0; i < 3; i++) { } } }\n"}
+  ]
+}

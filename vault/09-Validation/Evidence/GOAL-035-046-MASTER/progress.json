@@ -1,0 +1,26 @@
+{
+  "masterGoalId": "GOAL-035-046-MASTER",
+  "targetVersion": "POLARIS 2.2 — Beta Candidate",
+  "status": "IN_PROGRESS",
+  "goals": {
+    "GOAL-035": {
+      "status": "VALIDATED",
+      "pilot": {
+        "rulesChecked": 20,
+        "rulesPassed": 20,
+        "casesExecuted": 160,
+        "errors": 0,
+        "durationSeconds": 3.1864
+      },
+      "regressions": {
+        "csharp90": "90/90",
+        "java90": "90/90",
+        "python90_sql80": "2/2 OK",
+        "validation_mutations_rejections": "2/2 OK",
+        "e2e": "2/2 OK",
+        "validate_goals": "VALIDATED_ACCEPTANCE_FILES=30 ACCEPTANCE_ERRORS=0",
+        "validate_docs": "TOTAL_MD_FILES=156 EMPTY_FILES=0 MISSING_YAML_COUNT=0 DUPLICATE_IDS_COUNT=0 BROKEN_LINKS_COUNT=0"
+      }
+    }
+  }
+}

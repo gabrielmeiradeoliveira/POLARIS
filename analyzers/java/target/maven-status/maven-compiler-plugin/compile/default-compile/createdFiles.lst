@@ -1,0 +1,8 @@
+com/polaris/analyzer/JavaTaintEngine$JavaTaintFinding.class
+com/polaris/analyzer/JavaRulesEngine$Finding.class
+com/polaris/analyzer/JavaTaintEngine.class
+com/polaris/analyzer/PolarisJavaAnalyzer.class
+com/polaris/analyzer/JavaTaintEngine$MethodEntry.class
+com/polaris/analyzer/JavaRulesEngine$JavaRuleDef.class
+com/polaris/analyzer/JavaRulesEngine.class
+com/polaris/analyzer/JavaTaintEngine$FlowStep.class

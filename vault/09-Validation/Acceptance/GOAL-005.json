@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-005",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G5-001", "description": "Subcomando polaris-scanner analyze implementado", "sourceRequirement": "GOAL-005#16", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/scanner/test_analyze_command.py -v", "relatedFiles": ["src/polaris_scanner/cli.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-005.md"], "expectedResult": "analyze funcional", "observedResult": "1/1 OK", "limitations": "Nenhuma" },
+    { "id": "G5-002", "description": "Modo offline e modo conectado (--server) funcionais", "sourceRequirement": "GOAL-005#16", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/scanner/test_analyze_command.py -v", "relatedFiles": ["src/polaris_scanner/cli.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-005.md"], "expectedResult": "Offline e conectado OK", "observedResult": "Envio para POST /api/v1/analyses OK", "limitations": "Nenhuma" },
+    { "id": "G5-003", "description": "Fingerprints determinísticos por ocorrência", "sourceRequirement": "GOAL-005#21", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/scanner/test_analyze_command.py -v", "relatedFiles": ["src/polaris_scanner/contracts.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-005.md"], "expectedResult": "SHA-256 determinístico", "observedResult": "8/8 fingerprints SHA-256 válidos", "limitations": "Nenhuma" },
+    { "id": "G5-004", "description": "Pipeline completo contra projeto 4 linguagens com persistência PostgreSQL", "sourceRequirement": "GOAL-005#24", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest discover -s tests/e2e -v", "relatedFiles": ["tests/e2e/"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-005.md"], "expectedResult": "Persistência e Chromium OK", "observedResult": "2/2 E2E OK + analyze OK", "limitations": "Nenhuma" }
+  ]
+}

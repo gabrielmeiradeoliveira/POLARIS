@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-008",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-008-POS-1", "kind": "positive", "expectedPositive": true, "code": "import hashlib\nh = hashlib.md5(b'abc')\n"},
+    {"caseId": "PY-SEC-008-POS-2", "kind": "positive", "expectedPositive": true, "code": "import hashlib\ndef digest(b):\n    return hashlib.md5(b).hexdigest()\n"},
+    {"caseId": "PY-SEC-008-POS-3", "kind": "positive", "expectedPositive": true, "code": "import hashlib\nhashlib.md5().update(b'x')\n"},
+    {"caseId": "PY-SEC-008-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import hashlib\nh = hashlib.sha256(b'abc')\n"},
+    {"caseId": "PY-SEC-008-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import hashlib\nh = hashlib.sha512(b'abc')\n"},
+    {"caseId": "PY-SEC-008-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-008-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'hashlib.md5'\n"},
+    {"caseId": "PY-SEC-008-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def md5(x):\n    return x\n"}
+  ]
+}

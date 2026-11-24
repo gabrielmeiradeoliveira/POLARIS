@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-006",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-006-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users WHERE id NOT IN (SELECT user_id FROM bans);\n"},
+    {"caseId": "SQL-CTX-006-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT name FROM items WHERE cat_id NOT IN (SELECT id FROM disabled_cats);\n"},
+    {"caseId": "SQL-CTX-006-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM a WHERE a.k NOT IN (SELECT b.k FROM b);\n"},
+    {"caseId": "SQL-CTX-006-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users u WHERE NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.id);\n"},
+    {"caseId": "SQL-CTX-006-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE id IN (1, 2, 3);\n"},
+    {"caseId": "SQL-CTX-006-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-006-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users WHERE id NOT IN (1, 2, 3);\n"},
+    {"caseId": "SQL-CTX-006-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT 'NOT IN (SELECT 1)' AS txt;\n"}
+  ]
+}

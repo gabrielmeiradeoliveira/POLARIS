@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-MNT-002",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-MNT-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(a, b, c, d, e, g, h, i):\n    return a\n"},
+    {"caseId": "PY-MNT-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(p1, p2, p3, p4, p5, p6, p7, p8, p9):\n    return p1\n"},
+    {"caseId": "PY-MNT-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "async def h(a, b, c, d, e, f, g, h):\n    return a\n"},
+    {"caseId": "PY-MNT-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(a, b, c):\n    return a + b + c\n"},
+    {"caseId": "PY-MNT-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g():\n    return 1\n"},
+    {"caseId": "PY-MNT-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-MNT-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f(a, b, c, d, e, g, h):\n    return a\n"},
+    {"caseId": "PY-MNT-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f(*args, **kwargs):\n    return args\n"}
+  ]
+}

@@ -1,0 +1,1430 @@
+[
+  {
+    "ruleId": "PY-SYN-001",
+    "language": "python",
+    "name": "Avoid eval/exec",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEM-001",
+    "language": "python",
+    "name": "Mutable default argument",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-001",
+    "language": "python",
+    "name": "Bare except",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-002",
+    "language": "python",
+    "name": "Broad except",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-003",
+    "language": "python",
+    "name": "Swallowed exception",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-004",
+    "language": "python",
+    "name": "Return in finally",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-REL-005",
+    "language": "python",
+    "name": "Unreachable code",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-006",
+    "language": "python",
+    "name": "None comparison",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-007",
+    "language": "python",
+    "name": "Boolean comparison",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-008",
+    "language": "python",
+    "name": "Duplicate dict keys",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-009",
+    "language": "python",
+    "name": "Duplicate set elements",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-010",
+    "language": "python",
+    "name": "Constant if condition",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-011",
+    "language": "python",
+    "name": "While False loop",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-012",
+    "language": "python",
+    "name": "Assert on tuple",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-013",
+    "language": "python",
+    "name": "Self-assignment",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-014",
+    "language": "python",
+    "name": "Wildcard import",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-015",
+    "language": "python",
+    "name": "Unused import",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-016",
+    "language": "python",
+    "name": "Open without with",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-MNT-001",
+    "language": "python",
+    "name": "Global statement",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-002",
+    "language": "python",
+    "name": "Too many parameters",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-003",
+    "language": "python",
+    "name": "Long function",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-004",
+    "language": "python",
+    "name": "Deep nesting",
+    "category": "MAINTAINABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-MNT-005",
+    "language": "python",
+    "name": "Empty function",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-PRF-001",
+    "language": "python",
+    "name": "Loop string concat",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-PRF-002",
+    "language": "python",
+    "name": "len() == 0",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-SEC-001",
+    "language": "python",
+    "name": "Hardcoded secret",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-002",
+    "language": "python",
+    "name": "Subprocess shell=True",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-003",
+    "language": "python",
+    "name": "TLS verify=False",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-004",
+    "language": "python",
+    "name": "SQLi f-string",
+    "category": "SECURITY",
+    "severity": "BLOCKER"
+  },
+  {
+    "ruleId": "PY-SEC-005",
+    "language": "python",
+    "name": "Unsafe pickle.loads",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-006",
+    "language": "python",
+    "name": "Unsafe yaml.load",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-007",
+    "language": "python",
+    "name": "Unsafe os.system",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-008",
+    "language": "python",
+    "name": "Weak hash MD5",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-009",
+    "language": "python",
+    "name": "Weak hash SHA1",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-010",
+    "language": "python",
+    "name": "Insecure tempfile.mktemp",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-011",
+    "language": "python",
+    "name": "Unsafe marshal.loads",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-012",
+    "language": "python",
+    "name": "Unsafe shelve.open",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-013",
+    "language": "python",
+    "name": "Unsafe xml.etree parse",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-014",
+    "language": "python",
+    "name": "Unsafe tarfile.extractall",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-015",
+    "language": "python",
+    "name": "Unsafe random.random",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-SEC-016",
+    "language": "python",
+    "name": "Unsafe ssl._create_unverified_context",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "PY-SEC-017",
+    "language": "python",
+    "name": "Unsafe telnetlib",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-018",
+    "language": "python",
+    "name": "Unsafe ftplib",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-019",
+    "language": "python",
+    "name": "Unsafe compile()",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-SEC-020",
+    "language": "python",
+    "name": "Unsafe __import__()",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-017",
+    "language": "python",
+    "name": "Avoid exit()/quit()",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-REL-018",
+    "language": "python",
+    "name": "Avoid breakpoint()",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-REL-019",
+    "language": "python",
+    "name": "Avoid print() in library",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-REL-020",
+    "language": "python",
+    "name": "Avoid input()",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-006",
+    "language": "python",
+    "name": "Avoid type() == ",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-007",
+    "language": "python",
+    "name": "Avoid globals()",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-008",
+    "language": "python",
+    "name": "Avoid locals()",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-009",
+    "language": "python",
+    "name": "Avoid vars()",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-MNT-010",
+    "language": "python",
+    "name": "Avoid dir()",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-MNT-011",
+    "language": "python",
+    "name": "Avoid hasattr() side-effects",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-MNT-012",
+    "language": "python",
+    "name": "Avoid delattr()",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-MNT-013",
+    "language": "python",
+    "name": "Avoid setattr()",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "PY-PRF-003",
+    "language": "python",
+    "name": "Avoid list(sorted())",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "PY-PRF-004",
+    "language": "python",
+    "name": "Avoid time.sleep() in async",
+    "category": "PERFORMANCE",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "PY-PRF-005",
+    "language": "python",
+    "name": "Avoid re.compile() in loop",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-SYN-001",
+    "language": "sql",
+    "name": "Avoid SELECT *",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-CTX-001",
+    "language": "sql",
+    "name": "DELETE/UPDATE without WHERE",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-CTX-002",
+    "language": "sql",
+    "name": "UPDATE without WHERE",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-SYN-002",
+    "language": "sql",
+    "name": "Comparison with NULL",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-CTX-003",
+    "language": "sql",
+    "name": "Cartesian JOIN",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-SYN-003",
+    "language": "sql",
+    "name": "Redundant DISTINCT",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-CTX-004",
+    "language": "sql",
+    "name": "Destructive DROP",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-CTX-005",
+    "language": "sql",
+    "name": "Destructive TRUNCATE",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-SYN-004",
+    "language": "sql",
+    "name": "Leading wildcard LIKE",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-CTX-006",
+    "language": "sql",
+    "name": "NOT IN subquery",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-SYN-005",
+    "language": "sql",
+    "name": "UNION vs UNION ALL",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "SQL-SYN-006",
+    "language": "sql",
+    "name": "OR in WHERE",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "SQL-CTX-007",
+    "language": "sql",
+    "name": "HAVING without GROUP BY",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "SQL-CTX-008",
+    "language": "sql",
+    "name": "LIMIT without ORDER BY",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-SYN-007",
+    "language": "sql",
+    "name": "Deep subquery nesting",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-SYN-008",
+    "language": "sql",
+    "name": "Excessive JOINs",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-SYN-009",
+    "language": "sql",
+    "name": "COUNT in EXISTS",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-CTX-009",
+    "language": "sql",
+    "name": "ORDER BY RANDOM",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-CTX-010",
+    "language": "sql",
+    "name": "SELECT INTO",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "SQL-SYN-010",
+    "language": "sql",
+    "name": "INSERT without columns",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-SYN-001",
+    "language": "csharp",
+    "name": "Empty catch block",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-SEM-001",
+    "language": "csharp",
+    "name": "Async void method",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-001",
+    "language": "csharp",
+    "name": "Broad catch Exception",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-REL-002",
+    "language": "csharp",
+    "name": "Throw ex resets stacktrace",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-003",
+    "language": "csharp",
+    "name": "Lock on this",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-REL-004",
+    "language": "csharp",
+    "name": "Goto statement",
+    "category": "MAINTAINABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-005",
+    "language": "csharp",
+    "name": "Empty if statement",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-REL-006",
+    "language": "csharp",
+    "name": "Empty finally block",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-REL-007",
+    "language": "csharp",
+    "name": "Thread.Sleep blocking",
+    "category": "PERFORMANCE",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-008",
+    "language": "csharp",
+    "name": "GC.Collect call",
+    "category": "PERFORMANCE",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-009",
+    "language": "csharp",
+    "name": "Task.Wait blocking",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-010",
+    "language": "csharp",
+    "name": "Task.Run in library",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-MNT-001",
+    "language": "csharp",
+    "name": "Too many parameters",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-MNT-002",
+    "language": "csharp",
+    "name": "Public field",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-MNT-003",
+    "language": "csharp",
+    "name": "Nested ternary",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-SEC-001",
+    "language": "csharp",
+    "name": "Hardcoded password",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-002",
+    "language": "csharp",
+    "name": "Insecure MD5",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-SEC-003",
+    "language": "csharp",
+    "name": "Insecure SHA1",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-SEC-004",
+    "language": "csharp",
+    "name": "Process.Start",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-005",
+    "language": "csharp",
+    "name": "BinaryFormatter",
+    "category": "SECURITY",
+    "severity": "BLOCKER"
+  },
+  {
+    "ruleId": "CS-SEC-006",
+    "language": "csharp",
+    "name": "DES.Create",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-007",
+    "language": "csharp",
+    "name": "TripleDES.Create",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-SEC-008",
+    "language": "csharp",
+    "name": "RC2.Create",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-009",
+    "language": "csharp",
+    "name": "RNGCryptoServiceProvider",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-SEC-010",
+    "language": "csharp",
+    "name": "XmlDocument",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-SEC-011",
+    "language": "csharp",
+    "name": "WebClient",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-SEC-012",
+    "language": "csharp",
+    "name": "SqlCommand",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-013",
+    "language": "csharp",
+    "name": "ExecuteNonQuery",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-SEC-014",
+    "language": "csharp",
+    "name": "Path.Combine",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-SEC-015",
+    "language": "csharp",
+    "name": "File.ReadAllText",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-REL-011",
+    "language": "csharp",
+    "name": "Console.WriteLine",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-REL-012",
+    "language": "csharp",
+    "name": "Debug.WriteLine",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-REL-013",
+    "language": "csharp",
+    "name": "Trace.WriteLine",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-REL-014",
+    "language": "csharp",
+    "name": "Environment.Exit",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-015",
+    "language": "csharp",
+    "name": "FailFast",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "CS-REL-016",
+    "language": "csharp",
+    "name": "Debugger.Break",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-017",
+    "language": "csharp",
+    "name": "Activator.CreateInstance",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-REL-018",
+    "language": "csharp",
+    "name": "Assembly.LoadFrom",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-019",
+    "language": "csharp",
+    "name": "Marshal.AllocHGlobal",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "CS-REL-020",
+    "language": "csharp",
+    "name": "Monitor.Enter",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-MNT-004",
+    "language": "csharp",
+    "name": "String.Format",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-005",
+    "language": "csharp",
+    "name": "ToLower",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-006",
+    "language": "csharp",
+    "name": "ToUpper",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-007",
+    "language": "csharp",
+    "name": "Equals",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-008",
+    "language": "csharp",
+    "name": "CompareTo",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-009",
+    "language": "csharp",
+    "name": "StartsWith",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-010",
+    "language": "csharp",
+    "name": "EndsWith",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-011",
+    "language": "csharp",
+    "name": "IndexOf",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-012",
+    "language": "csharp",
+    "name": "LastIndexOf",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-013",
+    "language": "csharp",
+    "name": "Replace",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-014",
+    "language": "csharp",
+    "name": "Split",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-MNT-015",
+    "language": "csharp",
+    "name": "Trim",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-001",
+    "language": "csharp",
+    "name": "ToList",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-PRF-002",
+    "language": "csharp",
+    "name": "ToArray",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-PRF-003",
+    "language": "csharp",
+    "name": "Count",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-PRF-004",
+    "language": "csharp",
+    "name": "FirstOrDefault",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-005",
+    "language": "csharp",
+    "name": "SingleOrDefault",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-006",
+    "language": "csharp",
+    "name": "OrderBy",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-007",
+    "language": "csharp",
+    "name": "Distinct",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-008",
+    "language": "csharp",
+    "name": "Concat",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "CS-PRF-009",
+    "language": "csharp",
+    "name": "Regex.Match",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "CS-PRF-010",
+    "language": "csharp",
+    "name": "Regex.IsMatch",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-SYN-001",
+    "language": "java",
+    "name": "Empty catch block",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-SEM-001",
+    "language": "java",
+    "name": "String == comparison",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-REL-001",
+    "language": "java",
+    "name": "Broad catch Exception",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-002",
+    "language": "java",
+    "name": "Catch Throwable",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-REL-003",
+    "language": "java",
+    "name": "Empty statement",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-REL-004",
+    "language": "java",
+    "name": "Empty if block",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-MNT-001",
+    "language": "java",
+    "name": "Too many parameters",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-MNT-002",
+    "language": "java",
+    "name": "Public mutable field",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-SEC-001",
+    "language": "java",
+    "name": "Hardcoded password",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-REL-005",
+    "language": "java",
+    "name": "System.exit",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-REL-006",
+    "language": "java",
+    "name": "System.gc",
+    "category": "PERFORMANCE",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-REL-007",
+    "language": "java",
+    "name": "printStackTrace",
+    "category": "MAINTAINABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-008",
+    "language": "java",
+    "name": "System.out.println",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-REL-009",
+    "language": "java",
+    "name": "Thread.sleep",
+    "category": "PERFORMANCE",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-REL-010",
+    "language": "java",
+    "name": "Thread.stop",
+    "category": "RELIABILITY",
+    "severity": "BLOCKER"
+  },
+  {
+    "ruleId": "JV-REL-011",
+    "language": "java",
+    "name": "Thread.suspend",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-REL-012",
+    "language": "java",
+    "name": "Thread.resume",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-REL-013",
+    "language": "java",
+    "name": "runFinalizersOnExit",
+    "category": "RELIABILITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-REL-014",
+    "language": "java",
+    "name": "notify",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-015",
+    "language": "java",
+    "name": "wait",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-016",
+    "language": "java",
+    "name": "finalize",
+    "category": "RELIABILITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-REL-017",
+    "language": "java",
+    "name": "clone",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-018",
+    "language": "java",
+    "name": "getClass",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-REL-019",
+    "language": "java",
+    "name": "hashCode",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-REL-020",
+    "language": "java",
+    "name": "toString",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-SEC-002",
+    "language": "java",
+    "name": "Runtime.exec",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-003",
+    "language": "java",
+    "name": "ObjectInputStream",
+    "category": "SECURITY",
+    "severity": "BLOCKER"
+  },
+  {
+    "ruleId": "JV-SEC-004",
+    "language": "java",
+    "name": "Statement.execute",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-005",
+    "language": "java",
+    "name": "executeQuery",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-006",
+    "language": "java",
+    "name": "executeUpdate",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-007",
+    "language": "java",
+    "name": "MessageDigest MD5",
+    "category": "SECURITY",
+    "severity": "MAJOR"
+  },
+  {
+    "ruleId": "JV-SEC-008",
+    "language": "java",
+    "name": "Random",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-SEC-009",
+    "language": "java",
+    "name": "setHostnameVerifier",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-010",
+    "language": "java",
+    "name": "trustAll",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-011",
+    "language": "java",
+    "name": "XMLDecoder",
+    "category": "SECURITY",
+    "severity": "BLOCKER"
+  },
+  {
+    "ruleId": "JV-SEC-012",
+    "language": "java",
+    "name": "ScriptEngine.eval",
+    "category": "SECURITY",
+    "severity": "CRITICAL"
+  },
+  {
+    "ruleId": "JV-SEC-013",
+    "language": "java",
+    "name": "Class.forName",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-SEC-014",
+    "language": "java",
+    "name": "DriverManager.getConnection",
+    "category": "SECURITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-SEC-015",
+    "language": "java",
+    "name": "Files.createTempFile",
+    "category": "SECURITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-003",
+    "language": "java",
+    "name": "String.format",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-004",
+    "language": "java",
+    "name": "toLowerCase",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-MNT-005",
+    "language": "java",
+    "name": "toUpperCase",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-MNT-006",
+    "language": "java",
+    "name": "equalsIgnoreCase",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-007",
+    "language": "java",
+    "name": "trim",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-008",
+    "language": "java",
+    "name": "isEmpty",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-009",
+    "language": "java",
+    "name": "size",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-010",
+    "language": "java",
+    "name": "indexOf",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-011",
+    "language": "java",
+    "name": "substring",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-012",
+    "language": "java",
+    "name": "replaceAll",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-MNT-013",
+    "language": "java",
+    "name": "split",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-014",
+    "language": "java",
+    "name": "valueOf",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-MNT-015",
+    "language": "java",
+    "name": "compareTo",
+    "category": "RELIABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-PRF-001",
+    "language": "java",
+    "name": "StringBuffer",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-002",
+    "language": "java",
+    "name": "Vector",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-003",
+    "language": "java",
+    "name": "Hashtable",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-004",
+    "language": "java",
+    "name": "Pattern.compile",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-005",
+    "language": "java",
+    "name": "Pattern.matches",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-006",
+    "language": "java",
+    "name": "collect",
+    "category": "PERFORMANCE",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-PRF-007",
+    "language": "java",
+    "name": "parallelStream",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-008",
+    "language": "java",
+    "name": "forEach",
+    "category": "MAINTAINABILITY",
+    "severity": "INFO"
+  },
+  {
+    "ruleId": "JV-PRF-009",
+    "language": "java",
+    "name": "intern",
+    "category": "PERFORMANCE",
+    "severity": "MINOR"
+  },
+  {
+    "ruleId": "JV-PRF-010",
+    "language": "java",
+    "name": "newInstance",
+    "category": "RELIABILITY",
+    "severity": "MINOR"
+  }
+]

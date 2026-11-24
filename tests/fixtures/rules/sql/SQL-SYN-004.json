@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-004",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users WHERE name LIKE '%alice';\n"},
+    {"caseId": "SQL-SYN-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users WHERE email LIKE '%@example.com%';\n"},
+    {"caseId": "SQL-SYN-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users WHERE code LIKE '%123';\n"},
+    {"caseId": "SQL-SYN-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE name LIKE 'alice%';\n"},
+    {"caseId": "SQL-SYN-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE name = 'alice';\n"},
+    {"caseId": "SQL-SYN-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-SYN-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT '%alice' AS pattern;\n"},
+    {"caseId": "SQL-SYN-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users WHERE name LIKE 'a_b';\n"}
+  ]
+}

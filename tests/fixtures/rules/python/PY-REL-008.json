@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-008",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-008-POS-1", "kind": "positive", "expectedPositive": true, "code": "d = {'a': 1, 'a': 2}\n"},
+    {"caseId": "PY-REL-008-POS-2", "kind": "positive", "expectedPositive": true, "code": "d = {1: 'x', 2: 'y', 1: 'z'}\n"},
+    {"caseId": "PY-REL-008-POS-3", "kind": "positive", "expectedPositive": true, "code": "def f():\n    return {'k': True, 'k': False}\n"},
+    {"caseId": "PY-REL-008-NEG-1", "kind": "negative", "expectedPositive": false, "code": "d = {'a': 1, 'b': 2}\n"},
+    {"caseId": "PY-REL-008-NEG-2", "kind": "negative", "expectedPositive": false, "code": "d = {1: 'x', 2: 'y'}\n"},
+    {"caseId": "PY-REL-008-NEG-3", "kind": "negative", "expectedPositive": false, "code": "d = {}\n"},
+    {"caseId": "PY-REL-008-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "d = {'a': 1, 'A': 2}\n"},
+    {"caseId": "PY-REL-008-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "k = 'a'\nd = {k: 1, 'b': 2}\n"}
+  ]
+}

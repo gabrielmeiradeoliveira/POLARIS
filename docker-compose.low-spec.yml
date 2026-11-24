@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    volumes:
+      - ./deploy/postgres-low-spec.conf:/etc/postgresql/postgresql.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+          cpus: "1.0"
+
+  polaris-server:
+    build: .
+    environment:
+      WEB_CONCURRENCY: "1"
+      POLARIS_INGEST_BATCH_SIZE: "500"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "1.0"
+    depends_on:
+      - postgres

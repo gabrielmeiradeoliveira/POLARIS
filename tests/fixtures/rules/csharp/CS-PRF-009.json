@@ -1,0 +1,54 @@
+{
+  "ruleId": "CS-PRF-009",
+  "language": "csharp",
+  "cases": [
+    {
+      "caseId": "CS-PRF-009-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "CS-PRF-009-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "CS-PRF-009-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "observedPositive": true
+    },
+    {
+      "caseId": "CS-PRF-009-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "CS-PRF-009-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "CS-PRF-009-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "CS-PRF-009-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "observedPositive": false
+    },
+    {
+      "caseId": "CS-PRF-009-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "observedPositive": true
+    }
+  ]
+}

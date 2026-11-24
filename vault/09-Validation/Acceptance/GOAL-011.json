@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-011",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G11-001", "description": "Interface React/TypeScript integrada com rotas para Dashboard, Projects, Issues, Rules, Quality Profiles, Quality Gates e Status", "sourceRequirement": "GOAL-011#69-71", "mandatory": true, "status": "PASS", "validationCommand": ".\\web\\node_modules\\.bin\\tsc.cmd -p web/tsconfig.json --noEmit", "relatedFiles": ["web/src/App.tsx"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "tsc exit 0", "observedResult": "tsc exit 0", "limitations": "Docker/Playwright não reexecutados nesta sessão por daemon Docker offline" }
+  ]
+}

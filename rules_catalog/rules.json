@@ -1,0 +1,17 @@
+{
+  "version": "2.7.0",
+  "rules": [
+    {"rule_id": "python:PY-SEC-001", "language": "python", "cwe": "CWE-89", "owasp_2025": "A03:2025-Injection", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 30, "tags": ["security", "sqli", "taint"]},
+    {"rule_id": "python:PY-SEC-002", "language": "python", "cwe": "CWE-78", "owasp_2025": "A03:2025-Injection", "severity": "BLOCKER", "confidence": "HIGH", "remediation_minutes": 30, "tags": ["security", "cmdi", "taint"]},
+    {"rule_id": "python:PY-SEC-003", "language": "python", "cwe": "CWE-22", "owasp_2025": "A01:2025-Broken-Access-Control", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 25, "tags": ["security", "path-traversal"]},
+    {"rule_id": "security:SECRET_EXPOSED", "language": "multi", "cwe": "CWE-798", "owasp_2025": "A07:2025-Auth-Failures", "severity": "BLOCKER", "confidence": "HIGH", "remediation_minutes": 15, "tags": ["security", "secrets"]},
+    {"rule_id": "sca:KEV_VULNERABILITY", "language": "multi", "cwe": "CWE-1395", "owasp_2025": "A06:2025-Vulnerable-Components", "severity": "BLOCKER", "confidence": "HIGH", "remediation_minutes": 45, "tags": ["sca", "kev", "cve"]},
+    {"rule_id": "aspm:EXPOSED_CRITICAL_ENDPOINT", "language": "multi", "cwe": "CWE-306", "owasp_2025": "A01:2025-Broken-Access-Control", "severity": "BLOCKER", "confidence": "HIGH", "remediation_minutes": 60, "tags": ["aspm", "zero-trust", "attack-path"]},
+    {"rule_id": "go:GO-SEC-001", "language": "go", "cwe": "CWE-89", "owasp_2025": "A03:2025-Injection", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 30, "tags": ["go", "sqli"]},
+    {"rule_id": "kotlin:KT-SEC-001", "language": "kotlin", "cwe": "CWE-89", "owasp_2025": "A03:2025-Injection", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 30, "tags": ["kotlin", "sqli"]},
+    {"rule_id": "php:PHP-SEC-001", "language": "php", "cwe": "CWE-94", "owasp_2025": "A03:2025-Injection", "severity": "BLOCKER", "confidence": "HIGH", "remediation_minutes": 30, "tags": ["php", "rce"]},
+    {"rule_id": "tf:TF-SEC-001", "language": "terraform", "cwe": "CWE-284", "owasp_2025": "A01:2025-Broken-Access-Control", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 20, "tags": ["terraform", "iac", "zero-trust"]},
+    {"rule_id": "k8s:K8S-SEC-001", "language": "kubernetes", "cwe": "CWE-250", "owasp_2025": "A05:2025-Security-Misconfiguration", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 20, "tags": ["kubernetes", "iac", "zero-trust"]},
+    {"rule_id": "sh:SH-SEC-001", "language": "shell", "cwe": "CWE-78", "owasp_2025": "A03:2025-Injection", "severity": "CRITICAL", "confidence": "HIGH", "remediation_minutes": 15, "tags": ["shell", "cmdi"]}
+  ]
+}

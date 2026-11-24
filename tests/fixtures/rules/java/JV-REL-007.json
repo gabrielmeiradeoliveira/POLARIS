@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-007",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-007-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m(Exception e) { e.printStackTrace(); } }\n"},
+    {"caseId": "JV-REL-007-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { try { } catch (Exception ex) { ex.printStackTrace(); } } }\n"},
+    {"caseId": "JV-REL-007-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m(Throwable t) { t.printStackTrace(); } }\n"},
+    {"caseId": "JV-REL-007-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { String m(Exception e) { return e.getMessage(); } }\n"},
+    {"caseId": "JV-REL-007-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { try { } catch (Exception ex) { throw new RuntimeException(ex); } } }\n"},
+    {"caseId": "JV-REL-007-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-007-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"e.printStackTrace()\"; } }\n"},
+    {"caseId": "JV-REL-007-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void m(Exception e) { e.getStackTrace(); } }\n"}
+  ]
+}

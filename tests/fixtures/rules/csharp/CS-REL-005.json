@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-REL-005",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-REL-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void M(bool b) { if (b) { } } }\n"},
+    {"caseId": "CS-REL-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void M(int x) { if (x > 0) { } else { x = 1; } } }\n"},
+    {"caseId": "CS-REL-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void M(bool b) { if (b) ; } }\n"},
+    {"caseId": "CS-REL-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void M(bool b) { if (b) { return; } } }\n"},
+    {"caseId": "CS-REL-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { int M(bool b) { if (b) return 1; return 0; } }\n"},
+    {"caseId": "CS-REL-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void M() { } }\n"},
+    {"caseId": "CS-REL-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void M(bool b) { if (b) { int x = 1; } } }\n"},
+    {"caseId": "CS-REL-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void M() { var s = \"if (b) { }\"; } }\n"}
+  ]
+}

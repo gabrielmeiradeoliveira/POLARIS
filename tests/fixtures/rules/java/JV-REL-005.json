@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-005",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.exit(1); } }\n"},
+    {"caseId": "JV-REL-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(int code) { System.exit(code); } }\n"},
+    {"caseId": "JV-REL-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { Runtime.getRuntime().exit(0); } }\n"},
+    {"caseId": "JV-REL-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { throw new RuntimeException(\"err\"); } }\n"},
+    {"caseId": "JV-REL-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { int m() { return 1; } }\n"},
+    {"caseId": "JV-REL-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"System.exit(1)\"; } }\n"},
+    {"caseId": "JV-REL-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { int exitCode = 0; }\n"}
+  ]
+}

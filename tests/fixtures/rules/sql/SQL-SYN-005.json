@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-005",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM a UNION SELECT id FROM b;\n"},
+    {"caseId": "SQL-SYN-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT name FROM t1 UNION SELECT name FROM t2;\n"},
+    {"caseId": "SQL-SYN-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT 1 AS x UNION SELECT 2 AS x;\n"},
+    {"caseId": "SQL-SYN-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM a UNION ALL SELECT id FROM b;\n"},
+    {"caseId": "SQL-SYN-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM a;\n"},
+    {"caseId": "SQL-SYN-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT a.id FROM a JOIN b ON a.id = b.id;\n"},
+    {"caseId": "SQL-SYN-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'UNION' AS kw;\n"},
+    {"caseId": "SQL-SYN-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM a UNION ALL SELECT id FROM b UNION ALL SELECT id FROM c;\n"}
+  ]
+}

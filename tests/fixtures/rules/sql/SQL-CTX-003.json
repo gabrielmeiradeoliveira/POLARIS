@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-003",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-003-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT a.id FROM users a CROSS JOIN orders b;\n"},
+    {"caseId": "SQL-CTX-003-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM t1 JOIN t2;\n"},
+    {"caseId": "SQL-CTX-003-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT a.id FROM a INNER JOIN b;\n"},
+    {"caseId": "SQL-CTX-003-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT a.id FROM users a INNER JOIN orders b ON a.id = b.user_id;\n"},
+    {"caseId": "SQL-CTX-003-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT a.id FROM users a LEFT JOIN orders b USING (user_id);\n"},
+    {"caseId": "SQL-CTX-003-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-003-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users WHERE name = 'CROSS JOIN';\n"},
+    {"caseId": "SQL-CTX-003-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT a.id FROM a JOIN b ON a.id = b.id;\n"}
+  ]
+}

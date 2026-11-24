@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-REL-003",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-REL-003-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void M() { lock (this) { } } }\n"},
+    {"caseId": "CS-REL-003-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { int x; void M() { lock (this) { x++; } } }\n"},
+    {"caseId": "CS-REL-003-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { int Get() { lock (this) { return 1; } } }\n"},
+    {"caseId": "CS-REL-003-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { private readonly object _sync = new object(); void M() { lock (_sync) { } } }\n"},
+    {"caseId": "CS-REL-003-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { static readonly object Sync = new object(); void M() { lock (Sync) { } } }\n"},
+    {"caseId": "CS-REL-003-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void M() { } }\n"},
+    {"caseId": "CS-REL-003-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { C Self() => this; }\n"},
+    {"caseId": "CS-REL-003-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void M() { var x = \"lock (this)\"; } }\n"}
+  ]
+}

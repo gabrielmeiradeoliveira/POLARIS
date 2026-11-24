@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-020",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "020-007", "description": "Mínimo de 60 regras Python executáveis e validadas", "sourceRequirement": "GOAL-020#4", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/analyzers/test_goal020_200_rules.py -v", "relatedFiles": ["analyzers/python/rules_engine.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020.md"], "expectedResult": "60 regras Python sem FP em código limpo", "observedResult": "3/3 OK", "limitations": "Nenhuma" },
+    { "id": "020-008", "description": "Mínimo de 60 regras C# Roslyn compiladas", "sourceRequirement": "GOAL-020#4", "mandatory": true, "status": "PASS", "validationCommand": "dotnet build analyzers/csharp/PolarisCSharpAnalyzer.csproj -c Release", "relatedFiles": ["analyzers/csharp/CSharpRules.cs"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020.md"], "expectedResult": "Build succeeded 0 errors", "observedResult": "Build succeeded 0 errors", "limitations": "Nenhuma" },
+    { "id": "020-009", "description": "Mínimo de 60 regras Java JavaParser compiladas", "sourceRequirement": "GOAL-020#4", "mandatory": true, "status": "PASS", "validationCommand": "javac -cp analyzers/java/target/polaris-java-analyzer.jar -d analyzers/java/target/classes analyzers/java/src/main/java/com/polaris/analyzer/JavaRulesEngine.java", "relatedFiles": ["analyzers/java/src/main/java/com/polaris/analyzer/JavaRulesEngine.java"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020.md"], "expectedResult": "javac exit 0", "observedResult": "javac exit 0", "limitations": "Nenhuma" },
+    { "id": "020-010", "description": "Mínimo de 20 regras SQLGlot executáveis e validadas", "sourceRequirement": "GOAL-020#4", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/analyzers/test_goal020_200_rules.py -v", "relatedFiles": ["analyzers/sql/rules_engine.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020.md"], "expectedResult": "20 regras SQL sem FP em consulta limpa", "observedResult": "3/3 OK", "limitations": "Nenhuma" }
+  ]
+}

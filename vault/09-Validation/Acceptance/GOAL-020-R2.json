@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-020-R2",
+  "goalStatus": "IN_PROGRESS",
+  "criteria": [
+    { "id": "020-R2-001", "description": "Inventário confrontado com registries reais (204 regras)", "sourceRequirement": "GOAL-020-R2#3", "mandatory": true, "status": "PASS", "validationCommand": "python scripts/validation/validate_rules.py --all", "relatedFiles": ["scripts/validation/validate_rules.py"], "evidence": ["vault/09-Validation/Evidence/GOAL-020-R2/rule-inventory.json"], "expectedResult": ">=200 regras", "observedResult": "204 regras", "limitations": "Nenhuma" },
+    { "id": "020-R2-003", "description": "Testes de rejeição do validador", "sourceRequirement": "GOAL-020-R2#10", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/test_validate_rules_rejection.py -v", "relatedFiles": ["tests/unit/test_validate_rules_rejection.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020-R2.md"], "expectedResult": "2/2 OK", "observedResult": "2/2 OK", "limitations": "Nenhuma" },
+    { "id": "020-R2-008", "description": "1.632 casos individuais executados (204 regras x 8 casos)", "sourceRequirement": "GOAL-020-R2#5", "mandatory": true, "status": "PASS", "validationCommand": "python scripts/validation/validate_rules.py --all --json vault/09-Validation/Evidence/GOAL-020-R2/rule-test-results.json", "relatedFiles": ["tests/fixtures/rules/"], "evidence": ["vault/09-Validation/Evidence/GOAL-020-R2/rule-test-results.json"], "expectedResult": "ERRORS=0", "observedResult": "RULES_CHECKED=204 RULES_PASSED=204 CASES_EXECUTED=1632 ERRORS=0", "limitations": "Nenhuma" }
+  ]
+}

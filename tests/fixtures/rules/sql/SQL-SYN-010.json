@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-010",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "INSERT INTO users VALUES (1, 'alice');\n"},
+    {"caseId": "SQL-SYN-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "INSERT INTO orders VALUES (10, 1, 99.5);\n"},
+    {"caseId": "SQL-SYN-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "INSERT INTO logs SELECT * FROM staging_logs;\n"},
+    {"caseId": "SQL-SYN-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "INSERT INTO users (id, name) VALUES (1, 'alice');\n"},
+    {"caseId": "SQL-SYN-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "INSERT INTO orders (id, user_id, total) VALUES (10, 1, 99.5);\n"},
+    {"caseId": "SQL-SYN-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-SYN-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'INSERT INTO users VALUES (1)' AS txt;\n"},
+    {"caseId": "SQL-SYN-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "UPDATE users SET name = 'bob' WHERE id = 1;\n"}
+  ]
+}

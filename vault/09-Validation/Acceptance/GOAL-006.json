@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-006",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G6-001", "description": "Catálogo estruturado de regras para 4 linguagens", "sourceRequirement": "GOAL-006#26", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_rules_catalog.py -v", "relatedFiles": ["src/polaris_server/rules_catalog.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-006.md"], "expectedResult": "8 regras com metadados completos", "observedResult": "1/1 OK", "limitations": "Catálogo inicial de 8 regras; expansão incremental futura" }
+  ]
+}

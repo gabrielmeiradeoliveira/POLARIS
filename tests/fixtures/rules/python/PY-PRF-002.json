@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-PRF-002",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-PRF-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(xs):\n    return len(xs) == 0\n"},
+    {"caseId": "PY-PRF-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(s):\n    if len(s) == 0:\n        return True\n    return False\n"},
+    {"caseId": "PY-PRF-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "if len([]) == 0:\n    pass\n"},
+    {"caseId": "PY-PRF-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(xs):\n    return not xs\n"},
+    {"caseId": "PY-PRF-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(xs):\n    return len(xs) == 1\n"},
+    {"caseId": "PY-PRF-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 0\n"},
+    {"caseId": "PY-PRF-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f(xs):\n    return len(xs) > 0\n"},
+    {"caseId": "PY-PRF-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "s = 'len(xs) == 0'\n"}
+  ]
+}

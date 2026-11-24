@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-009",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-009-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users u WHERE EXISTS (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id);\n"},
+    {"caseId": "SQL-SYN-009-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT name FROM dept d WHERE EXISTS (SELECT COUNT(1) FROM emp e WHERE e.dept_id = d.id);\n"},
+    {"caseId": "SQL-SYN-009-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM a WHERE EXISTS (SELECT COUNT(id) FROM b);\n"},
+    {"caseId": "SQL-SYN-009-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);\n"},
+    {"caseId": "SQL-SYN-009-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT COUNT(*) FROM users;\n"},
+    {"caseId": "SQL-SYN-009-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-SYN-009-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'EXISTS (SELECT COUNT(*))' AS txt;\n"},
+    {"caseId": "SQL-SYN-009-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users WHERE id IN (SELECT user_id FROM orders);\n"}
+  ]
+}

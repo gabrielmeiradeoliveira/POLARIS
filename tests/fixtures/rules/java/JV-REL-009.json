@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-009",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-009-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() throws Exception { Thread.sleep(100); } }\n"},
+    {"caseId": "JV-REL-009-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(long ms) throws Exception { Thread.sleep(ms); } }\n"},
+    {"caseId": "JV-REL-009-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { try { Thread.sleep(10); } catch (InterruptedException e) { } } }\n"},
+    {"caseId": "JV-REL-009-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { Thread m() { return Thread.currentThread(); } }\n"},
+    {"caseId": "JV-REL-009-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { int x = 1; } }\n"},
+    {"caseId": "JV-REL-009-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-009-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"Thread.sleep(100)\"; } }\n"},
+    {"caseId": "JV-REL-009-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { int sleepMs = 100; }\n"}
+  ]
+}

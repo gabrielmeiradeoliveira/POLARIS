@@ -1,0 +1,54 @@
+{
+  "ruleId": "JV-REL-001",
+  "language": "java",
+  "cases": [
+    {
+      "caseId": "POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() throws Exception { throw new Exception(); } }"
+    },
+    {
+      "caseId": "POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() throws Throwable { throw new Throwable(); } }"
+    },
+    {
+      "caseId": "POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "class C { void m() throws Exception { throw new Exception(\"x\"); } }"
+    },
+    {
+      "caseId": "NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void m() { throw new IllegalArgumentException(); } }"
+    },
+    {
+      "caseId": "NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C { void m() { int x = 1; } }"
+    },
+    {
+      "caseId": "NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "class C {}"
+    },
+    {
+      "caseId": "EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "// throw new Exception();"
+    },
+    {
+      "caseId": "EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "class C { void m() throws Exception { throw new Exception(\"\"); } }"
+    }
+  ]
+}

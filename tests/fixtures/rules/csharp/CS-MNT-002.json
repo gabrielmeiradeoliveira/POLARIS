@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-MNT-002",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-MNT-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { public int Count; }\n"},
+    {"caseId": "CS-MNT-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { public string Name = \"\"; }\n"},
+    {"caseId": "CS-MNT-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "public class C { public bool Flag; }\n"},
+    {"caseId": "CS-MNT-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { private int _count; }\n"},
+    {"caseId": "CS-MNT-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { public int Count { get; set; } }\n"},
+    {"caseId": "CS-MNT-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { public const int Max = 10; }\n"},
+    {"caseId": "CS-MNT-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { public static readonly int Default = 1; }\n"},
+    {"caseId": "CS-MNT-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { internal int Value; }\n"}
+  ]
+}

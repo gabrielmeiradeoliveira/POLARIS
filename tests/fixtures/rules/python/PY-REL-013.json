@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-013",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-013-POS-1", "kind": "positive", "expectedPositive": true, "code": "x = 1\nx = x\n"},
+    {"caseId": "PY-REL-013-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f(a):\n    a = a\n    return a\n"},
+    {"caseId": "PY-REL-013-POS-3", "kind": "positive", "expectedPositive": true, "code": "def g():\n    val = 10\n    val = val\n"},
+    {"caseId": "PY-REL-013-NEG-1", "kind": "negative", "expectedPositive": false, "code": "x = 1\ny = x\n"},
+    {"caseId": "PY-REL-013-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def f(a):\n    b = a + 1\n    return b\n"},
+    {"caseId": "PY-REL-013-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-REL-013-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "x = 1\nx = x + 1\n"},
+    {"caseId": "PY-REL-013-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "a, b = b, a\n"}
+  ]
+}

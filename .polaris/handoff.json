@@ -1,0 +1,18 @@
+{
+  "goal": "GOAL-018",
+  "version": "2.7.0",
+  "status": "COMPLETED",
+  "blocks_completed": ["BLOCO-0", "BLOCO-1", "BLOCO-2", "BLOCO-3", "BLOCO-4", "BLOCO-5"],
+  "go_toolchain_present": false,
+  "artifacts": [
+    "rules_catalog/rules.json",
+    "src/polaris_scanner/exporters/sarif.py",
+    "src/polaris_scanner/exporters/sbom.py",
+    "scanner-go/",
+    "src/polaris_server/aspm.py",
+    "src/polaris_server/ingestion.py",
+    "docker-compose.low-spec.yml",
+    "deploy/postgres-low-spec.conf",
+    "vault/09-Validation/Reports/VAL-GOAL-018-RELEASE-2.7.0.md"
+  ]
+}

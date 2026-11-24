@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-034",
+  "goalStatus": "IN_PROGRESS",
+  "criteria": [
+    { "id": "MASTER-001", "description": "Validador sem fallback simulado", "sourceRequirement": "POLARIS-2.1#FASE-A", "mandatory": true, "status": "PASS", "validationCommand": "python scripts/validation/validate_rules.py --rule PY-SYN-001", "relatedFiles": ["scripts/validation/validate_rules.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.1-MASTER.md"], "expectedResult": "8/8 OK", "observedResult": "8/8 OK", "limitations": "Nenhuma" },
+    { "id": "MASTER-013", "description": "Project Discovery & Project Manifest seguros", "sourceRequirement": "POLARIS-2.1#FASE-D", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/test_polaris_2_1_engines.py -v", "relatedFiles": ["src/polaris_scanner/project_manifest.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.1-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" },
+    { "id": "MASTER-046", "description": "Python Taint Analysis intraprocedural com flow steps", "sourceRequirement": "POLARIS-2.1#FASE-I", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/test_polaris_2_1_engines.py -v", "relatedFiles": ["analyzers/python/taint_engine.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.1-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Escopo intraprocedural" },
+    { "id": "MASTER-052", "description": "SQL Schema Context & Column Lineage", "sourceRequirement": "POLARIS-2.1#FASE-J", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/test_polaris_2_1_engines.py -v", "relatedFiles": ["analyzers/sql/semantic_engine.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.1-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" },
+    { "id": "MASTER-068", "description": "Cache incremental por hash de conteúdo e perfil", "sourceRequirement": "POLARIS-2.1#FASE-M", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/integration/test_polaris_2_1_engines.py -v", "relatedFiles": ["src/polaris_scanner/incremental_cache.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.1-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" }
+  ]
+}

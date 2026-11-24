@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polaris.local/schemas/analysis-result-1.0.0.json",
+  "title": "POLARIS Analysis Result Contract",
+  "type": "object",
+  "required": ["schemaVersion", "analysisId", "projectKey", "status", "totalFiles", "issues"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "analysisId": { "type": "string", "minLength": 1 },
+    "projectKey": { "type": "string", "pattern": "^[a-zA-Z0-9_-]+$" },
+    "branch": { "type": "string" },
+    "analyzer": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "status": { "type": "string", "enum": ["COMPLETED", "COMPLETED_WITH_WARNINGS", "FAILED"] },
+    "totalFiles": { "type": "integer", "minimum": 0 },
+    "diagnostics": { "type": "array", "items": { "type": "object" } },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ruleId", "language", "severity", "location", "message"],
+        "properties": {
+          "ruleId": { "type": "string", "minLength": 1 },
+          "language": { "type": "string", "enum": ["python", "csharp", "java", "sql"] },
+          "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+          "location": {
+            "type": "object",
+            "required": ["file", "startLine"],
+            "properties": {
+              "file": { "type": "string", "minLength": 1 },
+              "startLine": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

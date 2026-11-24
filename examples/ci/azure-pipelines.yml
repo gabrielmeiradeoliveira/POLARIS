@@ -1,0 +1,12 @@
+trigger:
+  - main
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.12"
+  - script: |
+      pip install -e .
+      python -m polaris_scanner.cli analyze --target src --project "$(Build.Repository.Name)" --branch "$(Build.SourceBranchName)" --server "$(POLARIS_URL)" --output polaris-report.json
+    displayName: "Run POLARIS Scanner"

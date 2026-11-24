@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-003",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-003-POS-1", "kind": "positive", "expectedPositive": true, "code": "try:\n    x = 1\nexcept ValueError:\n    pass\n"},
+    {"caseId": "PY-REL-003-POS-2", "kind": "positive", "expectedPositive": true, "code": "try:\n    x = 1\nexcept:\n    pass\n"},
+    {"caseId": "PY-REL-003-POS-3", "kind": "positive", "expectedPositive": true, "code": "def f():\n    try:\n        return 1\n    except KeyError:\n        pass\n"},
+    {"caseId": "PY-REL-003-NEG-1", "kind": "negative", "expectedPositive": false, "code": "try:\n    x = 1\nexcept ValueError:\n    x = 0\n"},
+    {"caseId": "PY-REL-003-NEG-2", "kind": "negative", "expectedPositive": false, "code": "try:\n    x = 1\nexcept ValueError as e:\n    print(e)\n"},
+    {"caseId": "PY-REL-003-NEG-3", "kind": "negative", "expectedPositive": false, "code": "def f():\n    return 1\n"},
+    {"caseId": "PY-REL-003-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "try:\n    x = 1\nexcept ValueError:\n    raise\n"},
+    {"caseId": "PY-REL-003-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f():\n    pass\n"}
+  ]
+}

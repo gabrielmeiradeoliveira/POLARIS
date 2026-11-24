@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-016",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G16-001", "description": "Webhooks com proteção SSRF e assinatura HMAC-SHA256", "sourceRequirement": "GOAL-016#111", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_security_cicd.py -v", "relatedFiles": ["src/polaris_server/webhooks_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "2/2 OK", "observedResult": "2/2 OK", "limitations": "Nenhuma" }
+  ]
+}

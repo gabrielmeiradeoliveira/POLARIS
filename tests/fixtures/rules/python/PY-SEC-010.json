@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-010",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "import tempfile\np = tempfile.mktemp()\n"},
+    {"caseId": "PY-SEC-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "import tempfile\ndef tmp():\n    return tempfile.mktemp(suffix='.txt')\n"},
+    {"caseId": "PY-SEC-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "import tempfile\nf = tempfile.mktemp(prefix='p_')\n"},
+    {"caseId": "PY-SEC-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import tempfile\nf = tempfile.NamedTemporaryFile()\n"},
+    {"caseId": "PY-SEC-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import tempfile\nd = tempfile.mkdtemp()\n"},
+    {"caseId": "PY-SEC-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'tempfile.mktemp()'\n"},
+    {"caseId": "PY-SEC-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def mktemp():\n    return ''\n"}
+  ]
+}

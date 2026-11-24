@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-015",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-015-POS-1", "kind": "positive", "expectedPositive": true, "code": "import os\nx = 1\n"},
+    {"caseId": "PY-REL-015-POS-2", "kind": "positive", "expectedPositive": true, "code": "from math import sqrt\ny = 2\n"},
+    {"caseId": "PY-REL-015-POS-3", "kind": "positive", "expectedPositive": true, "code": "import json as j\nprint(1)\n"},
+    {"caseId": "PY-REL-015-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import os\nprint(os.name)\n"},
+    {"caseId": "PY-REL-015-NEG-2", "kind": "negative", "expectedPositive": false, "code": "from math import sqrt\nprint(sqrt(4))\n"},
+    {"caseId": "PY-REL-015-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-REL-015-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "import json as j\ndata = j.dumps({})\n"},
+    {"caseId": "PY-REL-015-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f():\n    return 1\n"}
+  ]
+}

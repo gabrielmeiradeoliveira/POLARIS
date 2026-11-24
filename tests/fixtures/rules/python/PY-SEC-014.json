@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-014",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-014-POS-1", "kind": "positive", "expectedPositive": true, "code": "import tarfile\ntf = tarfile.open('a.tar')\n"},
+    {"caseId": "PY-SEC-014-POS-2", "kind": "positive", "expectedPositive": true, "code": "import tarfile\nwith tarfile.open('a.tar', 'r') as tf:\n    pass\n"},
+    {"caseId": "PY-SEC-014-POS-3", "kind": "positive", "expectedPositive": true, "code": "def read_tar(p):\n    return tarfile.open(p)\n"},
+    {"caseId": "PY-SEC-014-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import zipfile\nzipfile.ZipFile('a.zip')\n"},
+    {"caseId": "PY-SEC-014-NEG-2", "kind": "negative", "expectedPositive": false, "code": "with open('a.txt') as f:\n    pass\n"},
+    {"caseId": "PY-SEC-014-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-014-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'tarfile.open(a.tar)'\n"},
+    {"caseId": "PY-SEC-014-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def open_tar(p):\n    return p\n"}
+  ]
+}

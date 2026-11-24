@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-015",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G15-001", "description": "Isolamento de Branches e Pull Requests por projeto", "sourceRequirement": "GOAL-015#101-104", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_advanced_analysis.py -v", "relatedFiles": ["src/polaris_server/git_branch_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "3/3 OK", "observedResult": "3/3 OK", "limitations": "Nenhuma" }
+  ]
+}

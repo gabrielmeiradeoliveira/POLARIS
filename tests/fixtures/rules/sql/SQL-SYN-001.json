@@ -1,0 +1,54 @@
+{
+  "ruleId": "SQL-SYN-001",
+  "language": "sql",
+  "cases": [
+    {
+      "caseId": "SQL-SYN-001-POS-1",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT * FROM users;"
+    },
+    {
+      "caseId": "SQL-SYN-001-POS-2",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT * FROM orders WHERE id = 1;"
+    },
+    {
+      "caseId": "SQL-SYN-001-POS-3",
+      "kind": "positive",
+      "expectedPositive": true,
+      "code": "SELECT u.* FROM users u;"
+    },
+    {
+      "caseId": "SQL-SYN-001-NEG-1",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT id, name FROM users;"
+    },
+    {
+      "caseId": "SQL-SYN-001-NEG-2",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "SELECT COUNT(*) FROM users;"
+    },
+    {
+      "caseId": "SQL-SYN-001-NEG-3",
+      "kind": "negative",
+      "expectedPositive": false,
+      "code": "DELETE FROM users WHERE id = 1;"
+    },
+    {
+      "caseId": "SQL-SYN-001-EDG-1",
+      "kind": "edge",
+      "expectedPositive": false,
+      "code": "-- SELECT * FROM users;"
+    },
+    {
+      "caseId": "SQL-SYN-001-EDG-2",
+      "kind": "edge",
+      "expectedPositive": true,
+      "code": "SELECT\n  *\nFROM\n  users;"
+    }
+  ]
+}

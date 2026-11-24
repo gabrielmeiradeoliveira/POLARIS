@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-009",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-009-POS-1", "kind": "positive", "expectedPositive": true, "code": "s = {1, 2, 1}\n"},
+    {"caseId": "PY-REL-009-POS-2", "kind": "positive", "expectedPositive": true, "code": "s = {'a', 'b', 'a'}\n"},
+    {"caseId": "PY-REL-009-POS-3", "kind": "positive", "expectedPositive": true, "code": "def f():\n    return {10, 10}\n"},
+    {"caseId": "PY-REL-009-NEG-1", "kind": "negative", "expectedPositive": false, "code": "s = {1, 2, 3}\n"},
+    {"caseId": "PY-REL-009-NEG-2", "kind": "negative", "expectedPositive": false, "code": "s = {'a', 'b'}\n"},
+    {"caseId": "PY-REL-009-NEG-3", "kind": "negative", "expectedPositive": false, "code": "s = set()\n"},
+    {"caseId": "PY-REL-009-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = {'a', 'A'}\n"},
+    {"caseId": "PY-REL-009-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "x = 1\ns = {x, 2}\n"}
+  ]
+}

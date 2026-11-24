@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-010",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id, name INTO users_backup FROM users;\n"},
+    {"caseId": "SQL-CTX-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT * INTO temp_orders FROM orders WHERE total > 0;\n"},
+    {"caseId": "SQL-CTX-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT a.id INTO tmp_ids FROM a;\n"},
+    {"caseId": "SQL-CTX-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "CREATE TABLE users_backup AS SELECT id, name FROM users;\n"},
+    {"caseId": "SQL-CTX-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "INSERT INTO users_backup (id, name) SELECT id, name FROM users;\n"},
+    {"caseId": "SQL-CTX-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id, name FROM users;\n"},
+    {"caseId": "SQL-CTX-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'SELECT id INTO tmp FROM t' AS txt;\n"},
+    {"caseId": "SQL-CTX-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT into_col FROM users;\n"}
+  ]
+}

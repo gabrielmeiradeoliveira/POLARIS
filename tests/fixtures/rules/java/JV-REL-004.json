@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-004",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-004-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m(boolean b) { if (b) { } } }\n"},
+    {"caseId": "JV-REL-004-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m(int x) { if (x > 0) { } else { x = 1; } } }\n"},
+    {"caseId": "JV-REL-004-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m(boolean a, boolean b) { if (a && b) { } } }\n"},
+    {"caseId": "JV-REL-004-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void m(boolean b) { if (b) { return; } } }\n"},
+    {"caseId": "JV-REL-004-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { int m(boolean b) { if (b) return 1; return 0; } }\n"},
+    {"caseId": "JV-REL-004-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-004-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"if (b) { }\"; } }\n"},
+    {"caseId": "JV-REL-004-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void m(boolean b) { if (b) { int x = 1; } } }\n"}
+  ]
+}

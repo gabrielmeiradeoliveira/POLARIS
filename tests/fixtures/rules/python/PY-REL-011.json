@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-011",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-011-POS-1", "kind": "positive", "expectedPositive": true, "code": "while False:\n    x = 1\n"},
+    {"caseId": "PY-REL-011-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f():\n    while False:\n        print('never')\n"},
+    {"caseId": "PY-REL-011-POS-3", "kind": "positive", "expectedPositive": true, "code": "def g():\n    while 0:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-011-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(cond):\n    while cond:\n        break\n"},
+    {"caseId": "PY-REL-011-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g():\n    while True:\n        break\n"},
+    {"caseId": "PY-REL-011-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 0\n"},
+    {"caseId": "PY-REL-011-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f(n):\n    while n > 0:\n        n -= 1\n"},
+    {"caseId": "PY-REL-011-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "flag = False\n"}
+  ]
+}

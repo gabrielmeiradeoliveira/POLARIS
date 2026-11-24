@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-010",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "if True:\n    x = 1\n"},
+    {"caseId": "PY-REL-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "if False:\n    x = 1\n"},
+    {"caseId": "PY-REL-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "def f():\n    if 1:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(cond):\n    if cond:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(x):\n    if x > 0:\n        return x\n    return 0\n"},
+    {"caseId": "PY-REL-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-REL-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "def f(a, b):\n    if a and b:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "x = 1 if True else 2\n"}
+  ]
+}

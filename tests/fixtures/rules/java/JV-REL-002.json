@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-002",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { try { } catch (Throwable t) { } } }\n"},
+    {"caseId": "JV-REL-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { try { int x = 1; } catch (Throwable e) { e.getMessage(); } } }\n"},
+    {"caseId": "JV-REL-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { try { } catch (java.lang.Throwable t) { } } }\n"},
+    {"caseId": "JV-REL-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { try { } catch (IllegalArgumentException e) { } } }\n"},
+    {"caseId": "JV-REL-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { try { } catch (RuntimeException e) { } } }\n"},
+    {"caseId": "JV-REL-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"catch (Throwable t)\"; } }\n"},
+    {"caseId": "JV-REL-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { void m() throws Throwable { } }\n"}
+  ]
+}

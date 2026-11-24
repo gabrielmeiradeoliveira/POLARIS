@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-006",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-006-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM users WHERE status = 'A' OR status = 'B';\n"},
+    {"caseId": "SQL-SYN-006-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM orders WHERE total > 100 OR priority = 1;\n"},
+    {"caseId": "SQL-SYN-006-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM t WHERE a = 1 OR b = 2;\n"},
+    {"caseId": "SQL-SYN-006-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE status IN ('A', 'B');\n"},
+    {"caseId": "SQL-SYN-006-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE status = 'A' AND active = 1;\n"},
+    {"caseId": "SQL-SYN-006-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-SYN-006-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'a = 1 OR b = 2' AS expr;\n"},
+    {"caseId": "SQL-SYN-006-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT id FROM users WHERE status = 'OR';\n"}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-017",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G17-001", "description": "Autenticação scrypt, tokens SHA-256 revogáveis, RBAC e auditoria", "sourceRequirement": "GOAL-017#115-122", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_security_cicd.py -v", "relatedFiles": ["src/polaris_server/auth_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "2/2 OK", "observedResult": "2/2 OK", "limitations": "Nenhuma" }
+  ]
+}

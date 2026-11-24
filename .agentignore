@@ -1,0 +1,38 @@
+# Ambientes virtuais e dependências
+.venv/
+venv/
+node_modules/
+
+# Caches e artefatos de build/teste
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Controle de versão e sistema
+.git/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs e temporários
+*.log
+tmp/
+temp/
+*.tmp
+
+# Segredos e credenciais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+secrets/

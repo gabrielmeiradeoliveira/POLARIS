@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-007",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-007-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT COUNT(*) FROM users HAVING COUNT(*) > 5;\n"},
+    {"caseId": "SQL-CTX-007-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT SUM(amount) FROM orders HAVING SUM(amount) > 100;\n"},
+    {"caseId": "SQL-CTX-007-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT MAX(id) FROM items HAVING MAX(id) > 10;\n"},
+    {"caseId": "SQL-CTX-007-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT dept, COUNT(*) FROM users GROUP BY dept HAVING COUNT(*) > 5;\n"},
+    {"caseId": "SQL-CTX-007-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE active = 1;\n"},
+    {"caseId": "SQL-CTX-007-NEG-3", "kind": "negative", "expectedPositive": false, "code": "SELECT COUNT(*) FROM users;\n"},
+    {"caseId": "SQL-CTX-007-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'HAVING COUNT(*) > 5' AS txt;\n"},
+    {"caseId": "SQL-CTX-007-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT customer_id, SUM(total) FROM orders GROUP BY customer_id HAVING SUM(total) > 0;\n"}
+  ]
+}

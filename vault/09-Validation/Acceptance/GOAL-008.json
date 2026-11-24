@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-008",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G8-001", "description": "Métricas fundamentais, complexidade ciclomática/cognitiva, dívida técnica e ratings", "sourceRequirement": "GOAL-008#48-51", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest tests/unit/server/test_governance_api.py -v", "relatedFiles": ["src/polaris_server/metrics_service.py"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "Métricas e ratings A-E OK", "observedResult": "3/3 OK", "limitations": "Complexidade AST detalhada implementada para Python" }
+  ]
+}

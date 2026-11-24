@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-REL-006",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-REL-006-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { System.gc(); } }\n"},
+    {"caseId": "JV-REL-006-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { void m() { Runtime.getRuntime().gc(); } }\n"},
+    {"caseId": "JV-REL-006-POS-3", "kind": "positive", "expectedPositive": true, "code": "class C { static void run() { System.gc(); } }\n"},
+    {"caseId": "JV-REL-006-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { long m() { return Runtime.getRuntime().freeMemory(); } }\n"},
+    {"caseId": "JV-REL-006-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { int x = 1; } }\n"},
+    {"caseId": "JV-REL-006-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void m() { } }\n"},
+    {"caseId": "JV-REL-006-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void m() { String s = \"System.gc()\"; } }\n"},
+    {"caseId": "JV-REL-006-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { int gcCount = 0; }\n"}
+  ]
+}

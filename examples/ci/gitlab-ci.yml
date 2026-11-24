@@ -1,0 +1,5 @@
+polaris_scan:
+  image: python:3.12-slim
+  script:
+    - pip install -e .
+    - python -m polaris_scanner.cli analyze --target src --project "$CI_PROJECT_NAME" --branch "$CI_COMMIT_REF_NAME" --server "$POLARIS_URL" --output polaris-report.json

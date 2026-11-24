@@ -1,0 +1,14 @@
+{
+  "ruleId": "JV-MNT-002",
+  "language": "java",
+  "cases": [
+    {"caseId": "JV-MNT-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "class C { public int count; }\n"},
+    {"caseId": "JV-MNT-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "class C { public String name = \"\"; }\n"},
+    {"caseId": "JV-MNT-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "public class C { public boolean flag; }\n"},
+    {"caseId": "JV-MNT-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "class C { private int count; }\n"},
+    {"caseId": "JV-MNT-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { public static final int MAX = 10; }\n"},
+    {"caseId": "JV-MNT-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { public final int id = 1; }\n"},
+    {"caseId": "JV-MNT-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { protected int value; }\n"},
+    {"caseId": "JV-MNT-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "class C { int packagePrivate; }\n"}
+  ]
+}

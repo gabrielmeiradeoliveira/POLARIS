@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-PRF-001",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-PRF-001-POS-1", "kind": "positive", "expectedPositive": true, "code": "s = ''\nfor x in ['a', 'b']:\n    s += x\n"},
+    {"caseId": "PY-PRF-001-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f(items):\n    out = ''\n    for i in items:\n        out += str(i)\n    return out\n"},
+    {"caseId": "PY-PRF-001-POS-3", "kind": "positive", "expectedPositive": true, "code": "i = 0\ns = ''\nwhile i < 3:\n    s += 'a'\n    i += 1\n"},
+    {"caseId": "PY-PRF-001-NEG-1", "kind": "negative", "expectedPositive": false, "code": "s = ''.join(['a', 'b'])\n"},
+    {"caseId": "PY-PRF-001-NEG-2", "kind": "negative", "expectedPositive": false, "code": "total = 0\nfor x in [1, 2, 3]:\n    total += x\n"},
+    {"caseId": "PY-PRF-001-NEG-3", "kind": "negative", "expectedPositive": false, "code": "s = 'a'\ns += 'b'\n"},
+    {"caseId": "PY-PRF-001-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "parts = []\nfor x in ['a', 'b']:\n    parts.append(x)\n"},
+    {"caseId": "PY-PRF-001-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f():\n    return ''.join([])\n"}
+  ]
+}

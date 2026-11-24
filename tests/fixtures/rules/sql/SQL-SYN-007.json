@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-SYN-007",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-SYN-007-POS-1", "kind": "positive", "expectedPositive": true, "code": "SELECT * FROM (SELECT * FROM (SELECT * FROM (SELECT id FROM users) t3) t2) t1;\n"},
+    {"caseId": "SQL-SYN-007-POS-2", "kind": "positive", "expectedPositive": true, "code": "SELECT id FROM a WHERE id IN (SELECT id FROM b WHERE id IN (SELECT id FROM c WHERE id IN (SELECT id FROM d)));\n"},
+    {"caseId": "SQL-SYN-007-POS-3", "kind": "positive", "expectedPositive": true, "code": "SELECT (SELECT (SELECT (SELECT 1)));\n"},
+    {"caseId": "SQL-SYN-007-NEG-1", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users WHERE id IN (SELECT user_id FROM orders);\n"},
+    {"caseId": "SQL-SYN-007-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-SYN-007-NEG-3", "kind": "negative", "expectedPositive": false, "code": "WITH cte AS (SELECT id FROM users) SELECT id FROM cte;\n"},
+    {"caseId": "SQL-SYN-007-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT * FROM (SELECT * FROM (SELECT id FROM users) t2) t1;\n"},
+    {"caseId": "SQL-SYN-007-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT '(SELECT (SELECT (SELECT 1)))' AS txt;\n"}
+  ]
+}

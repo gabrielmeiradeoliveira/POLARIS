@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "MpV8tMAV3zs=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\gabri\\Desktop\\POLARIS 2.0\\analyzers\\csharp\\PolarisCSharpAnalyzer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\gabri\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.4\\microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
+    "C:\\Users\\gabri\\.nuget\\packages\\microsoft.codeanalysis.common\\4.12.0\\microsoft.codeanalysis.common.4.12.0.nupkg.sha512",
+    "C:\\Users\\gabri\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.12.0\\microsoft.codeanalysis.csharp.4.12.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-REL-002",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-REL-002-POS-1", "kind": "positive", "expectedPositive": true, "code": "using System;\nclass C { void M() { try { } catch (Exception ex) { throw ex; } } }\n"},
+    {"caseId": "CS-REL-002-POS-2", "kind": "positive", "expectedPositive": true, "code": "using System;\nclass C { void M() { try { } catch (InvalidOperationException e) { Console.WriteLine(e); throw e; } } }\n"},
+    {"caseId": "CS-REL-002-POS-3", "kind": "positive", "expectedPositive": true, "code": "using System;\nclass C { void M() { try { } catch (ArgumentException err) { throw err; } } }\n"},
+    {"caseId": "CS-REL-002-NEG-1", "kind": "negative", "expectedPositive": false, "code": "using System;\nclass C { void M() { try { } catch (Exception) { throw; } } }\n"},
+    {"caseId": "CS-REL-002-NEG-2", "kind": "negative", "expectedPositive": false, "code": "using System;\nclass C { void M() { try { } catch (Exception ex) { throw new InvalidOperationException(\"wrap\", ex); } } }\n"},
+    {"caseId": "CS-REL-002-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void M() { } }\n"},
+    {"caseId": "CS-REL-002-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "using System;\nclass C { void M() { throw new Exception(\"direct\"); } }\n"},
+    {"caseId": "CS-REL-002-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "using System;\nclass C { void M() { try { } catch (Exception ex) { Console.WriteLine(ex.Message); } } }\n"}
+  ]
+}

@@ -1,0 +1,56 @@
+# Sistema Operacional e IDEs
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Obsidian (preservar conteúdo, ignorar cache local se aplicável)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Logs e temporários
+*.log
+tmp/
+temp/
+*.tmp
+
+# Segredos e variáveis de ambiente
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+secrets/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Web
+node_modules/
+web/dist/
+web/build/
+.next/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

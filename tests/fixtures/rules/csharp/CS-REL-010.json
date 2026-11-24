@@ -1,0 +1,14 @@
+{
+  "ruleId": "CS-REL-010",
+  "language": "csharp",
+  "cases": [
+    {"caseId": "CS-REL-010-POS-1", "kind": "positive", "expectedPositive": true, "code": "using System.Threading.Tasks;\nclass C { Task M() { return Task.Run(() => 1); } }\n"},
+    {"caseId": "CS-REL-010-POS-2", "kind": "positive", "expectedPositive": true, "code": "using System.Threading.Tasks;\nclass C { void M() { Task.Run(() => { }); } }\n"},
+    {"caseId": "CS-REL-010-POS-3", "kind": "positive", "expectedPositive": true, "code": "using System.Threading.Tasks;\nclass C { async Task<int> M() { return await Task.Run(() => 42); } }\n"},
+    {"caseId": "CS-REL-010-NEG-1", "kind": "negative", "expectedPositive": false, "code": "using System.Threading.Tasks;\nclass C { Task<int> M() { return Task.FromResult(1); } }\n"},
+    {"caseId": "CS-REL-010-NEG-2", "kind": "negative", "expectedPositive": false, "code": "class C { void Run() { } void M() { Run(); } }\n"},
+    {"caseId": "CS-REL-010-NEG-3", "kind": "negative", "expectedPositive": false, "code": "class C { void M() { } }\n"},
+    {"caseId": "CS-REL-010-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "class C { void M() { var s = \"Task.Run(() => 1)\"; } }\n"},
+    {"caseId": "CS-REL-010-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "using System.Threading.Tasks;\nclass C { Task M() { return Task.CompletedTask; } }\n"}
+  ]
+}

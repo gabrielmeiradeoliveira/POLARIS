@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-020-R1",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "020-R1-001", "description": "Auditoria e integração dos motores Python e SQL nos entrypoints definitivos", "sourceRequirement": "GOAL-020-R1#2-4", "mandatory": true, "status": "PASS", "validationCommand": "python -m unittest discover -s tests/unit/analyzers -v", "relatedFiles": ["analyzers/python/polaris_python_analyzer.py", "analyzers/sql/polaris_sql_analyzer.py"], "evidence": ["vault/09-Validation/Reports/VAL-GOAL-020-R1.md"], "expectedResult": "7/7 OK", "observedResult": "7/7 OK", "limitations": "C# e Java possuem 60+60 regras compiladas em CSharpRules.cs e JavaRulesEngine.java" }
+  ]
+}

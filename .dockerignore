@@ -1,0 +1,11 @@
+.git
+.venv
+node_modules
+web/node_modules
+web/dist
+analyzers/csharp/bin
+analyzers/csharp/obj
+analyzers/java/target
+__pycache__
+*.pyc
+.env

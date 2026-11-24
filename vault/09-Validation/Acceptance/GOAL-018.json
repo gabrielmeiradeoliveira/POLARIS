@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-018",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    { "id": "G18-001", "description": "Lint, typecheck, detecção de segredos, suítes unitárias e validadores de governança aprovados", "sourceRequirement": "GOAL-018#133-134", "mandatory": true, "status": "PASS", "validationCommand": "python scripts/validation/validate_goals.py", "relatedFiles": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "evidence": ["vault/09-Validation/Reports/VAL-POLARIS-2.0-MASTER.md"], "expectedResult": "ACCEPTANCE_ERRORS=0", "observedResult": "ACCEPTANCE_ERRORS=0", "limitations": "Docker daemon offline no ambiente impediu reexecução de E2E Compose nesta sessão" }
+  ]
+}

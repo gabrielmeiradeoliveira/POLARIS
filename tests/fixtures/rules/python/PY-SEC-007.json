@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-007",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-007-POS-1", "kind": "positive", "expectedPositive": true, "code": "import os\nos.system('ls')\n"},
+    {"caseId": "PY-SEC-007-POS-2", "kind": "positive", "expectedPositive": true, "code": "import os\nos.popen('whoami')\n"},
+    {"caseId": "PY-SEC-007-POS-3", "kind": "positive", "expectedPositive": true, "code": "import os\ndef run(c):\n    return os.system(c)\n"},
+    {"caseId": "PY-SEC-007-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import subprocess\nsubprocess.run(['ls'])\n"},
+    {"caseId": "PY-SEC-007-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import os\nos.getcwd()\n"},
+    {"caseId": "PY-SEC-007-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-007-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'os.system(ls)'\n"},
+    {"caseId": "PY-SEC-007-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def system(x):\n    return x\n"}
+  ]
+}

@@ -1,0 +1,15 @@
+[project]
+name = "polaris-core"
+version = "0.1.0"
+description = "POLARIS 2.0 — Plataforma local e determinística de análise estática de código"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.6,<1.0.0",
+    "uvicorn>=0.34.0,<1.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "psycopg[binary]>=3.2.3,<4.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

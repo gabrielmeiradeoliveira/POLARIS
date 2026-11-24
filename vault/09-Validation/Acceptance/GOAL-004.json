@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "GOAL-004",
+  "goalStatus": "COMPLETED",
+  "criteria": [
+    {
+      "id": "G4-001",
+      "description": "Governança verificável, backend e persistência (GOAL-004-B)",
+      "sourceRequirement": "GOAL-004#1",
+      "mandatory": true,
+      "status": "PASS",
+      "validationCommand": "python scripts/validation/validate_goals.py",
+      "relatedFiles": ["vault/09-Validation/Acceptance/GOAL-004-B.json"],
+      "evidence": ["vault/09-Validation/Reports/VAL-GOAL-004-B.md"],
+      "expectedResult": "GOAL-004-B COMPLETED",
+      "observedResult": "GOAL-004-B COMPLETED (25/25 PASS)",
+      "limitations": "Nenhuma"
+    },
+    {
+      "id": "G4-002",
+      "description": "Scanner definitivo e contratos compartilhados (GOAL-004-C)",
+      "sourceRequirement": "GOAL-004#2",
+      "mandatory": true,
+      "status": "PASS",
+      "validationCommand": "python scripts/validation/validate_goals.py",
+      "relatedFiles": ["vault/09-Validation/Acceptance/GOAL-004-C.json"],
+      "evidence": ["vault/09-Validation/Reports/VAL-GOAL-004-C.md"],
+      "expectedResult": "GOAL-004-C COMPLETED",
+      "observedResult": "GOAL-004-C COMPLETED (29/29 PASS)",
+      "limitations": "Nenhuma"
+    },
+    {
+      "id": "G4-003",
+      "description": "Etapas restantes do GOAL-004 (004-D a 004-H)",
+      "sourceRequirement": "GOAL-004#3",
+      "mandatory": true,
+      "status": "PASS",
+      "validationCommand": "python scripts/validation/validate_goals.py",
+      "relatedFiles": ["vault/09-Validation/Acceptance/GOAL-004-FINAL.json"],
+      "evidence": ["vault/09-Validation/Reports/VAL-GOAL-004-FINAL.md"],
+      "expectedResult": "Etapas concluídas",
+      "observedResult": "Blocos D, E, F, G, H e FINAL concluídos",
+      "limitations": "Nenhuma"
+    }
+  ]
+}

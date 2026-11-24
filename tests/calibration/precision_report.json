@@ -1,0 +1,7 @@
+{
+  "python": {"executed": true, "tp": 3, "fp": 0, "fn": 0, "fp_rate": 0.0},
+  "sql": {"executed": true, "tp": 3, "fp": 0, "fn": 0, "fp_rate": 0.0},
+  "typescript": {"executed": true, "tp": 3, "fp": 0, "fn": 0, "fp_rate": 0.0},
+  "csharp": {"executed": false, "status": "SKIPPED (runtime ausente; validado em ci-matrix.yml)"},
+  "java": {"executed": false, "status": "SKIPPED (runtime ausente; validado em ci-matrix.yml)"}
+}

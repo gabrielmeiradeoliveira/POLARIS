@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-006",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-006-POS-1", "kind": "positive", "expectedPositive": true, "code": "def f(x):\n    return x == None\n"},
+    {"caseId": "PY-REL-006-POS-2", "kind": "positive", "expectedPositive": true, "code": "def g(x):\n    return x != None\n"},
+    {"caseId": "PY-REL-006-POS-3", "kind": "positive", "expectedPositive": true, "code": "def h(x):\n    if None == x:\n        return 1\n    return 0\n"},
+    {"caseId": "PY-REL-006-NEG-1", "kind": "negative", "expectedPositive": false, "code": "def f(x):\n    return x is None\n"},
+    {"caseId": "PY-REL-006-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def g(x):\n    return x is not None\n"},
+    {"caseId": "PY-REL-006-NEG-3", "kind": "negative", "expectedPositive": false, "code": "def h(x):\n    return x == 0\n"},
+    {"caseId": "PY-REL-006-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "x = None\n"},
+    {"caseId": "PY-REL-006-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def f(x=None):\n    return x\n"}
+  ]
+}

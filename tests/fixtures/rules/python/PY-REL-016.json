@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-016",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-016-POS-1", "kind": "positive", "expectedPositive": true, "code": "fh = open('a.txt')\n"},
+    {"caseId": "PY-REL-016-POS-2", "kind": "positive", "expectedPositive": true, "code": "def f(p):\n    fh = open(p, 'w')\n    fh.write('x')\n"},
+    {"caseId": "PY-REL-016-POS-3", "kind": "positive", "expectedPositive": true, "code": "data = open('a.txt').read()\n"},
+    {"caseId": "PY-REL-016-NEG-1", "kind": "negative", "expectedPositive": false, "code": "with open('a.txt') as fh:\n    data = fh.read()\n"},
+    {"caseId": "PY-REL-016-NEG-2", "kind": "negative", "expectedPositive": false, "code": "def f(p):\n    with open(p, 'w') as fh:\n        fh.write('x')\n"},
+    {"caseId": "PY-REL-016-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-REL-016-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'open(a.txt)'\n"},
+    {"caseId": "PY-REL-016-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def my_open(p):\n    return p\nmy_open('a')\n"}
+  ]
+}

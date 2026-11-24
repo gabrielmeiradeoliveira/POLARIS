@@ -1,0 +1,14 @@
+{
+  "ruleId": "SQL-CTX-005",
+  "language": "sql",
+  "cases": [
+    {"caseId": "SQL-CTX-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "TRUNCATE TABLE users;\n"},
+    {"caseId": "SQL-CTX-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "TRUNCATE TABLE orders;\n"},
+    {"caseId": "SQL-CTX-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "TRUNCATE TABLE audit_log;\n"},
+    {"caseId": "SQL-CTX-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "DELETE FROM users WHERE id = 1;\n"},
+    {"caseId": "SQL-CTX-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "SELECT id FROM users;\n"},
+    {"caseId": "SQL-CTX-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "CREATE TABLE t (id INT);\n"},
+    {"caseId": "SQL-CTX-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "SELECT 'TRUNCATE TABLE users' AS txt;\n"},
+    {"caseId": "SQL-CTX-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "SELECT truncate_flag FROM cfg;\n"}
+  ]
+}

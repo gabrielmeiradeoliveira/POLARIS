@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-015",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-015-POS-1", "kind": "positive", "expectedPositive": true, "code": "import random\nx = random.random()\n"},
+    {"caseId": "PY-SEC-015-POS-2", "kind": "positive", "expectedPositive": true, "code": "import random\nn = random.randint(1, 10)\n"},
+    {"caseId": "PY-SEC-015-POS-3", "kind": "positive", "expectedPositive": true, "code": "import random\nc = random.choice(['a', 'b'])\n"},
+    {"caseId": "PY-SEC-015-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import secrets\ntok = secrets.token_hex(16)\n"},
+    {"caseId": "PY-SEC-015-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import secrets\nn = secrets.randbelow(10)\n"},
+    {"caseId": "PY-SEC-015-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-015-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'random.random()'\n"},
+    {"caseId": "PY-SEC-015-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def choice(xs):\n    return xs[0]\n"}
+  ]
+}

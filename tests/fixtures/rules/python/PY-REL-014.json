@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-REL-014",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-REL-014-POS-1", "kind": "positive", "expectedPositive": true, "code": "from math import *\n"},
+    {"caseId": "PY-REL-014-POS-2", "kind": "positive", "expectedPositive": true, "code": "from os.path import *\n"},
+    {"caseId": "PY-REL-014-POS-3", "kind": "positive", "expectedPositive": true, "code": "from sys import *\n"},
+    {"caseId": "PY-REL-014-NEG-1", "kind": "negative", "expectedPositive": false, "code": "from math import sqrt\n"},
+    {"caseId": "PY-REL-014-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import os\n"},
+    {"caseId": "PY-REL-014-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-REL-014-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'from math import *'\n"},
+    {"caseId": "PY-REL-014-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "from math import sin, cos\n"}
+  ]
+}

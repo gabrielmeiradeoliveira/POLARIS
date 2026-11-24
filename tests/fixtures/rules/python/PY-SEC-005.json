@@ -1,0 +1,14 @@
+{
+  "ruleId": "PY-SEC-005",
+  "language": "python",
+  "cases": [
+    {"caseId": "PY-SEC-005-POS-1", "kind": "positive", "expectedPositive": true, "code": "import pickle\npickle.loads(data)\n"},
+    {"caseId": "PY-SEC-005-POS-2", "kind": "positive", "expectedPositive": true, "code": "import pickle\nwith open('a.pkl', 'rb') as f:\n    pickle.load(f)\n"},
+    {"caseId": "PY-SEC-005-POS-3", "kind": "positive", "expectedPositive": true, "code": "def dec(b):\n    return pickle.loads(b)\n"},
+    {"caseId": "PY-SEC-005-NEG-1", "kind": "negative", "expectedPositive": false, "code": "import json\njson.loads(data)\n"},
+    {"caseId": "PY-SEC-005-NEG-2", "kind": "negative", "expectedPositive": false, "code": "import pickle\npickle.dumps({'a': 1})\n"},
+    {"caseId": "PY-SEC-005-NEG-3", "kind": "negative", "expectedPositive": false, "code": "x = 1\n"},
+    {"caseId": "PY-SEC-005-EDGE-1", "kind": "edge", "expectedPositive": false, "code": "s = 'pickle.loads(x)'\n"},
+    {"caseId": "PY-SEC-005-EDGE-2", "kind": "edge", "expectedPositive": false, "code": "def loads(x):\n    return x\n"}
+  ]
+}
