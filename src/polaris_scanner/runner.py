@@ -47,7 +47,56 @@ def run_workers_parallel(
     worker_count = max_workers if max_workers and max_workers > 0 else min(len(tasks), os.cpu_count() or 4)
     worker_count = max(1, worker_count)
 
+    def _run_in_process(task: WorkerTask) -> WorkerOutcome | None:
+        import importlib.util
+        import uuid
+        inproc_map = {
+            "typescript": ("analyzers/html/polaris_html_analyzer.py", "analyze_frontend_content"),
+            "html": ("analyzers/html/polaris_html_analyzer.py", "analyze_frontend_content"),
+            "php": ("analyzers/php/polaris_php_analyzer.py", "analyze_php_content"),
+            "shell": ("analyzers/shell/polaris_shell_analyzer.py", "analyze_shell_content"),
+            "kotlin": ("analyzers/kotlin/polaris_kotlin_analyzer.py", "analyze_kotlin_content"),
+            "rust": ("analyzers/rust/polaris_rust_analyzer.py", "analyze_rust_content"),
+            "cpp": ("analyzers/cpp/polaris_cpp_analyzer.py", "analyze_cpp_content"),
+        }
+        if task.language not in inproc_map or executor_fn is not run_analyzer_subprocess:
+            return None
+        rel_mod, fn_name = inproc_map[task.language]
+        mod_path = repo_root / rel_mod
+        spec = importlib.util.spec_from_file_location(f"polaris_inproc_{task.language}", mod_path)
+        if spec is None or spec.loader is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        fn = getattr(mod, fn_name)
+        issues: list[dict[str, Any]] = []
+        root_resolved = target_dir.resolve()
+        for f_str in task.files:
+            p = Path(f_str).resolve()
+            rel = p.relative_to(root_resolved).as_posix()
+            text = p.read_text(encoding="utf-8", errors="replace")
+            issues.extend(fn(text, rel))
+        payload = {
+            "schemaVersion": "1.0.0",
+            "analysisId": str(uuid.uuid4()),
+            "projectKey": project_key,
+            "branch": branch,
+            "analyzer": {"id": task.spec.id, "version": task.spec.version},
+            "status": "COMPLETED",
+            "totalFiles": len(task.files),
+            "diagnostics": [],
+            "issues": issues,
+        }
+        return WorkerOutcome(
+            language=task.language,
+            spec=task.spec,
+            result=ExecutionResult(status="OK", exit_code=0, stdout="", stderr="", payload=payload),
+        )
+
     def _run_one(task: WorkerTask) -> WorkerOutcome:
+        inproc = _run_in_process(task)
+        if inproc is not None:
+            return inproc
         cmd = [
             *task.spec.command,
             "--project",
