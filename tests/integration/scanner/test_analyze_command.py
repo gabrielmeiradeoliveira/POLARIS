@@ -54,7 +54,7 @@ class TestScannerAnalyzeCommand(unittest.TestCase):
             self.assertEqual(res.returncode, 0, msg=res.stderr)
             report = json.loads(out_file.read_text(encoding="utf-8"))
             self.assertEqual(report["totalFiles"], 4)
-            self.assertEqual(len(report["issues"]), 8)
+            self.assertEqual(len(report["issues"]), 9)
             self.assertTrue(all("fingerprint" in i and len(i["fingerprint"]) == 64 for i in report["issues"]))
 
 
