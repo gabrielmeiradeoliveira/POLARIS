@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Header, StatusIndicator } from "../components/ui";
 import { Icon } from "../components/ui/Icons";
+import { PolarisLogo } from "../components/PolarisLogo";
 
 const NAV_GROUPS = [
   {

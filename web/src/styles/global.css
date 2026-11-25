@@ -115,3 +115,16 @@ button:disabled {
   opacity: 0.85;
   cursor: not-allowed;
 }
+
+/* Sober Slate Palette (v3.5.0) */
+:root[data-theme="dark"], .dark {
+  --bg-canvas: #111317;
+  --bg-surface: #171A20;
+  --border-subtle: #2A2F3A;
+  --text-primary: #F1F5F9;
+}
+button.primary, .btn-primary {
+  background-color: #4F6BED;
+  color: #FFFFFF !important;
+  border: 1px solid #4F6BED;
+}
