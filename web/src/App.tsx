@@ -90,7 +90,7 @@ export function App() {
 
   return (
     <AuthProvider>
-    <AppLayout activeRoute={nav.route} version={version?.version} readyStatus={ready?.status}>
+    <AppLayout activeRoute={nav.route} version={version?.version} readyStatus={ready?.status === "READY" ? undefined : ready?.status}>
       {error && <ErrorState message={error} onRetry={loadData} />}
       {loading ? (
         <div>

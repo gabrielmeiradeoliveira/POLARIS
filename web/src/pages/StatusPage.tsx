@@ -36,10 +36,10 @@ export function StatusPage({
       <h1 style={{ margin: "0 0 16px", fontSize: 24, fontWeight: 600 }}>Estado do Sistema</h1>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
         <Card title="API Liveness">
-          <Badge tone={live?.status === "OK" ? "success" : "error"}>{live?.status ?? "DESCONHECIDO"}</Badge>
+          <Badge tone={live?.status === "OK" || live?.status === "ALIVE" ? "success" : "error"}>{live?.status ?? "DESCONHECIDO"}</Badge>
         </Card>
         <Card title="PostgreSQL Readiness">
-          <Badge tone={ready?.status === "READY" ? "success" : "error"}>{ready?.status ?? "DESCONHECIDO"}</Badge>
+          <Badge tone={ready?.status === "READY" ? "success" : "error"}>{ready?.status === "READY" ? "Conectado (READY)" : (ready?.status ?? "DESCONHECIDO")}</Badge>
         </Card>
         <Card title="Versão & Contrato">
           <div>Serviço: <code>polaris-server</code></div>
