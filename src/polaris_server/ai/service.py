@@ -11,6 +11,38 @@ from polaris_server.ai.provider import call_chat_completions
 _LEGACY_MARKERS = ("SqlCommand", "DataSet", "DataTable", "BinaryFormatter", "WebForms", "mysql_query", "<?php")
 
 
+_SEV_RANK = {"BLOCKER": 5, "CRITICAL": 4, "MAJOR": 3, "MINOR": 2, "INFO": 1}
+_CONF_RANK = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
+
+
+def compact_pr_context(pr_key: str, issues: list[dict[str, Any]], max_chars: int = 3500) -> tuple[str, dict[str, Any]]:
+    """Build O(1)-bounded PR summary context (<= max_chars) with Top-5 priority findings."""
+    sev_counts: dict[str, int] = {}
+    for i in issues:
+        s = str(i.get("severity", "MAJOR")).upper()
+        sev_counts[s] = sev_counts.get(s, 0) + 1
+    ranked = sorted(
+        issues,
+        key=lambda i: (
+            _SEV_RANK.get(str(i.get("severity", "MAJOR")).upper(), 0),
+            _CONF_RANK.get(str(i.get("confidence", "HIGH")).upper(), 0),
+        ),
+        reverse=True,
+    )
+    top5 = [
+        {
+            "rule_id": i.get("ruleId") or i.get("rule_id"),
+            "severity": i.get("severity"),
+            "loc": f"{i.get('file_path', '')}:{i.get('start_line', 1)}",
+            "msg": str(i.get("message", ""))[:120],
+        }
+        for i in ranked[:5]
+    ]
+    omitted = max(0, len(issues) - len(top5))
+    text = json.dumps({"pr": pr_key, "total": len(issues), "severities": sev_counts, "top5": top5}, ensure_ascii=False)[:max_chars]
+    return text, {"context_compacted": True, "total_findings_omitted": omitted}
+
+
 def extract_structured_ai_json(raw: str) -> dict[str, Any]:
     """Extract verdict, summary, suggested_snippet, and needs_broader_refactor from fenced or raw LLM output."""
     text = raw.strip()

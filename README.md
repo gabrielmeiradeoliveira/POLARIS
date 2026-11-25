@@ -1,4 +1,4 @@
-# POLARIS v3.2.1
+# POLARIS v3.3.0
 
 Plataforma híbrida de análise estática (SAST, Taint Tracking e Qualidade de Código) com motor 100% determinístico no pipeline e camada de IA sob demanda (Ollama local ou Cloud agnóstico `/v1/chat/completions`).
 
@@ -17,6 +17,7 @@ docker compose --profile ai up -d --build
 Acesse a UI em `http://localhost:8000` (Pull Requests em `http://localhost:8000/#/pull-requests`).
 
 ## Histórico de Versões
+- **v3.3.0:** Rota `#/pull-requests` e item no menu lateral conectados; compactação determinística O(1) (`POLARIS_AI_PR_MAX_INPUT_CHARS=3500`, Top-5 riscos) para Mega-PRs (84k+ linhas).
 - **v3.2.1:** Governança de sincronização `README.md`/`CHANGELOG.md` no `AGENTS.md` e atualização do `README.md`.
 - **v3.2.0:** Página **Pull Requests** (`/#/pull-requests`) e endpoint `POST /api/prs/{pr_key}/ai-summary` com resumo executivo sob clique.
 - **v3.1.1:** Inventário dinâmico de analisadores em `GET /api/meta` e na `StatusPage`.

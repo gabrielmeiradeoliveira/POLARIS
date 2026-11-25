@@ -394,16 +394,20 @@ def ai_analyze_issue(issue_id: str, body: dict | None = None):
 
 @app.post("/api/prs/{pr_key}/ai-summary")
 def ai_pr_summary(pr_key: str, body: dict | None = None):
+    from polaris_server.ai.service import compact_pr_context
     payload = body or {}
     issues = payload.get("issues") or []
-    return _ai_service.analyze_issue(
+    max_chars = int(os.environ.get("POLARIS_AI_PR_MAX_INPUT_CHARS", "3500"))
+    ctx, meta = compact_pr_context(pr_key, issues, max_chars=max_chars)
+    res = _ai_service.analyze_issue(
         fingerprint=f"pr:{pr_key}",
         rule_id="pr:SUMMARY",
         severity="MAJOR",
         language="multi",
-        snippet=f"PR {pr_key}: {len(issues)} issues. Top: {issues[:5]}",
+        snippet=ctx,
         cwe="PR-REVIEW",
     )
+    return {**res, **meta}
 
 
 @app.post("/api/demo/seed")

@@ -9,6 +9,7 @@ const NAV_GROUPS = [
       { href: "#/", label: "Overview", key: "home", icon: "home" as const },
       { href: "#/projects", label: "Projetos", key: "projects", icon: "folder" as const },
       { href: "#/issues", label: "Findings", key: "issues", icon: "shield" as const },
+      { href: "#/pull-requests", label: "Pull Requests", key: "pull-requests", icon: "shield" as const },
     ],
   },
   {

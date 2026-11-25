@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from polaris_server.ai.provider import call_chat_completions
-from polaris_server.ai.service import AiTriageService, compute_adaptive_max_tokens, extract_structured_ai_json
+from polaris_server.ai.service import AiTriageService, compact_pr_context, compute_adaptive_max_tokens, extract_structured_ai_json
 
 
 class TestAiLayer(unittest.TestCase):
@@ -45,6 +45,13 @@ class TestAiLayer(unittest.TestCase):
         self.assertTrue(parsed["needs_broader_refactor"])
         fb = extract_structured_ai_json("not json")
         self.assertEqual(fb["verdict"], "NEEDS_REVIEW")
+
+    def test_mega_pr_84k_lines_compacted_o1(self) -> None:
+        issues = [{"ruleId": f"R-{i}", "severity": "CRITICAL" if i < 10 else "MINOR", "file_path": f"f{i}.py", "start_line": i + 1, "message": "x" * 200} for i in range(120)]
+        ctx, meta = compact_pr_context("PR-84K", issues, max_chars=3500)
+        self.assertLessEqual(len(ctx), 3500)
+        self.assertTrue(meta["context_compacted"])
+        self.assertEqual(meta["total_findings_omitted"], 115)
 
 
 if __name__ == "__main__":

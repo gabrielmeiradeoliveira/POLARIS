@@ -105,6 +105,7 @@ export function App() {
           {nav.route === "projects" && <ProjectsPage projects={projects} onCreated={loadData} />}
           {nav.route === "project-detail" && nav.projectKey && <ProjectOverviewPage projectKey={nav.projectKey} />}
           {nav.route === "issues" && <IssuesPage issues={issues} onMutated={loadData} />}
+          {nav.route === "pull-requests" && <PullRequestsPage issues={issues} />}
           {nav.route === "rules" && <RulesPage rules={rules} />}
           {nav.route === "profiles" && <QualityProfilesPage profiles={profiles} onMutated={loadData} />}
           {nav.route === "gates" && <QualityGatesPage gates={gates} onMutated={loadData} />}
