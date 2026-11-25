@@ -62,7 +62,7 @@ export function AppLayout({
               </svg>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "0.02em", color: "var(--text-primary)" }}>POLARIS</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>AppSec v{version ?? "3.1.0"}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{version ? `AppSec v${version}` : "versão indisponível"}</div>
               </div>
             </div>
           )}
