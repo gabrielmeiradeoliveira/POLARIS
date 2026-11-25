@@ -392,6 +392,20 @@ def ai_analyze_issue(issue_id: str, body: dict | None = None):
     )
 
 
+@app.post("/api/prs/{pr_key}/ai-summary")
+def ai_pr_summary(pr_key: str, body: dict | None = None):
+    payload = body or {}
+    issues = payload.get("issues") or []
+    return _ai_service.analyze_issue(
+        fingerprint=f"pr:{pr_key}",
+        rule_id="pr:SUMMARY",
+        severity="MAJOR",
+        language="multi",
+        snippet=f"PR {pr_key}: {len(issues)} issues. Top: {issues[:5]}",
+        cwe="PR-REVIEW",
+    )
+
+
 @app.post("/api/demo/seed")
 def seed_demo_data():
     """Populate 2 demo projects (modern Python + legacy C# ADO.NET) if empty."""

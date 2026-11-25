@@ -14,8 +14,9 @@ import { RuleRow, RulesPage } from "./pages/RulesPage";
 import { StatusPage } from "./pages/StatusPage";
 import { AdminPage } from "./pages/AdminPage";
 import { CockpitPage } from "./pages/CockpitPage";
+import { PullRequestsPage } from "./pages/PullRequestsPage";
 
-type Route = "home" | "status" | "admin" | "projects" | "project-detail" | "issues" | "rules" | "profiles" | "gates" | "not-found";
+type Route = "home" | "status" | "admin" | "projects" | "project-detail" | "issues" | "pull-requests" | "rules" | "profiles" | "gates" | "not-found";
 
 function parseRoute(hash: string): { route: Route; projectKey: string | null } {
   const clean = hash.replace(/^#/, "") || "/";
@@ -28,6 +29,7 @@ function parseRoute(hash: string): { route: Route; projectKey: string | null } {
     if (key) return { route: "project-detail", projectKey: key };
   }
   if (clean === "/issues") return { route: "issues", projectKey: null };
+  if (clean === "/pull-requests") return { route: "pull-requests", projectKey: null };
   if (clean === "/rules") return { route: "rules", projectKey: null };
   if (clean === "/profiles") return { route: "profiles", projectKey: null };
   if (clean === "/gates") return { route: "gates", projectKey: null };
