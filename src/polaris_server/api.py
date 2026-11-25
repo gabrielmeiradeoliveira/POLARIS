@@ -340,7 +340,7 @@ from pathlib import Path as _Path  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 _web_dist = _Path(__file__).resolve().parents[2] / "web" / "dist"
-_web_dist = Path(__file__).resolve().parents[2] / "web" / "dist"
+_web_dist = _Path(__file__).resolve().parents[2] / "web" / "dist"
 from polaris_server.ai.service import AiTriageService
 
 _ai_service = AiTriageService()
