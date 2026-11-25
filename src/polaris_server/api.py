@@ -353,8 +353,22 @@ _ai_service = AiTriageService()
 @app.get("/api/meta")
 def api_meta():
     ver_file = _Path(__file__).resolve().parents[2] / "VERSION"
-    ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "3.1.0"
-    return {"name": "POLARIS", "version": ver}
+    ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else APP_VERSION
+    try:
+        from polaris_scanner.registry import AnalyzerRegistry
+        specs = AnalyzerRegistry().list_all()
+        analyzers = [
+            {"language": s.language, "id": s.id, "version": s.version, "capabilities": list(s.capabilities)}
+            for s in specs
+        ]
+    except Exception:
+        analyzers = []
+    return {
+        "name": "POLARIS",
+        "version": ver,
+        "analyzers": analyzers,
+        "ai": _ai_service.status(),
+    }
 
 
 @app.get("/api/ai/status")

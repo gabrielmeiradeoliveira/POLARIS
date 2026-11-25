@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, DataTable, Drawer, ErrorState, Input, Pagination, Select, Tabs } from "../components/ui";
+import { IssueAiAssistant } from "../components/IssueAiAssistant";
 
 export interface IssueRow {
   issue_id: string;
@@ -284,6 +285,8 @@ export function IssuesPage({
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Descrição</div>
               <div>{selected.message}</div>
             </div>
+
+            <IssueAiAssistant issue={selected} />
 
             {flow.length > 0 && (
               <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
