@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from polaris_server.ai.provider import call_chat_completions
-from polaris_server.ai.service import AiTriageService, compute_adaptive_max_tokens
+from polaris_server.ai.service import AiTriageService, compute_adaptive_max_tokens, extract_structured_ai_json
 
 
 class TestAiLayer(unittest.TestCase):
@@ -36,6 +36,15 @@ class TestAiLayer(unittest.TestCase):
                 with patch.dict(os.environ, {"POLARIS_AI_DAILY_TOKEN_BUDGET": "50"}):
                     r3 = svc.analyze_issue(fingerprint="fp2", rule_id="PY-SEC-001", severity="CRITICAL", language="python", snippet="eval(x)")
                     self.assertEqual(r3["status"], "budget_exceeded")
+
+    def test_extract_structured_ai_json_and_fallback(self) -> None:
+        fenced = '```json\n{"verdict":"CONFIRMED_EXPLOITABLE","summary":"ok","suggested_snippet":"x()","needs_broader_refactor":true}\n```'
+        parsed = extract_structured_ai_json(fenced)
+        self.assertEqual(parsed["verdict"], "CONFIRMED_EXPLOITABLE")
+        self.assertEqual(parsed["suggested_snippet"], "x()")
+        self.assertTrue(parsed["needs_broader_refactor"])
+        fb = extract_structured_ai_json("not json")
+        self.assertEqual(fb["verdict"], "NEEDS_REVIEW")
 
 
 if __name__ == "__main__":

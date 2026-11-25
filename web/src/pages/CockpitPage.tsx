@@ -39,6 +39,9 @@ export function CockpitPage({
   const [mode, setMode] = useState<"NEW_CODE" | "BASELINE">("NEW_CODE");
   const [selectedIssue, setSelectedIssue] = useState<CockpitIssue | null>(issues[0] ?? null);
   const [stepIdx, setStepIdx] = useState(0);
+  const [aiResult, setAiResult] = useState<Record<string, any> | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [copiedSnippet, setCopiedSnippet] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -173,14 +176,58 @@ export function CockpitPage({
                     <button onClick={() => onTriage?.(selectedIssue.issue_id, "OPEN")}>Reopen (R)</button>
                   </div>
                   <button
-                    onClick={() => fetch(`/api/issues/${selectedIssue.issue_id}/ai-analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(selectedIssue) })}
+                    disabled={aiLoading}
+                    onClick={async () => {
+                      setAiLoading(true);
+                      try {
+                        const r = await fetch(`/api/issues/${selectedIssue.issue_id}/ai-analyze`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(selectedIssue),
+                        });
+                        setAiResult(await r.json());
+                      } finally {
+                        setAiLoading(false);
+                      }
+                    }}
                     style={{ background: "#1F6FEB", color: "#FFFFFF", border: "none", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
                   >
-                    ✦ Explicar &amp; Sugerir Ajuste
+                    {aiLoading ? "Analisando..." : "✦ Explicar & Sugerir Ajuste"}
                   </button>
+                  {aiResult && (
+                    <div style={{ background: "#090C10", border: "1px solid #21262D", borderRadius: 6, padding: 10, fontSize: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                        <span style={{ padding: "2px 6px", borderRadius: 4, fontWeight: 600, background: aiResult.verdict === "CONFIRMED_EXPLOITABLE" ? "#6E1E1E" : aiResult.verdict === "LIKELY_FALSE_POSITIVE" ? "#1B4721" : "#5A4212" }}>
+                          {aiResult.verdict ?? "NEEDS_REVIEW"}
+                        </span>
+                        <span style={{ color: "#8B949E", fontFamily: "'JetBrains Mono', monospace" }}>
+                          {aiResult.max_tokens_applied >= 1000 ? "Legado 1200t" : "Moderno 500t"}
+                        </span>
+                        {aiResult.cached && <span style={{ color: "#3FB950" }}>Cached</span>}
+                      </div>
+                      <p style={{ margin: 0, color: "#E6EDF3" }}>{aiResult.summary || aiResult.raw_response}</p>
+                      {aiResult.suggested_snippet && (
+                        <>
+                          <pre style={{ margin: 0, background: "#11161D", padding: 8, borderRadius: 4, overflowX: "auto", fontFamily: "'JetBrains Mono', monospace" }}>
+                            {aiResult.suggested_snippet}
+                          </pre>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard?.writeText(aiResult.suggested_snippet);
+                              setCopiedSnippet(true);
+                              setTimeout(() => setCopiedSnippet(false), 1500);
+                            }}
+                            style={{ background: "#21262D", color: "#E6EDF3", border: "none", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}
+                          >
+                            {copiedSnippet ? "Copiado!" : "Copiar Snippet"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                   <button
                     onClick={() => navigator.clipboard?.writeText(`${selectedIssue.rule_id} (${selectedIssue.cwe ?? "N/A"})\n${selectedIssue.snippet ?? ""}`)}
-                    style={{ background: "#21262D", color: "#E6EDF3", border: "1px solid #30363D", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
+                    style={{ background: aiResult?.needs_broader_refactor ? "#5A4212" : "#21262D", color: "#E6EDF3", border: "1px solid #30363D", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
                   >
                     Copiar Prompt Cirúrgico
                   </button>

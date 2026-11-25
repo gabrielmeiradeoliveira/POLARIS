@@ -11,6 +11,35 @@ from polaris_server.ai.provider import call_chat_completions
 _LEGACY_MARKERS = ("SqlCommand", "DataSet", "DataTable", "BinaryFormatter", "WebForms", "mysql_query", "<?php")
 
 
+def extract_structured_ai_json(raw: str) -> dict[str, Any]:
+    """Extract verdict, summary, suggested_snippet, and needs_broader_refactor from fenced or raw LLM output."""
+    text = raw.strip()
+    if "```" in text:
+        parts = text.split("```")
+        for part in parts:
+            cleaned = part.strip()
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:].strip()
+            if cleaned.startswith("{") and "}" in cleaned:
+                text = cleaned
+                break
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        try:
+            parsed = json.loads(text[start : end + 1])
+            if isinstance(parsed, dict):
+                return {
+                    "verdict": parsed.get("verdict", "NEEDS_REVIEW"),
+                    "summary": parsed.get("summary", ""),
+                    "suggested_snippet": parsed.get("suggested_snippet", ""),
+                    "needs_broader_refactor": bool(parsed.get("needs_broader_refactor", False)),
+                }
+        except json.JSONDecodeError:
+            pass
+    return {"verdict": "NEEDS_REVIEW", "summary": "", "suggested_snippet": "", "needs_broader_refactor": False}
+
+
 def compute_adaptive_max_tokens(
     *,
     language: str,
@@ -75,7 +104,10 @@ class AiTriageService:
             f"Regra: {rule_id} ({severity}, {cwe or 'N/A'}) em {language}.\n"
             f"Flow: {json.dumps(flow_steps or [], ensure_ascii=False)}\n"
             f"Codigo:\n{snippet}\n\n"
-            "Responda em JSON com: verdict (CONFIRMED_EXPLOITABLE|LIKELY_FALSE_POSITIVE|NEEDS_REVIEW), "
+            "Regras obrigatorias de remediacao segura: NUNCA sugira shell=True, eval(), exec() ou concatenacao de strings em SQL/comandos. "
+            "Para command injection em Python, use subprocess.run([...], shell=False) com lista de argumentos ou allowlist. "
+            "Para SQL injection, use queries parametrizadas (SqlParameter, %s ou ?).\n"
+            "Responda APENAS em JSON valido com: verdict (CONFIRMED_EXPLOITABLE|LIKELY_FALSE_POSITIVE|NEEDS_REVIEW), "
             "summary (2-3 frases em portugues), suggested_snippet (codigo corrigido completo), needs_broader_refactor (bool)."
         )
         res = call_chat_completions(
@@ -88,12 +120,14 @@ class AiTriageService:
 
         today = self._today_key()
         self._daily_tokens[today] = self._daily_tokens.get(today, 0) + res.get("tokens_used", 0)
+        structured = extract_structured_ai_json(res["content"] or "")
         out = {
             "status": "ok",
             "cached": False,
             "model": model,
             "max_tokens_applied": max_tokens,
             "tokens_used": res.get("tokens_used", 0),
+            **structured,
             "raw_response": res["content"],
         }
         self._cache[cache_key] = out
