@@ -58,10 +58,7 @@ export function AppLayout({
         <div style={{ display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "space-between", padding: "8px 6px 16px", borderBottom: "1px solid var(--border-subtle)", marginBottom: 14 }}>
           {!collapsed && (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" stroke="var(--color-primary)" strokeWidth="2" />
-                <circle cx="12" cy="12" r="3" fill="var(--color-primary)" />
-              </svg>
+              <PolarisLogo size={24} />
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "0.02em", color: "var(--text-primary)" }}>POLARIS</div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{version ? `AppSec v${version}` : "versão indisponível"}</div>

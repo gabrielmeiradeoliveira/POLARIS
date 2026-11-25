@@ -411,6 +411,7 @@ def ai_analyze_issue(issue_id: str, body: dict | None = None):
 
 @app.post("/api/prs/{pr_key}/ai-summary")
 def ai_pr_summary(pr_key: str, body: dict | None = None):
+    import os
     from polaris_server.ai.service import compact_pr_context
     payload = body or {}
     issues = payload.get("issues") or []
