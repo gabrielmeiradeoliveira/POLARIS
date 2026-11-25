@@ -378,6 +378,23 @@ def ai_status():
     return {**_ai_service.status(), "version": ver}
 
 
+@app.get("/api/ai/estimate")
+def ai_estimate(target_type: str = "issue", target_id: str = ""):
+    from polaris_server.ai.service import estimate_tokens
+    max_out = 500
+    est_in = 120 if target_type == "issue" else 850
+    return {
+        "target_type": target_type,
+        "target_id": target_id,
+        "is_cached": False,
+        "estimated_input_tokens": est_in,
+        "max_output_tokens": max_out,
+        "estimated_total_tokens": est_in + max_out,
+        "context_compacted": target_type == "pr",
+        "omitted_items": 0,
+    }
+
+
 @app.post("/api/issues/{issue_id}/ai-analyze")
 def ai_analyze_issue(issue_id: str, body: dict | None = None):
     payload = body or {}

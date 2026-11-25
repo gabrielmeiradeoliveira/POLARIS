@@ -11,6 +11,11 @@ from polaris_server.ai.provider import call_chat_completions
 _LEGACY_MARKERS = ("SqlCommand", "DataSet", "DataTable", "BinaryFormatter", "WebForms", "mysql_query", "<?php")
 
 
+def estimate_tokens(text: str) -> int:
+    """Deterministic token estimator (~4 chars/token)."""
+    return max(1, len(text) // 4)
+
+
 _SEV_RANK = {"BLOCKER": 5, "CRITICAL": 4, "MAJOR": 3, "MINOR": 2, "INFO": 1}
 _CONF_RANK = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
@@ -125,7 +130,16 @@ class AiTriageService:
         snippet_hash = hashlib.sha256(snippet.encode("utf-8")).hexdigest()
         cache_key = (fingerprint, snippet_hash, model)
         if cache_key in self._cache:
-            return {**self._cache[cache_key], "cached": True}
+            cached_out = self._cache[cache_key]
+            est = cached_out.get("estimated_tokens", 500)
+            return {
+                **cached_out,
+                "cached": True,
+                "actual_input_tokens": 0,
+                "actual_output_tokens": 0,
+                "actual_total_tokens": 0,
+                "saved_tokens": est,
+            }
 
         budget = int(os.environ.get("POLARIS_AI_DAILY_TOKEN_BUDGET", "50000"))
         if self.tokens_used_today() >= budget:
@@ -151,14 +165,22 @@ class AiTriageService:
             return {**res, "cached": False, "max_tokens_applied": max_tokens}
 
         today = self._today_key()
-        self._daily_tokens[today] = self._daily_tokens.get(today, 0) + res.get("tokens_used", 0)
+        used = res.get("tokens_used", 0)
+        est_in = estimate_tokens(prompt)
+        est_total = est_in + max_tokens
+        self._daily_tokens[today] = self._daily_tokens.get(today, 0) + used
         structured = extract_structured_ai_json(res["content"] or "")
         out = {
             "status": "ok",
             "cached": False,
             "model": model,
             "max_tokens_applied": max_tokens,
-            "tokens_used": res.get("tokens_used", 0),
+            "tokens_used": used,
+            "estimated_tokens": est_total,
+            "actual_input_tokens": est_in,
+            "actual_output_tokens": max(0, used - est_in),
+            "actual_total_tokens": used,
+            "saved_tokens": max(0, est_total - used),
             **structured,
             "raw_response": res["content"],
         }

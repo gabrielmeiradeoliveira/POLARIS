@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from polaris_server.ai.provider import call_chat_completions
-from polaris_server.ai.service import AiTriageService, compact_pr_context, compute_adaptive_max_tokens, extract_structured_ai_json
+from polaris_server.ai.service import AiTriageService, compact_pr_context, compute_adaptive_max_tokens, estimate_tokens, extract_structured_ai_json
 
 
 class TestAiLayer(unittest.TestCase):
@@ -52,6 +52,7 @@ class TestAiLayer(unittest.TestCase):
         self.assertLessEqual(len(ctx), 3500)
         self.assertTrue(meta["context_compacted"])
         self.assertEqual(meta["total_findings_omitted"], 115)
+        self.assertLessEqual(estimate_tokens(ctx), 875)
 
 
 if __name__ == "__main__":
