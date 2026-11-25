@@ -13,6 +13,7 @@ import { ProfileRow, QualityProfilesPage } from "./pages/QualityProfilesPage";
 import { RuleRow, RulesPage } from "./pages/RulesPage";
 import { StatusPage } from "./pages/StatusPage";
 import { AdminPage } from "./pages/AdminPage";
+import { CockpitPage } from "./pages/CockpitPage";
 
 type Route = "home" | "status" | "admin" | "projects" | "project-detail" | "issues" | "rules" | "profiles" | "gates" | "not-found";
 
