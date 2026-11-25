@@ -1,61 +1,65 @@
 services:
   postgres:
-    image: postgres:17
-    restart: unless-stopped
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-polaris}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-polaris_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-polaris}
       POSTGRES_DB: ${POSTGRES_DB:-polaris}
-    ports:
-      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     volumes:
-      - polaris_pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres-low-spec.conf:/etc/postgresql/postgresql.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-polaris} -d ${POSTGRES_DB:-polaris}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.server
+    environment:
+      WEB_CONCURRENCY: "1"
+      POLARIS_INGEST_BATCH_SIZE: "500"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris}@postgres:5432/${POSTGRES_DB:-polaris}
+      POLARIS_AI_BASE_URL: ${POLARIS_AI_BASE_URL:-}
+      POLARIS_AI_MODEL: ${POLARIS_AI_MODEL:-qwen2.5-coder:3b}
+      POLARIS_AI_API_KEY: ${POLARIS_AI_API_KEY:-}
+      POLARIS_AI_MAX_TOKENS_MODERN: ${POLARIS_AI_MAX_TOKENS_MODERN:-500}
+      POLARIS_AI_MAX_TOKENS_LEGACY: ${POLARIS_AI_MAX_TOKENS_LEGACY:-1200}
+      POLARIS_AI_DAILY_TOKEN_BUDGET: ${POLARIS_AI_DAILY_TOKEN_BUDGET:-50000}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live')"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - polaris_net
-
-  server:
-    build:
-      context: .
-      dockerfile: infra/docker/Dockerfile.server
-    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      POLARIS_PG_DSN: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris_dev_password}@postgres:5432/${POSTGRES_DB:-polaris}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris_dev_password}@postgres:5432/${POSTGRES_DB:-polaris}
-      POLARIS_LOG_LEVEL: ${POLARIS_LOG_LEVEL:-INFO}
-    ports:
-      - "127.0.0.1:8000:8000"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live')"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    networks:
-      - polaris_net
 
-  web:
-    build:
-      context: .
-      dockerfile: infra/docker/Dockerfile.web
-    restart: unless-stopped
-    depends_on:
-      server:
-        condition: service_healthy
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ai"]
+    environment:
+      OLLAMA_KEEP_ALIVE: "5m"
+    volumes:
+      - ollama_data:/root/.ollama
     ports:
-      - "127.0.0.1:5173:80"
-    networks:
-      - polaris_net
+      - "11434:11434"
+    deploy:
+      resources:
+        limits:
+          memory: 3500M
 
 volumes:
-  polaris_pgdata:
-
-networks:
-  polaris_net:
-    driver: bridge
+  ollama_data:

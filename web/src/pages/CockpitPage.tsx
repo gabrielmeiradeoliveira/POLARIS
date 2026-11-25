@@ -166,10 +166,24 @@ export function CockpitPage({
                 ))}
               </div>
               {selectedIssue && (
-                <div style={{ display: "flex", gap: 6 }}>
-                  <button onClick={() => onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE")}>False Positive (F)</button>
-                  <button onClick={() => onTriage?.(selectedIssue.issue_id, "ACCEPTED_RISK")}>Accept Risk</button>
-                  <button onClick={() => onTriage?.(selectedIssue.issue_id, "OPEN")}>Reopen (R)</button>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE")}>False Positive (F)</button>
+                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "ACCEPTED_RISK")}>Accept Risk</button>
+                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "OPEN")}>Reopen (R)</button>
+                  </div>
+                  <button
+                    onClick={() => fetch(`/api/issues/${selectedIssue.issue_id}/ai-analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(selectedIssue) })}
+                    style={{ background: "#1F6FEB", color: "#FFFFFF", border: "none", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
+                  >
+                    ✦ Explicar &amp; Sugerir Ajuste
+                  </button>
+                  <button
+                    onClick={() => navigator.clipboard?.writeText(`${selectedIssue.rule_id} (${selectedIssue.cwe ?? "N/A"})\n${selectedIssue.snippet ?? ""}`)}
+                    style={{ background: "#21262D", color: "#E6EDF3", border: "1px solid #30363D", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
+                  >
+                    Copiar Prompt Cirúrgico
+                  </button>
                 </div>
               )}
             </aside>

@@ -340,5 +340,30 @@ from pathlib import Path as _Path  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 _web_dist = _Path(__file__).resolve().parents[2] / "web" / "dist"
+_web_dist = Path(__file__).resolve().parents[2] / "web" / "dist"
+from polaris_server.ai.service import AiTriageService
+
+_ai_service = AiTriageService()
+
+
+@app.get("/api/ai/status")
+def ai_status() -> dict[str, Any]:
+    return _ai_service.status()
+
+
+@app.post("/api/issues/{issue_id}/ai-analyze")
+def ai_analyze_issue(issue_id: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+    payload = body or {}
+    return _ai_service.analyze_issue(
+        fingerprint=str(payload.get("fingerprint") or issue_id),
+        rule_id=str(payload.get("rule_id") or "polaris:unknown"),
+        severity=str(payload.get("severity") or "MAJOR"),
+        language=str(payload.get("language") or "python"),
+        snippet=str(payload.get("snippet") or ""),
+        cwe=payload.get("cwe"),
+        flow_steps=payload.get("flowSteps"),
+    )
+
+
 if _web_dist.exists():
     app.mount("/", StaticFiles(directory=str(_web_dist), html=True), name="web")
