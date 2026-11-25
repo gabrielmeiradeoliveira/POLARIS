@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from polaris_server.config import ServerConfig
 from polaris_server.db import get_connection, init_schema
 
+from pathlib import Path as _Path
 _ver_path = _Path(__file__).resolve().parents[2] / "VERSION"
 APP_VERSION = _ver_path.read_text(encoding="utf-8").strip() if _ver_path.exists() else "0.0.0"
 logger = logging.getLogger("polaris.server")
