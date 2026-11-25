@@ -121,3 +121,13 @@ Todo commit deve seguir o formato:
 - **Commits atômicos:** separar mudanças distintas em commits independentes por responsabilidade.
 - **Referência ao GOAL (opcional):** colocar no corpo do commit (ex.: `Refs: GOAL-019`), nunca no título.
 - **Tamanho do título:** máximo de 72 caracteres, em minúsculas após `:`, sem ponto final.
+
+
+---
+
+## 9. Versionamento Semântico (`MAJOR.MINOR.PATCH` — `X.Y.Z`)
+
+- **`MAJOR` (`X.0.0`):** Mudança radical, quebra de compatibilidade de API/CLI ou nova geração arquitetural.
+- **`MINOR` (`0.Y.0`):** Nova feature ou capacidade funcional compatível.
+- **`PATCH` (`0.0.Z`):** Correção de bug, ajuste visual/UI, melhoria de performance ou refinamento interno.
+- **Fonte Única da Verdade:** O arquivo `VERSION` na raiz do repositório é a fonte única da verdade (nunca hardcoded em componentes React ou rotas). Todo agente deve incrementar `VERSION` conforme o escopo da entrega antes de commitar.

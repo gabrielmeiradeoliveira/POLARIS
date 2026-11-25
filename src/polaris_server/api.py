@@ -93,7 +93,9 @@ def health_ready():
         with get_connection(config) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT 1;")
-        return {"status": "READY", "database": "postgresql"}
+        ver_file = _Path(__file__).resolve().parents[2] / "VERSION"
+        ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "3.1.0"
+        return {"status": "READY", "database": "postgresql", "version": ver}
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Database unavailable: {type(exc).__name__}")
 
@@ -346,9 +348,18 @@ from polaris_server.ai.service import AiTriageService
 _ai_service = AiTriageService()
 
 
+@app.get("/api/meta")
+def api_meta():
+    ver_file = _Path(__file__).resolve().parents[2] / "VERSION"
+    ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "3.1.0"
+    return {"name": "POLARIS", "version": ver}
+
+
 @app.get("/api/ai/status")
 def ai_status():
-    return _ai_service.status()
+    ver_file = _Path(__file__).resolve().parents[2] / "VERSION"
+    ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "3.1.0"
+    return {**_ai_service.status(), "version": ver}
 
 
 @app.post("/api/issues/{issue_id}/ai-analyze")
