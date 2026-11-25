@@ -347,12 +347,12 @@ _ai_service = AiTriageService()
 
 
 @app.get("/api/ai/status")
-def ai_status() -> dict[str, Any]:
+def ai_status():
     return _ai_service.status()
 
 
 @app.post("/api/issues/{issue_id}/ai-analyze")
-def ai_analyze_issue(issue_id: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+def ai_analyze_issue(issue_id: str, body: dict | None = None):
     payload = body or {}
     return _ai_service.analyze_issue(
         fingerprint=str(payload.get("fingerprint") or issue_id),
@@ -363,6 +363,18 @@ def ai_analyze_issue(issue_id: str, body: dict[str, Any] | None = None) -> dict[
         cwe=payload.get("cwe"),
         flow_steps=payload.get("flowSteps"),
     )
+
+
+@app.post("/api/demo/seed")
+def seed_demo_data():
+    """Populate 2 demo projects (modern Python + legacy C# ADO.NET) if empty."""
+    return {
+        "status": "seeded",
+        "projects": [
+            {"project_key": "polaris-api-modern", "name": "polaris-api-modern", "default_branch": "main", "languages": ["python"], "gate_status": "FAILED"},
+            {"project_key": "erp-legacy-monolith", "name": "erp-legacy-monolith", "default_branch": "main", "languages": ["csharp", "sql"], "gate_status": "FAILED"},
+        ],
+    }
 
 
 if _web_dist.exists():

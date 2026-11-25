@@ -26,6 +26,7 @@ services:
       WEB_CONCURRENCY: "1"
       POLARIS_INGEST_BATCH_SIZE: "500"
       DATABASE_URL: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris}@postgres:5432/${POSTGRES_DB:-polaris}
+      POLARIS_DATABASE_URL: postgresql://${POSTGRES_USER:-polaris}:${POSTGRES_PASSWORD:-polaris}@postgres:5432/${POSTGRES_DB:-polaris}
       POLARIS_AI_BASE_URL: ${POLARIS_AI_BASE_URL:-}
       POLARIS_AI_MODEL: ${POLARIS_AI_MODEL:-qwen2.5-coder:3b}
       POLARIS_AI_API_KEY: ${POLARIS_AI_API_KEY:-}
