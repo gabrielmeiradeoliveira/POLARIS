@@ -132,3 +132,4 @@ Todo commit deve seguir o formato:
 - **`PATCH` (`0.0.Z`):** Correção de bug, ajuste visual/UI, melhoria de performance ou refinamento interno.
 - **Fonte Única da Verdade:** O arquivo `VERSION` na raiz do repositório é a fonte única da verdade (nunca hardcoded em componentes React ou rotas). Todo agente deve incrementar `VERSION` conforme o escopo da entrega antes de commitar.
 - **Rebuild Obrigatório do Container:** Toda alteração em `src/` ou `web/src/` exige rebuild do container (`docker compose --profile ai up -d --build api`) antes de encerrar a tarefa.
+- **Sincronização Obrigatória de `README.md` & `CHANGELOG.md`:** Toda alteração de versão (`MAJOR`, `MINOR` ou `PATCH` em `VERSION`) obriga atualizar, no mesmo commit, o cabeçalho de versão/stack no `README.md` e a seção **Histórico de Versões** (`Adicionado / Alterado / Removido`) no `README.md` e `CHANGELOG.md`.

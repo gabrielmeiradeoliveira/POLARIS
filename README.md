@@ -1,27 +1,25 @@
-# POLARIS 2.0
+# POLARIS v3.2.1
 
-**POLARIS** é uma plataforma de análise estática de código, tendo o **SonarQube** como referência de paridade funcional.
+Plataforma híbrida de análise estática (SAST, Taint Tracking e Qualidade de Código) com motor 100% determinístico no pipeline e camada de IA sob demanda (Ollama local ou Cloud agnóstico `/v1/chat/completions`).
 
-A versão **2.x** será integralmente **local e determinística**. A integração com inteligência artificial será considerada exclusivamente a partir da versão **3.0**.
+## Linguagens & Motores Suportados
+- **Core:** Python (`ast` + Taint Flow), C# / .NET (`Roslyn`), Java (`JavaParser`), SQL (`SQLGlot`)
+- **Expansão Multi-Linguagem:** Terraform/HCL, TypeScript/React/JSX, HTML, PHP, Shell/Bash, Kotlin, Rust, C/C++
 
-## Linguagens Oficialmente Suportadas
+## Quickstart (Docker)
+```bash
+# Modo 100% Determinístico (api + postgres)
+docker compose up -d --build
 
-- Python
-- C# / .NET
-- Java
-- SQL
+# Modo Híbrido com IA Local (api + postgres + ollama qwen2.5-coder:3b)
+docker compose --profile ai up -d --build
+```
+Acesse a UI em `http://localhost:8000` (Pull Requests em `http://localhost:8000/#/pull-requests`).
 
-## Estrutura do Repositório
-
-- `AGENTS.md`: Contrato operacional obrigatório para agentes de desenvolvimento.
-- `.agents/`: Regras, workflows, papéis operacionais (roles) e templates de execução.
-- `vault/`: Fonte oficial de conhecimento, requisitos, arquitetura, segurança, qualidade, roadmap e histórico do projeto (compatível com Obsidian).
-- `SECURITY.md`: Política de segurança e reporte de vulnerabilidades.
-- `CONTRIBUTING.md`: Diretrizes de contribuição.
-- `CHANGELOG.md`: Registro de mudanças do projeto.
-
-## Estado Atual
-
-O projeto encontra-se na fase de **Fundação, Documentação e Governança (GOAL-000)**. Nenhuma funcionalidade de produto foi implementada e a stack tecnológica ainda está pendente de definição.
-
-Consulte [vault/00-Home.md](vault/00-Home.md) e [vault/01-Project/Current-State.md](vault/01-Project/Current-State.md) para mais detalhes.
+## Histórico de Versões
+- **v3.2.1:** Governança de sincronização `README.md`/`CHANGELOG.md` no `AGENTS.md` e atualização do `README.md`.
+- **v3.2.0:** Página **Pull Requests** (`/#/pull-requests`) e endpoint `POST /api/prs/{pr_key}/ai-summary` com resumo executivo sob clique.
+- **v3.1.1:** Inventário dinâmico de analisadores em `GET /api/meta` e na `StatusPage`.
+- **v3.1.0:** UI Cockpit 3 Colunas, `IssueAiAssistant` no drawer de `Findings`, `VERSION` centralizado e `listen_addresses='*'` no PostgreSQL 17.
+- **v3.0.0:** Camada de IA agnóstica (`/v1/chat/completions`) com calibração adaptativa (`500` moderno / `1200` legado) e cache por fingerprint.
+- **v2.0.0:** Motor determinístico multi-linguagem, Quality Gates e persistência PostgreSQL 17.
