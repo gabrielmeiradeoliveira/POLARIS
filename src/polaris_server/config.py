@@ -4,9 +4,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ServerConfig:
-    pg_dsn: str = os.environ.get(
-        "POLARIS_PG_DSN",
-        "postgresql://polaris:polaris_local_dev@127.0.0.1:5432/polaris_poc",
+    pg_dsn: str = (
+        os.environ.get("POLARIS_PG_DSN")
+        or os.environ.get("POLARIS_DATABASE_URL")
+        or os.environ.get("DATABASE_URL")
+        or "postgresql://polaris:polaris_local_dev@127.0.0.1:5432/polaris_poc"
     )
     max_body_bytes: int = 5 * 1024 * 1024
 
