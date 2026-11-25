@@ -42,9 +42,9 @@ export function StatusPage({
           <Badge tone={ready?.status === "READY" ? "success" : "error"}>{ready?.status ?? "DESCONHECIDO"}</Badge>
         </Card>
         <Card title="Versão & Contrato">
-          <div>Serviço: <code>{version?.service ?? "polaris-server"}</code></div>
+          <div>Serviço: <code>polaris-server</code></div>
           <div>Versão: <code>{version?.version ?? "-"}</code></div>
-          <div>Contrato: <code>{version?.contractVersion ?? "1.0.0"}</code></div>
+          <div>Contrato: <code>1.0.0</code></div>
         </Card>
         <Card title="Camada de IA Sob Demanda">
           <Badge tone={aiStatus?.enabled ? "success" : "warning"}>
