@@ -21,7 +21,7 @@ export function IndeterminateCheckbox({ indeterminate = false, ...props }: Indet
       style={{
         width: 15,
         height: 15,
-        accentColor: "#4F6BED",
+        accentColor: "var(--btn-primary-bg)",
         cursor: "pointer",
         verticalAlign: "middle",
         ...props.style,

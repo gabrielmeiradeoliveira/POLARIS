@@ -89,7 +89,7 @@ export function AdminPage() {
   };
 
   return (
-    <div>
+    <div style={{ padding: "24px 32px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Administração e Segurança</h1>
         <Button onClick={() => setOpenUser(true)}>Novo Usuário</Button>

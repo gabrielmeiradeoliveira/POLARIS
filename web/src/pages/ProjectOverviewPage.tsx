@@ -39,7 +39,7 @@ export function ProjectOverviewPage({ projectKey }: { projectKey: string }) {
   useEffect(load, [projectKey]);
 
   return (
-    <div>
+    <div style={{ padding: "24px 32px" }}>
       <Breadcrumb items={[{ label: "Projetos", href: "#/projects" }, { label: projectKey }]} />
       {loading && (
         <div>

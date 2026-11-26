@@ -19,6 +19,18 @@ code, pre {
   font-size: 13px;
 }
 
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
 a {
   color: var(--color-primary);
   text-decoration: none;
@@ -54,17 +66,25 @@ a:hover {
 }
 
 .polaris-header {
-  height: 56px;
+  height: 44px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 16px;
 }
 
 .polaris-content {
-  padding: 24px;
+  padding: 0;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.polaris-content-padded {
+  padding: 16px;
   width: 100%;
 }
 
@@ -92,39 +112,4 @@ a:hover {
     border-right: none;
     border-bottom: 1px solid var(--border-subtle);
   }
-}
-
-/* Global dark-mode button contrast guardrails */
-button, .btn, .btn-primary {
-  background-color: #27272a;
-  color: #f4f4f5;
-  border: 1px solid #3f3f46;
-}
-button.primary, .btn-primary {
-  background-color: #4f46e5;
-  color: #ffffff !important;
-  border: 1px solid #6366f1;
-}
-button.primary:hover, .btn-primary:hover {
-  background-color: #4338ca;
-}
-button:disabled {
-  background-color: #18181b !important;
-  color: #71717a !important;
-  border: 1px solid #27272a !important;
-  opacity: 0.85;
-  cursor: not-allowed;
-}
-
-/* Sober Slate Palette (v3.5.0) */
-:root[data-theme="dark"], .dark {
-  --bg-canvas: #111317;
-  --bg-surface: #171A20;
-  --border-subtle: #2A2F3A;
-  --text-primary: #F1F5F9;
-}
-button.primary, .btn-primary {
-  background-color: #4F6BED;
-  color: #FFFFFF !important;
-  border: 1px solid #4F6BED;
 }

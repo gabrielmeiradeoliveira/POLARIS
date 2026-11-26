@@ -42,7 +42,7 @@ export function RulesPage({ rules }: { rules: RuleRow[] }) {
   const slice = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div>
+    <div style={{ padding: "24px 32px" }}>
       <h1 style={{ margin: "0 0 16px", fontSize: 24, fontWeight: 600 }}>Catálogo de Regras ({filtered.length})</h1>
       <Card>
         <div style={{ display: "flex", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>

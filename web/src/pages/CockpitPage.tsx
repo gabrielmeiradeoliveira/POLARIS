@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Badge, Button, Input } from "../components/ui";
+import { TaintTrail } from "../components/TaintTrail";
+import { CodeEvidenceBlock } from "../components/CodeEvidenceBlock";
 
 export interface CockpitRepo {
   project_key: string;
@@ -38,22 +41,73 @@ export function CockpitPage({
   const [search, setSearch] = useState("");
   const [mode, setMode] = useState<"NEW_CODE" | "BASELINE">("NEW_CODE");
   const [selectedIssue, setSelectedIssue] = useState<CockpitIssue | null>(issues[0] ?? null);
+  const [activeCodeLine, setActiveCodeLine] = useState<number | undefined>(undefined);
   const [stepIdx, setStepIdx] = useState(0);
   const [aiResult, setAiResult] = useState<Record<string, any> | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
+  const selectedIndex = useMemo(() => {
+    if (!selectedIssue) return -1;
+    return issues.findIndex((i) => i.issue_id === selectedIssue.issue_id);
+  }, [issues, selectedIssue]);
+
+  const selectByIndex = (idx: number) => {
+    if (idx >= 0 && idx < issues.length) {
+      const target = issues[idx];
+      setSelectedIssue(target);
+      setActiveCodeLine(target.start_line);
+      setStepIdx(0);
+    }
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!selectedRepo || !selectedIssue) return;
-      if (e.key === "ArrowLeft") setStepIdx((s) => Math.max(0, s - 1));
-      if (e.key === "ArrowRight") setStepIdx((s) => Math.min((selectedIssue.flowSteps?.length ?? 1) - 1, s + 1));
-      if (e.key.toLowerCase() === "f") onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE");
-      if (e.key.toLowerCase() === "r") onTriage?.(selectedIssue.issue_id, "OPEN");
+      const tag = (document.activeElement?.tagName || "").toUpperCase();
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
+
+      if (e.key === "Escape") {
+        setSelectedRepo(null);
+        return;
+      }
+      if (e.key === "j" || e.key === "J" || e.key === "ArrowDown") {
+        e.preventDefault();
+        selectByIndex(selectedIndex + 1);
+        return;
+      }
+      if (e.key === "k" || e.key === "K" || e.key === "ArrowUp") {
+        e.preventDefault();
+        selectByIndex(selectedIndex - 1);
+        return;
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE");
+        return;
+      }
+      if (e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        onTriage?.(selectedIssue.issue_id, "ACCEPTED_RISK");
+        return;
+      }
+      if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        onTriage?.(selectedIssue.issue_id, "OPEN");
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        setStepIdx((s) => Math.max(0, s - 1));
+      }
+      if (e.key === "ArrowRight") {
+        setStepIdx((s) => Math.min((selectedIssue.flowSteps?.length ?? 1) - 1, s + 1));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedRepo, selectedIssue, onTriage]);
+  }, [selectedRepo, selectedIssue, selectedIndex, issues, onTriage]);
 
   const filteredRepos = useMemo(
     () =>
@@ -72,15 +126,15 @@ export function CockpitPage({
   }, [repos, issues]);
 
   return (
-    <div style={{ background: "#090C10", color: "#E6EDF3", minHeight: "100vh", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px", background: "#11161D", borderBottom: "1px solid #21262D" }}>
+    <div style={{ background: "var(--bg-app)", color: "var(--text-primary)", minHeight: "100vh", fontFamily: "var(--font-sans)" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px", background: "var(--bg-surface)", borderBottom: "1px solid var(--border-subtle)" }}>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <strong style={{ letterSpacing: 1 }}>POLARIS</strong>
-          <span style={{ color: "#8B949E", cursor: "pointer" }} onClick={() => setSelectedRepo(null)}>
+          <strong style={{ letterSpacing: 1, color: "var(--text-primary)" }}>POLARIS</strong>
+          <span style={{ color: "var(--text-muted)", cursor: "pointer" }} onClick={() => setSelectedRepo(null)}>
             Organização {selectedRepo ? `/ ${selectedRepo.name}` : ""}
           </span>
         </div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "#8B949E" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>
           GitHub App Connected · Runtime OK
         </div>
       </header>
@@ -94,32 +148,55 @@ export function CockpitPage({
               ["Vulnerabilidades Críticas", kpis.crit],
               ["Branches/PRs Bloqueados", kpis.blockedPrs],
             ].map(([label, val]) => (
-              <div key={String(label)} style={{ background: "#11161D", border: "1px solid #21262D", borderRadius: 6, padding: 12 }}>
-                <div style={{ fontSize: 12, color: "#8B949E" }}>{label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}>{val}</div>
+              <div key={String(label)} style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", padding: 12 }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", color: "var(--text-primary)", marginTop: 4 }}>{val}</div>
               </div>
             ))}
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
             {(["ALL", "FAILED", "PASSED"] as const).map((g) => (
-              <button key={g} onClick={() => setGateFilter(g)} style={{ background: gateFilter === g ? "#21262D" : "#11161D", color: "#E6EDF3", border: "1px solid #21262D", padding: "6px 12px", borderRadius: 4, cursor: "pointer" }}>
+              <Button
+                key={g}
+                variant={gateFilter === g ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => setGateFilter(g)}
+              >
                 {g === "ALL" ? "Todos" : g === "FAILED" ? "Gate Reprovado" : "Gate Aprovado"}
-              </button>
+              </Button>
             ))}
-            <input placeholder="Buscar repositório..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ background: "#11161D", color: "#E6EDF3", border: "1px solid #21262D", padding: "6px 10px", borderRadius: 4, flex: 1 }} />
+            <Input
+              placeholder="Buscar repositório..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ flex: 1 }}
+            />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {filteredRepos.map((r) => (
-              <div key={r.project_key} onClick={() => setSelectedRepo(r)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#11161D", border: "1px solid #21262D", borderRadius: 6, padding: 12, cursor: "pointer" }}>
+              <div
+                key={r.project_key}
+                onClick={() => { setSelectedRepo(r); setSelectedIssue(issues[0] ?? null); }}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: "var(--radius-md)",
+                  padding: 12,
+                  cursor: "pointer",
+                }}
+              >
                 <div>
-                  <div style={{ fontWeight: 600 }}>{r.name}</div>
-                  <div style={{ fontSize: 12, color: "#8B949E", fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{r.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", marginTop: 2 }}>
                     {r.default_branch ?? "main"} · {(r.languages ?? []).join(", ")}
                   </div>
                 </div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: r.gate_status === "FAILED" ? "#F85149" : "#3FB950" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontVariantNumeric: "tabular-nums", color: r.gate_status === "FAILED" ? "var(--color-critical)" : "var(--color-success)" }}>
                   {r.gate_status ?? "PASSED"}
                 </div>
               </div>
@@ -128,110 +205,213 @@ export function CockpitPage({
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 45px)" }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "8px 16px", background: "#11161D", borderBottom: "1px solid #21262D" }}>
-            <button onClick={() => setSelectedRepo(null)} style={{ background: "#21262D", color: "#E6EDF3", border: "none", padding: "4px 10px", borderRadius: 4, cursor: "pointer" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "8px 16px", background: "var(--bg-surface)", borderBottom: "1px solid var(--border-subtle)" }}>
+            <Button variant="secondary" size="sm" onClick={() => setSelectedRepo(null)}>
               ← Todas as Aplicações
-            </button>
-            <button onClick={() => setMode(mode === "NEW_CODE" ? "BASELINE" : "NEW_CODE")} style={{ background: "#11161D", color: "#E6EDF3", border: "1px solid #21262D", padding: "4px 10px", borderRadius: 4, cursor: "pointer" }}>
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => setMode(mode === "NEW_CODE" ? "BASELINE" : "NEW_CODE")}>
               {mode === "NEW_CODE" ? "New Code" : "Baseline"}
-            </button>
+            </Button>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "240px 1fr 320px", flex: 1, overflow: "hidden" }}>
-            <aside style={{ borderRight: "1px solid #21262D", padding: 10, overflowY: "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 340px", flex: 1, overflow: "hidden" }}>
+            <aside style={{ borderRight: "1px solid var(--border-subtle)", padding: 10, overflowY: "auto", background: "var(--bg-surface)" }}>
               {issues.map((i) => (
-                <div key={i.issue_id} onClick={() => { setSelectedIssue(i); setStepIdx(0); }} style={{ padding: 6, borderRadius: 4, cursor: "pointer", background: selectedIssue?.issue_id === i.issue_id ? "#21262D" : "transparent", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
-                  {i.file_path}:{i.start_line ?? 1}
+                <div
+                  key={i.issue_id}
+                  onClick={() => { setSelectedIssue(i); setActiveCodeLine(i.start_line); setStepIdx(0); }}
+                  style={{
+                    padding: 8,
+                    borderRadius: "var(--radius-sm)",
+                    cursor: "pointer",
+                    background: selectedIssue?.issue_id === i.issue_id ? "var(--bg-row-selected)" : "transparent",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                    fontVariantNumeric: "tabular-nums",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 4,
+                  }}
+                >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {i.file_path}:{i.start_line ?? 1}
+                  </span>
+                  <Badge tone={i.severity === "CRITICAL" || i.severity === "BLOCKER" ? "error" : "warning"}>
+                    {i.severity}
+                  </Badge>
                 </div>
               ))}
             </aside>
-            <main style={{ padding: 16, overflowY: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
+            <main style={{ padding: 16, overflowY: "auto", background: "var(--bg-app)" }}>
               {selectedIssue ? (
                 <>
-                  <div style={{ background: "#11161D", border: "1px solid #21262D", padding: 12, borderRadius: 6, marginBottom: 12 }}>
-                    <strong>{selectedIssue.rule_id}</strong> ({selectedIssue.severity}) {selectedIssue.cwe ?? ""}
-                    <div style={{ color: "#8B949E", marginTop: 4 }}>{selectedIssue.message}</div>
+                  <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: 12, borderRadius: "var(--radius-md)", marginBottom: 12 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+                      <strong style={{ color: "var(--text-primary)" }}>{selectedIssue.rule_id}</strong>
+                      <Badge tone={selectedIssue.severity === "CRITICAL" || selectedIssue.severity === "BLOCKER" ? "error" : "warning"}>
+                        {selectedIssue.severity}
+                      </Badge>
+                      {selectedIssue.cwe && <Badge tone="primary">{selectedIssue.cwe}</Badge>}
+                    </div>
+                    <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)", fontSize: 13, lineHeight: 1.4 }}>
+                      {selectedIssue.message}
+                    </div>
                   </div>
-                  <pre style={{ background: "#11161D", border: "1px solid #21262D", padding: 12, borderRadius: 6, overflowX: "auto" }}>
-                    {selectedIssue.snippet ?? `// ${selectedIssue.file_path}:${selectedIssue.start_line ?? 1}`}
-                  </pre>
+
+                  {/* Protagonismo do Código via CodeEvidenceBlock */}
+                  <CodeEvidenceBlock
+                    filePath={selectedIssue.file_path}
+                    startLine={selectedIssue.start_line}
+                    activeLine={activeCodeLine}
+                    snippet={selectedIssue.snippet}
+                  />
                 </>
               ) : (
-                <div>Selecione uma issue.</div>
+                <div style={{ color: "var(--text-muted)" }}>Selecione uma issue.</div>
               )}
             </main>
-            <aside style={{ borderLeft: "1px solid #21262D", padding: 12, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontWeight: 600, marginBottom: 8 }}>Taint Path Stepper</div>
-                {(selectedIssue?.flowSteps ?? []).map((s, idx) => (
-                  <div key={idx} style={{ padding: 6, background: idx === stepIdx ? "#21262D" : "transparent", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
-                    {s.kind}: {s.file}:{s.line}
-                  </div>
-                ))}
-              </div>
-              {selectedIssue && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE")}>False Positive (F)</button>
-                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "ACCEPTED_RISK")}>Accept Risk</button>
-                    <button onClick={() => onTriage?.(selectedIssue.issue_id, "OPEN")}>Reopen (R)</button>
-                  </div>
-                  <button
-                    disabled={aiLoading}
-                    onClick={async () => {
-                      setAiLoading(true);
-                      try {
-                        const r = await fetch(`/api/issues/${selectedIssue.issue_id}/ai-analyze`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify(selectedIssue),
-                        });
-                        setAiResult(await r.json());
-                      } finally {
-                        setAiLoading(false);
-                      }
-                    }}
-                    style={{ background: "#1F6FEB", color: "#FFFFFF", border: "none", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    {aiLoading ? "Analisando..." : "✦ Explicar & Sugerir Ajuste"}
-                  </button>
-                  {aiResult && (
-                    <div style={{ background: "#090C10", border: "1px solid #21262D", borderRadius: 6, padding: 10, fontSize: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                        <span style={{ padding: "2px 6px", borderRadius: 4, fontWeight: 600, background: aiResult.verdict === "CONFIRMED_EXPLOITABLE" ? "#6E1E1E" : aiResult.verdict === "LIKELY_FALSE_POSITIVE" ? "#1B4721" : "#5A4212" }}>
-                          {aiResult.verdict ?? "NEEDS_REVIEW"}
-                        </span>
-                        <span style={{ color: "#8B949E", fontFamily: "'JetBrains Mono', monospace" }}>
-                          {aiResult.max_tokens_applied >= 1000 ? "Legado 1200t" : "Moderno 500t"}
-                        </span>
-                        {aiResult.cached && <span style={{ color: "#3FB950" }}>Cached</span>}
-                      </div>
-                      <p style={{ margin: 0, color: "#E6EDF3" }}>{aiResult.summary || aiResult.raw_response}</p>
-                      {aiResult.suggested_snippet && (
-                        <>
-                          <pre style={{ margin: 0, background: "#11161D", padding: 8, borderRadius: 4, overflowX: "auto", fontFamily: "'JetBrains Mono', monospace" }}>
-                            {aiResult.suggested_snippet}
+            <aside style={{ borderLeft: "1px solid var(--border-subtle)", padding: 12, display: "flex", flexDirection: "column", gap: 12, background: "var(--bg-surface)", overflowY: "auto" }}>
+              {selectedIssue ? (
+                <>
+                  {/* Topo Fixo com Ações de Triagem + Botão da IA */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                      Triagem Imediata
+                    </div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <Button size="sm" variant="secondary" onClick={() => onTriage?.(selectedIssue.issue_id, "OPEN")}>Reabrir</Button>
+                      <Button size="sm" variant="secondary" onClick={() => onTriage?.(selectedIssue.issue_id, "ACCEPTED_RISK")}>Aceitar Risco</Button>
+                      <Button size="sm" variant="secondary" onClick={() => onTriage?.(selectedIssue.issue_id, "FALSE_POSITIVE")}>Falso Positivo</Button>
+                      <Button size="sm" variant="secondary" onClick={() => onTriage?.(selectedIssue.issue_id, "FIXED")}>Corrigido</Button>
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      disabled={aiLoading}
+                      onClick={async () => {
+                        setAiLoading(true);
+                        try {
+                          const r = await fetch(`/api/issues/${selectedIssue.issue_id}/ai-analyze`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              issue_id: selectedIssue.issue_id,
+                              rule_id: selectedIssue.rule_id,
+                              cwe: selectedIssue.cwe,
+                              file_path: selectedIssue.file_path,
+                              start_line: selectedIssue.start_line,
+                              code_snippet: selectedIssue.snippet,
+                              severity: selectedIssue.severity,
+                              message: selectedIssue.message,
+                            }),
+                          });
+                          setAiResult(await r.json());
+                        } finally {
+                          setAiLoading(false);
+                        }
+                      }}
+                    >
+                      {aiLoading ? "Analisando..." : "Explicar e sugerir ajuste"}
+                    </Button>
+
+                    {aiResult && (
+                      <div style={{ background: "var(--bg-muted)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", padding: 10, fontSize: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                          <Badge tone={aiResult.verdict === "CONFIRMED_EXPLOITABLE" ? "error" : aiResult.verdict === "LIKELY_FALSE_POSITIVE" ? "success" : "warning"}>
+                            {aiResult.verdict ?? "NEEDS_REVIEW"}
+                          </Badge>
+                          <span style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
+                            {aiResult.max_tokens_applied >= 1000 ? "Legado 1200t" : "Moderno 500t"}
+                          </span>
+                          {aiResult.cached && <span style={{ color: "var(--color-success)", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>Em cache</span>}
+                        </div>
+                        <p style={{ margin: 0, color: "var(--text-primary)", lineHeight: 1.4 }}>{aiResult.summary || aiResult.raw_response}</p>
+                        
+                        {/* Comparativo Visual Antes (Vulnerável) -> Depois (Corrigido) */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-critical)" }}>
+                            Antes (Linha {selectedIssue.start_line ?? 1}):
+                          </div>
+                          <pre style={{ margin: 0, background: "rgba(248, 81, 73, 0.08)", border: "1px solid rgba(248, 81, 73, 0.25)", color: "var(--color-critical)", padding: "6px 8px", borderRadius: "var(--radius-sm)", overflowX: "auto", fontFamily: "var(--font-mono)", fontSize: 11 }}>
+                            {selectedIssue.snippet || `Linha ${selectedIssue.start_line ?? 1}: Código vulnerável detectado`}
                           </pre>
-                          <button
+
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-success)", marginTop: 4 }}>
+                            Depois (Sugestão Corrigida):
+                          </div>
+                          <pre style={{ margin: 0, background: "rgba(63, 185, 80, 0.08)", border: "1px solid rgba(63, 185, 80, 0.25)", color: "var(--color-success)", padding: "6px 8px", borderRadius: "var(--radius-sm)", overflowX: "auto", fontFamily: "var(--font-mono)", fontSize: 11 }}>
+                            {aiResult.suggested_snippet || "// Correção recomendada: sanitizar ou parametrizar entrada"}
+                          </pre>
+                        </div>
+
+                        {aiResult.suggested_snippet && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
                             onClick={() => {
                               navigator.clipboard?.writeText(aiResult.suggested_snippet);
                               setCopiedSnippet(true);
                               setTimeout(() => setCopiedSnippet(false), 1500);
                             }}
-                            style={{ background: "#21262D", color: "#E6EDF3", border: "none", padding: "4px 8px", borderRadius: 4, cursor: "pointer" }}
+                            style={{ alignSelf: "flex-start", marginTop: 4 }}
                           >
-                            {copiedSnippet ? "Copiado!" : "Copiar Snippet"}
-                          </button>
-                        </>
+                            {copiedSnippet ? "Copiado!" : "Copiar Correção"}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard?.writeText(`${selectedIssue.rule_id} (${selectedIssue.cwe ?? "N/A"})\n${selectedIssue.snippet ?? ""}`)}
+                        style={{ border: "1px solid var(--border-subtle)", color: "var(--text-secondary)", flex: 1 }}
+                      >
+                        Copiar prompt
+                      </Button>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 10, color: "var(--text-muted)", flexWrap: "wrap" }}>
+                      <span><kbd>J</kbd>/<kbd>K</kbd> navegar</span>
+                      <span>·</span>
+                      <span><kbd>F</kbd> falso positivo</span>
+                      <span>·</span>
+                      <span><kbd>A</kbd> aceitar</span>
+                    </div>
+                  </div>
+
+                  {/* Fluxo Semântico SOURCE -> SINK Compacto e Colapsável */}
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: 8, color: "var(--text-primary)", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span>SOURCE → SINK</span>
+                      {selectedIssue?.flowSteps && selectedIssue.flowSteps.length > 0 && (
+                        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{selectedIssue.flowSteps.length} passos</span>
                       )}
                     </div>
-                  )}
-                  <button
-                    onClick={() => navigator.clipboard?.writeText(`${selectedIssue.rule_id} (${selectedIssue.cwe ?? "N/A"})\n${selectedIssue.snippet ?? ""}`)}
-                    style={{ background: aiResult?.needs_broader_refactor ? "#5A4212" : "#21262D", color: "#E6EDF3", border: "1px solid #30363D", padding: "6px 10px", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    Copiar Prompt Cirúrgico
-                  </button>
-                </div>
+                    {selectedIssue?.flowSteps && selectedIssue.flowSteps.length > 0 ? (
+                      <TaintTrail
+                        steps={selectedIssue.flowSteps}
+                        currentIdx={stepIdx}
+                        onSelectStep={(idx) => {
+                          setStepIdx(idx);
+                          const step = selectedIssue.flowSteps?.[idx];
+                          if (step && step.file === selectedIssue.file_path) {
+                            setActiveCodeLine(step.line);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", fontStyle: "italic", padding: "4px 0" }}>
+                        Fluxo intra-procedural direto (sem propagação cross-file).
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: "var(--text-muted)", fontSize: 12 }}>Selecione uma issue para inspecionar.</div>
               )}
             </aside>
           </div>

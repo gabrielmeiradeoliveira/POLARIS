@@ -2,7 +2,7 @@ import gzip
 import json
 import logging
 import uuid
-from typing import List
+from typing import Any, List
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -286,6 +286,7 @@ def get_project_overview(project_key: str):
             )
             rows = cur.fetchall()
 
+    from polaris_server.issues_service import extract_code_snippet
     issues = []
     bugs = 0
     vulnerabilities = 0
@@ -293,20 +294,25 @@ def get_project_overview(project_key: str):
     for r in rows:
         rule_id = r[1]
         sev = r[3]
+        f_path = r[4]
+        s_line = r[5]
         if "-SEC-" in rule_id:
             vulnerabilities += 1
         elif "-REL-" in rule_id or sev in ("BLOCKER", "CRITICAL"):
             bugs += 1
         else:
             code_smells += 1
+        snip = extract_code_snippet(f_path, int(s_line or 1))
         issues.append(
             {
                 "id": r[0],
                 "ruleId": rule_id,
                 "language": r[2],
                 "severity": sev,
-                "location": {"file": r[4], "startLine": r[5]},
+                "location": {"file": f_path, "startLine": s_line},
                 "message": r[6],
+                "snippet": snip,
+                "code_snippet": snip,
             }
         )
 
@@ -397,18 +403,83 @@ def ai_estimate(target_type: str = "issue", target_id: str = ""):
     }
 
 
+def _resolve_issue_context(issue_id: str, payload: dict) -> dict[str, Any]:
+    """Resolve issue metadata and code snippet from database or payload."""
+    from polaris_server.issues_service import extract_code_snippet
+
+    rule_id = str(payload.get("rule_id") or payload.get("ruleId") or "")
+    severity = str(payload.get("severity") or "MAJOR")
+    language = str(payload.get("language") or "python")
+    snippet = str(payload.get("snippet") or payload.get("code_snippet") or "")
+    cwe = payload.get("cwe")
+    file_path = str(payload.get("file_path") or (payload.get("location") or {}).get("file") or "")
+    start_line_raw = payload.get("start_line") or (payload.get("location") or {}).get("startLine") or payload.get("line")
+    start_line = int(start_line_raw) if start_line_raw is not None and str(start_line_raw).isdigit() else 1
+    flow_steps = payload.get("flowSteps") or payload.get("flow_steps")
+    fingerprint = str(payload.get("fingerprint") or "")
+
+    # Se faltar snippet ou metadados e issue_id for numérico, busca no banco
+    if (not snippet or not rule_id or not file_path) and issue_id and issue_id.isdigit():
+        try:
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT rule_id, severity, language, file_path, start_line, cwe, flow_steps, fingerprint FROM issues WHERE id = %s;",
+                        (int(issue_id),),
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        rule_id = rule_id or str(row[0])
+                        severity = severity if severity != "MAJOR" else str(row[1])
+                        language = language if language != "python" else str(row[2])
+                        file_path = file_path or str(row[3])
+                        start_line = start_line if start_line != 1 else int(row[4] or 1)
+                        cwe = cwe or row[5]
+                        flow_steps = flow_steps or row[6]
+                        fingerprint = fingerprint or str(row[7] or "")
+        except Exception:
+            pass
+
+    if not snippet and file_path:
+        snippet = extract_code_snippet(file_path, start_line) or f"# Code at {file_path}:{start_line}"
+
+    return {
+        "fingerprint": fingerprint or issue_id,
+        "rule_id": rule_id or "polaris:unknown",
+        "severity": severity,
+        "language": language,
+        "snippet": snippet,
+        "cwe": cwe,
+        "file_path": file_path,
+        "start_line": start_line,
+        "flow_steps": flow_steps,
+    }
+
+
 @app.post("/api/issues/{issue_id}/ai-analyze")
 def ai_analyze_issue(issue_id: str, body: dict | None = None):
-    payload = body or {}
+    ctx = _resolve_issue_context(issue_id, body or {})
     return _ai_service.analyze_issue(
-        fingerprint=str(payload.get("fingerprint") or issue_id),
-        rule_id=str(payload.get("rule_id") or "polaris:unknown"),
-        severity=str(payload.get("severity") or "MAJOR"),
-        language=str(payload.get("language") or "python"),
-        snippet=str(payload.get("snippet") or ""),
-        cwe=payload.get("cwe"),
-        flow_steps=payload.get("flowSteps"),
+        fingerprint=ctx["fingerprint"],
+        rule_id=ctx["rule_id"],
+        severity=ctx["severity"],
+        language=ctx["language"],
+        snippet=ctx["snippet"],
+        cwe=ctx["cwe"],
+        file_path=ctx["file_path"],
+        start_line=ctx["start_line"],
+        flow_steps=ctx["flow_steps"],
     )
+
+
+@app.post("/api/v1/issues/{issue_id}/ai-explain")
+def ai_explain_issue_v1(issue_id: str, body: dict | None = None):
+    return ai_analyze_issue(issue_id, body)
+
+
+@app.post("/api/issues/{issue_id}/ai-explain")
+def ai_explain_issue_alias(issue_id: str, body: dict | None = None):
+    return ai_analyze_issue(issue_id, body)
 
 
 from polaris_server.issues_service import (
@@ -489,6 +560,17 @@ def ai_pr_summary(pr_key: str, body: dict | None = None):
                 pass  # DB error fallback: assume none suppressed
 
         active_issues = [it for it, fp in items_with_fp if fp not in triaged_suppressed]
+
+    # Garante enriquecimento de code_snippet nos active_issues antes da compactação
+    from polaris_server.issues_service import extract_code_snippet
+    for item in active_issues:
+        f_p = str(item.get("file_path") or (item.get("location") or {}).get("file") or "")
+        s_l = item.get("start_line") or (item.get("location") or {}).get("startLine") or 1
+        if not item.get("snippet") and not item.get("code_snippet") and f_p:
+            sn = extract_code_snippet(f_p, int(s_l or 1))
+            if sn:
+                item["snippet"] = sn
+                item["code_snippet"] = sn
 
     # Short-circuit econômico: se len(active_issues) == 0, retorne imediatamente com 0 chamadas LLM
     if len(active_issues) == 0:

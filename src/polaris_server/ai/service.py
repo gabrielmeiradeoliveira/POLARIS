@@ -89,8 +89,9 @@ def compact_pr_context(pr_key: str, issues: Any, max_chars: int = 3500) -> tuple
         {
             "rule_id": i.get("ruleId") or i.get("rule_id"),
             "severity": i.get("severity"),
-            "loc": f"{i.get('file_path', '')}:{i.get('start_line', 1)}",
+            "loc": f"{i.get('file_path') or (i.get('location') or {}).get('file') or ''}:{i.get('start_line') or (i.get('location') or {}).get('startLine') or 1}",
             "msg": str(i.get("message", ""))[:120],
+            "snippet": str(i.get("snippet") or i.get("code_snippet") or "")[:200],
         }
         for i in ranked[:5]
     ]
@@ -99,7 +100,7 @@ def compact_pr_context(pr_key: str, issues: Any, max_chars: int = 3500) -> tuple
     return text, {"context_compacted": True, "total_findings_omitted": omitted}
 
 
-def extract_structured_ai_json(raw: str) -> dict[str, Any]:
+def extract_structured_ai_json(raw: str, original_snippet: str = "", start_line: int | None = None) -> dict[str, Any]:
     """Extract verdict, summary, suggested_snippet, and needs_broader_refactor from fenced or raw LLM output."""
     text = raw.strip()
     if "```" in text:
@@ -117,15 +118,35 @@ def extract_structured_ai_json(raw: str) -> dict[str, Any]:
         try:
             parsed = json.loads(text[start : end + 1])
             if isinstance(parsed, dict):
+                verdict = parsed.get("verdict", "NEEDS_REVIEW")
+                summary = parsed.get("summary", "")
+                suggested = parsed.get("suggested_snippet") or parsed.get("suggestedSnippet") or ""
+                needs_refactor = bool(parsed.get("needs_broader_refactor", False))
+                diff_before = parsed.get("diff_before") or original_snippet
+                diff_after = parsed.get("diff_after") or suggested
+                corrected_line = parsed.get("corrected_line") or (suggested.splitlines()[0] if suggested else "")
                 return {
-                    "verdict": parsed.get("verdict", "NEEDS_REVIEW"),
-                    "summary": parsed.get("summary", ""),
-                    "suggested_snippet": parsed.get("suggested_snippet", ""),
-                    "needs_broader_refactor": bool(parsed.get("needs_broader_refactor", False)),
+                    "verdict": verdict,
+                    "summary": summary,
+                    "suggested_snippet": suggested,
+                    "needs_broader_refactor": needs_refactor,
+                    "diff_before": diff_before,
+                    "diff_after": diff_after,
+                    "corrected_line": corrected_line,
+                    "start_line": start_line,
                 }
         except json.JSONDecodeError:
             pass
-    return {"verdict": "NEEDS_REVIEW", "summary": "", "suggested_snippet": "", "needs_broader_refactor": False}
+    return {
+        "verdict": "NEEDS_REVIEW",
+        "summary": "",
+        "suggested_snippet": "",
+        "needs_broader_refactor": False,
+        "diff_before": original_snippet,
+        "diff_after": "",
+        "corrected_line": "",
+        "start_line": start_line,
+    }
 
 
 def compute_adaptive_max_tokens(
@@ -178,6 +199,8 @@ class AiTriageService:
         language: str,
         snippet: str,
         cwe: str | None = None,
+        file_path: str | None = None,
+        start_line: int | None = None,
         flow_steps: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         model = self.model_name()
@@ -212,15 +235,30 @@ class AiTriageService:
                 ),
             }
 
+        loc_desc = f"{file_path or 'unknown'}:{start_line or 1}"
         prompt = (
-            f"Regra: {rule_id} ({severity}, {cwe or 'N/A'}) em {language}.\n"
-            f"Flow: {json.dumps(flow_steps or [], ensure_ascii=False)}\n"
-            f"Codigo:\n{snippet}\n\n"
-            "Regras obrigatorias de remediacao segura: NUNCA sugira shell=True, eval(), exec() ou concatenacao de strings em SQL/comandos. "
-            "Para command injection em Python, use subprocess.run([...], shell=False) com lista de argumentos ou allowlist. "
-            "Para SQL injection, use queries parametrizadas (SqlParameter, %s ou ?).\n"
-            "Responda APENAS em JSON valido com: verdict (CONFIRMED_EXPLOITABLE|LIKELY_FALSE_POSITIVE|NEEDS_REVIEW), "
-            "summary (2-3 frases em portugues), suggested_snippet (codigo corrigido completo), needs_broader_refactor (bool)."
+            f"Você é um especialista em AppSec e qualidade de software analisando um achado estático específico.\n"
+            f"Alvo:\n"
+            f"- Regra: {rule_id}\n"
+            f"- Severidade: {severity}\n"
+            f"- CWE: {cwe or 'N/A'}\n"
+            f"- Arquivo: {file_path or 'N/A'}\n"
+            f"- Linha: {start_line or 'N/A'} (Localização: {loc_desc})\n"
+            f"- Linguagem: {language}\n\n"
+            f"Fluxo de execução / Taint steps:\n{json.dumps(flow_steps or [], ensure_ascii=False)}\n\n"
+            f"Trecho de código real analisado:\n{snippet}\n\n"
+            f"INSTRUÇÕES OBRIGATÓRIAS DE ANCORAGEM:\n"
+            f"1. Sua análise DEVE focar estritamente na regra '{rule_id}' no arquivo '{file_path or 'alvo'}' e na linha '{start_line or 'alvo'}'.\n"
+            f"2. NUNCA dê respostas genéricas sobre regras não relacionadas (ex: não fale de shell=True se a regra for Path Traversal ou Resource Leak; não fale de SQL Injection se for XSS ou Reliability).\n"
+            f"3. Explique a causa raiz exata e apresente uma correção cirúrgica (suggested_snippet) preservando o contexto da linha original.\n"
+            f"4. Responda APENAS em JSON válido contendo:\n"
+            f"   - verdict: (CONFIRMED_EXPLOITABLE | LIKELY_FALSE_POSITIVE | NEEDS_REVIEW)\n"
+            f"   - summary: (2-3 frases objetivas em português explicando o impacto e a causa na regra {rule_id})\n"
+            f"   - suggested_snippet: (código corrigido específico substituindo ou corrigindo o trecho)\n"
+            f"   - corrected_line: (a linha de código corrigida correspondente à linha original {start_line or 1})\n"
+            f"   - diff_before: (linha ou trecho original com o problema)\n"
+            f"   - diff_after: (linha ou trecho corrigido)\n"
+            f"   - needs_broader_refactor: (boolean)\n"
         )
         res = call_chat_completions(
             messages=[{"role": "user", "content": prompt}],
@@ -242,13 +280,17 @@ class AiTriageService:
         est_in = estimate_tokens(prompt)
         est_total = est_in + max_tokens
         self._daily_tokens[today] = self._daily_tokens.get(today, 0) + used
-        structured = extract_structured_ai_json(res["content"] or "")
+        structured = extract_structured_ai_json(res["content"] or "", original_snippet=snippet, start_line=start_line)
         out = {
             "status": "ok",
             "cached": False,
             "model": model,
             "max_tokens_applied": max_tokens,
             "tokens_used": used,
+            "rule_id": rule_id,
+            "cwe": cwe,
+            "file_path": file_path,
+            "start_line": start_line,
             **build_token_metrics(
                 estimated_tokens=est_total,
                 actual_input_tokens=est_in,

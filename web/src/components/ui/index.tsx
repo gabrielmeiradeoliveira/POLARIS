@@ -9,10 +9,21 @@ export function Button({
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md";
 }) {
-  const bg = variant === "primary" ? "var(--color-primary)" : variant === "secondary" ? "var(--bg-surface)" : "transparent";
-  const color = variant === "primary" ? "#FFFFFF" : "var(--text-primary)";
-  const border = variant === "secondary" ? "1px solid var(--border-subtle)" : "1px solid transparent";
-  const pad = size === "sm" ? "4px 10px" : "8px 14px";
+  const bg =
+    variant === "primary"
+      ? "var(--btn-primary-bg)"
+      : variant === "secondary"
+        ? "var(--bg-surface)"
+        : "transparent";
+  const color =
+    variant === "primary"
+      ? "var(--btn-primary-text)"
+      : "var(--text-primary)";
+  const border =
+    variant === "secondary"
+      ? "1px solid var(--border-subtle)"
+      : "1px solid transparent";
+  const pad = size === "sm" ? "6px 12px" : "8px 16px";
   return (
     <button
       {...props}
@@ -24,6 +35,12 @@ export function Button({
         padding: pad,
         fontSize: size === "sm" ? 12 : 13,
         fontWeight: 500,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        lineHeight: 1.25,
+        transition: "all 0.15s ease",
         cursor: props.disabled ? "not-allowed" : "pointer",
         opacity: props.disabled ? 0.6 : 1,
         ...props.style,
@@ -85,11 +102,11 @@ export function Badge({
   tone?: "neutral" | "primary" | "success" | "warning" | "error";
 }) {
   const map = {
-    neutral: { bg: "var(--bg-muted)", color: "var(--text-secondary)" },
-    primary: { bg: "#DBEAFE", color: "var(--color-primary)" },
-    success: { bg: "var(--color-success-bg)", color: "var(--color-success)" },
-    warning: { bg: "var(--color-warning-bg)", color: "var(--color-warning)" },
-    error: { bg: "var(--color-error-bg)", color: "var(--color-error)" },
+    neutral: { bg: "var(--bg-muted)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" },
+    primary: { bg: "var(--color-info-bg)", color: "var(--accent-cyan)", border: "1px solid var(--color-info-border)" },
+    success: { bg: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid rgba(63, 185, 80, 0.28)" },
+    warning: { bg: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid rgba(210, 153, 34, 0.28)" },
+    error: { bg: "var(--color-error-bg)", color: "var(--color-error)", border: "1px solid rgba(248, 81, 73, 0.28)" },
   }[tone];
   return (
     <span
@@ -101,6 +118,7 @@ export function Badge({
         fontWeight: 600,
         background: map.bg,
         color: map.color,
+        border: map.border,
       }}
     >
       {children}
@@ -153,7 +171,7 @@ export function MetricCard({
   return (
     <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-lg)", padding: 14 }}>
       <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color, marginTop: 4 }}>{display}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color, marginTop: 4, fontVariantNumeric: "tabular-nums" }}>{display}</div>
       {subtitle && <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{subtitle}</div>}
     </div>
   );
@@ -188,7 +206,20 @@ export function DataTable<T>({
         <thead>
           <tr style={{ borderBottom: "1px solid var(--border-subtle)", textAlign: "left", color: "var(--text-secondary)" }}>
             {columns.map((c) => (
-              <th key={c.key} style={{ padding: "8px 10px", fontWeight: 600, fontSize: 12, width: c.width }}>{c.header}</th>
+              <th
+                key={c.key}
+                style={{
+                  padding: "7px 10px",
+                  fontWeight: 600,
+                  fontSize: 11,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  background: "var(--bg-surface)",
+                  width: c.width,
+                }}
+              >
+                {c.header}
+              </th>
             ))}
           </tr>
         </thead>
@@ -196,7 +227,7 @@ export function DataTable<T>({
           {rows.map((row, idx) => {
             const isSelected = rowSelection ? rowSelection(row) : false;
             const customOpacity = rowOpacity ? rowOpacity(row) : undefined;
-            const rowBg = isSelected ? "var(--bg-row-selected, rgba(79, 107, 237, 0.08))" : "transparent";
+            const rowBg = isSelected ? "var(--bg-row-selected)" : "transparent";
             return (
               <tr
                 key={idx}
@@ -209,7 +240,7 @@ export function DataTable<T>({
                 }}
               >
                 {columns.map((c) => (
-                  <td key={c.key} style={{ padding: "10px", width: c.width }}>{c.render(row)}</td>
+                  <td key={c.key} style={{ padding: "7px 10px", width: c.width, fontSize: 13 }}>{c.render(row)}</td>
                 ))}
               </tr>
             );
@@ -233,7 +264,7 @@ export function Pagination({
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, justifyContent: "flex-end" }}>
       <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>Anterior</Button>
-      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Página {page} de {totalPages}</span>
+      <span style={{ fontSize: 12, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>Página {page} de {totalPages}</span>
       <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>Próxima</Button>
     </div>
   );
@@ -258,10 +289,11 @@ export function Tabs({
           style={{
             background: "transparent",
             border: "none",
-            borderBottom: active === t.id ? "2px solid var(--color-primary)" : "2px solid transparent",
+            borderBottom: active === t.id ? "2px solid var(--accent-cyan)" : "2px solid transparent",
             padding: "8px 12px",
+            fontSize: 13,
             fontWeight: active === t.id ? 600 : 500,
-            color: active === t.id ? "var(--color-primary)" : "var(--text-secondary)",
+            color: active === t.id ? "var(--text-primary)" : "var(--text-secondary)",
             cursor: "pointer",
           }}
         >
@@ -275,8 +307,8 @@ export function Tabs({
 export function Dialog({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-      <div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-lg)", padding: 20, width: "100%", maxWidth: 480, border: "1px solid var(--border-subtle)" }}>
+    <div style={{ position: "fixed", inset: 0, background: "var(--bg-backdrop)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+      <div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-lg)", padding: 20, width: "100%", maxWidth: 480, border: "1px solid var(--border-subtle)", boxShadow: "var(--shadow-floating)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={{ margin: 0, fontSize: 16 }}>{title}</h3>
           <Button variant="ghost" size="sm" onClick={onClose}>Fechar</Button>
@@ -287,13 +319,51 @@ export function Dialog({ open, title, onClose, children }: { open: boolean; titl
   );
 }
 
-export function Drawer({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
+export function Drawer({
+  open,
+  title,
+  onClose,
+  children,
+  nonBlocking = false,
+}: {
+  open: boolean;
+  title: string | React.ReactNode;
+  onClose: () => void;
+  children: React.ReactNode;
+  nonBlocking?: boolean;
+}) {
   if (!open) return null;
+
+  if (nonBlocking) {
+    return (
+      <div
+        style={{
+          width: 460,
+          flexShrink: 0,
+          background: "var(--bg-surface)",
+          borderLeft: "1px solid var(--border-subtle)",
+          padding: 20,
+          overflowY: "auto",
+          height: "calc(100vh - 120px)",
+          position: "sticky",
+          top: 76,
+          borderRadius: "var(--radius-lg)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10 }}>
+          <div style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>{title}</div>
+          <Button variant="secondary" size="sm" onClick={onClose}>Fechar</Button>
+        </div>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.3)", display: "flex", justifyContent: "flex-end", zIndex: 50 }}>
+    <div style={{ position: "fixed", inset: 0, background: "var(--bg-backdrop)", display: "flex", justifyContent: "flex-end", zIndex: 50 }}>
       <div style={{ background: "var(--bg-surface)", width: "100%", maxWidth: 520, height: "100%", padding: 20, overflowY: "auto", borderLeft: "1px solid var(--border-subtle)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10 }}>
-          <h3 style={{ margin: 0, fontSize: 16 }}>{title}</h3>
+          <div style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{title}</div>
           <Button variant="secondary" size="sm" onClick={onClose}>Fechar</Button>
         </div>
         {children}
@@ -354,6 +424,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   return <aside className="polaris-sidebar">{children}</aside>;
 }
 
-export function Header({ children }: { children: React.ReactNode }) {
-  return <header className="polaris-header">{children}</header>;
+export function Header({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <header className="polaris-header" style={style}>{children}</header>;
 }

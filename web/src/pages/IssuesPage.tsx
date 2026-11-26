@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from "react";
-import { Badge, Button, Card, DataTable, Drawer, ErrorState, Input, Pagination, Select, Tabs } from "../components/ui";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, Drawer, ErrorState, Input, Pagination } from "../components/ui";
 import { IssueAiAssistant } from "../components/IssueAiAssistant";
 import { TriageStatusBadge } from "../components/TriageStatusBadge";
 import { BatchTriageBar, TriageActionStatus } from "../components/BatchTriageBar";
 import { BatchTriageModal } from "../components/BatchTriageModal";
-import { IndeterminateCheckbox } from "../components/IndeterminateCheckbox";
+import { PolarisCheckbox } from "../components/PolarisCheckbox";
+import { TaintTrail } from "../components/TaintTrail";
+import { CodeEvidenceBlock } from "../components/CodeEvidenceBlock";
+import { TechnicalBadge } from "../components/TechnicalBadge";
+import { parseRoute } from "../App";
 
 export interface IssueRow {
   issue_id: string;
@@ -16,6 +20,7 @@ export interface IssueRow {
   file_path: string;
   start_line?: number;
   message: string;
+  snippet?: string;
   cwe?: string;
   confidence?: "HIGH" | "MEDIUM" | "LOW";
   assignee?: string;
@@ -23,8 +28,12 @@ export interface IssueRow {
   expires_at?: string | null;
 }
 
-type CategoryTab = "all" | "vuln" | "bug" | "smell";
-type GroupBy = "none" | "rule_id" | "severity" | "project_key";
+export interface GroupedIssue {
+  key: string;
+  representative: IssueRow;
+  items: IssueRow[];
+  count: number;
+}
 
 function isVuln(i: IssueRow): boolean {
   return i.rule_id.includes("-SEC-");
@@ -34,13 +43,6 @@ function isBug(i: IssueRow): boolean {
   return !isVuln(i) && (i.rule_id.includes("-REL-") || i.severity === "BLOCKER" || i.severity === "CRITICAL");
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  OPEN: "Aberto",
-  ACCEPTED_RISK: "Risco Aceito",
-  FALSE_POSITIVE: "Falso Positivo",
-  FIXED: "Corrigido",
-};
-
 export function IssuesPage({
   issues,
   onMutated,
@@ -48,29 +50,46 @@ export function IssuesPage({
   issues: IssueRow[];
   onMutated?: () => void;
 }) {
-  const [tab, setTab] = useState<CategoryTab>("all");
-  const [search, setSearch] = useState("");
-  const [projectFilter, setProjectFilter] = useState("");
-  const [severity, setSeverity] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [confidenceFilter, setConfidenceFilter] = useState("");
-  const [groupBy, setGroupBy] = useState<GroupBy>("none");
+  // Leitura inicial de deep links
+  const initialNav = useMemo(() => parseRoute(window.location.hash), []);
+  const initialQuery = initialNav.query;
+
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [search, setSearch] = useState<string>(initialQuery.get("q") || initialQuery.get("search") || "");
+  const [projectFilter, setProjectFilter] = useState<string>(initialQuery.get("project") || "");
+  const [severityFilter, setSeverityFilter] = useState<string>(initialQuery.get("severity") || "");
+  const [statusFilter, setStatusFilter] = useState<string>(initialQuery.get("status") || "");
+  const [fileFilter, setFileFilter] = useState<string>(initialQuery.get("file") || "");
+  const [confidenceFilter, setConfidenceFilter] = useState<string>("");
+
+  // Decisão 3: persistir o agrupamento ×N em sessionStorage, ligado por padrão
+  const [isGrouped, setIsGrouped] = useState<boolean>(() => {
+    const saved = sessionStorage.getItem("polaris-findings-group");
+    return saved !== null ? saved === "1" : true;
+  });
+
   const [page, setPage] = useState(1);
   const pageSize = 25;
 
-  // Seleção múltipla para triagem em lote
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [triageModalOpen, setTriageModalOpen] = useState(false);
   const [targetTriageStatus, setTargetTriageStatus] = useState<TriageActionStatus>("OPEN");
   const [batchSuccessMsg, setBatchSuccessMsg] = useState<string | null>(null);
 
+  // Decisão 5: 1º achado sempre aberto
   const [selected, setSelected] = useState<IssueRow | null>(null);
+  const [activeCodeLine, setActiveCodeLine] = useState<number | undefined>(undefined);
   const [flow, setFlow] = useState<Array<{ file: string; line: number; kind: string; detail: string }>>([]);
   const [assigneeInput, setAssigneeInput] = useState("");
   const [commentInput, setCommentInput] = useState("");
   const [actionBusy, setActionBusy] = useState(false);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [actionErr, setActionErr] = useState<string | null>(null);
+
+  // Salvar toggle no sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem("polaris-findings-group", isGrouped ? "1" : "0");
+  }, [isGrouped]);
 
   const projects = useMemo(
     () => Array.from(new Set(issues.map((i) => i.project_key).filter(Boolean) as string[])).sort(),
@@ -89,14 +108,16 @@ export function IssuesPage({
     return { all: issues.length, vuln, bug, smell };
   }, [issues]);
 
+  // Filtragem plana
   const filtered = useMemo(() => {
     return issues.filter((i) => {
-      if (tab === "vuln" && !isVuln(i)) return false;
-      if (tab === "bug" && !isBug(i)) return false;
-      if (tab === "smell" && (isVuln(i) || isBug(i))) return false;
+      if (categoryFilter === "vuln" && !isVuln(i)) return false;
+      if (categoryFilter === "bug" && !isBug(i)) return false;
+      if (categoryFilter === "smell" && (isVuln(i) || isBug(i))) return false;
       if (projectFilter && i.project_key !== projectFilter) return false;
-      if (severity && i.severity !== severity) return false;
+      if (severityFilter && i.severity !== severityFilter) return false;
       if (statusFilter && i.status !== statusFilter) return false;
+      if (fileFilter && i.file_path !== fileFilter) return false;
       if (confidenceFilter && (i.confidence ?? "HIGH") !== confidenceFilter) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -110,104 +131,160 @@ export function IssuesPage({
       }
       return true;
     });
-  }, [issues, tab, projectFilter, severity, statusFilter, confidenceFilter, search]);
+  }, [issues, categoryFilter, projectFilter, severityFilter, statusFilter, fileFilter, confidenceFilter, search]);
 
-  const grouped = useMemo(() => {
-    if (groupBy === "none") return [["Todos os Findings", filtered] as const];
+  // Agrupamento ×N (rule_id | file_path | severity | status)
+  const groupedData = useMemo(() => {
+    if (!isGrouped) {
+      return filtered.map((item) => ({
+        key: item.issue_id,
+        representative: item,
+        items: [item],
+        count: 1,
+      }));
+    }
+
     const map = new Map<string, IssueRow[]>();
     for (const item of filtered) {
-      const key = (item[groupBy] as string | undefined) || "Sem valor";
-      const arr = map.get(key) ?? [];
+      const gKey = `${item.rule_id}::${item.file_path}::${item.severity}::${item.status}`;
+      const arr = map.get(gKey) ?? [];
       arr.push(item);
-      map.set(key, arr);
+      map.set(gKey, arr);
     }
-    return Array.from(map.entries());
-  }, [filtered, groupBy]);
 
-  // Função para limpar filtros e seleção
-  const clearFilters = () => {
-    setSearch("");
-    setProjectFilter("");
-    setSeverity("");
-    setStatusFilter("");
-    setConfidenceFilter("");
-    setGroupBy("none");
-    setPage(1);
-    setSelectedIds(new Set());
+    const res: GroupedIssue[] = [];
+    for (const [key, arr] of map.entries()) {
+      arr.sort((a, b) => (a.start_line ?? 1) - (b.start_line ?? 1));
+      res.push({
+        key,
+        representative: arr[0],
+        items: arr,
+        count: arr.length,
+      });
+    }
+
+    return res;
+  }, [filtered, isGrouped]);
+
+  const pagedGroups = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return groupedData.slice(start, start + pageSize);
+  }, [groupedData, page, pageSize]);
+
+  // Garante que o 1º achado sempre abre selecionado ao carregar ou mudar filtro
+  useEffect(() => {
+    const targetFindingId = initialQuery.get("finding");
+    if (targetFindingId) {
+      const match = issues.find((i) => i.issue_id === targetFindingId);
+      if (match) {
+        openIssue(match);
+        return;
+      }
+    }
+
+    if (groupedData.length > 0) {
+      // Se o selecionado atual não estiver mais no resultado, seleciona o 1º
+      const isCurrentVisible = selected && filtered.some((i) => i.issue_id === selected.issue_id);
+      if (!isCurrentVisible) {
+        openIssue(groupedData[0].representative);
+      }
+    } else {
+      setSelected(null);
+    }
+  }, [groupedData]);
+
+  const openIssue = (issue: IssueRow) => {
+    setSelected(issue);
+    setActiveCodeLine(issue.start_line);
+    setAssigneeInput(issue.assignee ?? "");
+    setCommentInput("");
+    setActionMsg(null);
+    setActionErr(null);
+    setFlow([]);
+    fetch(`/api/v1/issues/${issue.issue_id}/flow`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setFlow(d?.flow_steps ?? []))
+      .catch(() => setFlow([]));
   };
 
-  // Handlers de alteração de filtros com reset de página e seleção conforme especificação (Seção 2.2)
-  const handleTabChange = (newTab: CategoryTab) => {
-    setTab(newTab);
-    setPage(1);
-    setSelectedIds(new Set());
+  const selectedIndex = useMemo(() => {
+    if (!selected) return -1;
+    return filtered.findIndex((i) => i.issue_id === selected.issue_id);
+  }, [filtered, selected]);
+
+  const navigateItem = (dir: -1 | 1) => {
+    const nextIdx = selectedIndex + dir;
+    if (nextIdx >= 0 && nextIdx < filtered.length) {
+      openIssue(filtered[nextIdx]);
+    }
   };
 
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
-    setPage(1);
-    setSelectedIds(new Set());
-  };
+  // Atalhos de teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selected) return;
+      const tag = (document.activeElement?.tagName || "").toUpperCase();
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (document.activeElement as HTMLElement)?.isContentEditable) {
+        return;
+      }
 
-  const handleProjectFilterChange = (val: string) => {
-    setProjectFilter(val);
-    setPage(1);
-    setSelectedIds(new Set());
-  };
+      if (e.key === "Escape") {
+        setSelected(null);
+        return;
+      }
+      if (e.key === "j" || e.key === "J" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigateItem(1);
+        return;
+      }
+      if (e.key === "k" || e.key === "K" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigateItem(-1);
+        return;
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        handleSingleTriage("FALSE_POSITIVE");
+        return;
+      }
+      if (e.key === "a" || e.key === "A") {
+        e.preventDefault();
+        handleSingleTriage("ACCEPTED_RISK");
+        return;
+      }
+      if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        handleSingleTriage("OPEN");
+        return;
+      }
+    };
 
-  const handleSeverityChange = (val: string) => {
-    setSeverity(val);
-    setPage(1);
-    setSelectedIds(new Set());
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selected, selectedIndex, filtered]);
 
-  const handleStatusFilterChange = (val: string) => {
-    setStatusFilter(val);
-    setPage(1);
-    setSelectedIds(new Set());
-  };
-
-  const handleConfidenceFilterChange = (val: string) => {
-    setConfidenceFilter(val);
-    setPage(1);
-    setSelectedIds(new Set());
-  };
-
-  // Toggle de seleção de um único achado
   const toggleSelectRow = (issueId: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(issueId)) {
-        next.delete(issueId);
-      } else {
-        next.add(issueId);
-      }
+      if (next.has(issueId)) next.delete(issueId);
+      else next.add(issueId);
       return next;
     });
   };
 
-  // Toggle de seleção de todos os itens visíveis
-  const toggleSelectAllVisible = (visibleRows: IssueRow[]) => {
-    if (visibleRows.length === 0) return;
-    const allSelected = visibleRows.every((r) => selectedIds.has(r.issue_id));
+  const toggleSelectGroup = (items: IssueRow[]) => {
+    const allIn = items.every((i) => selectedIds.has(i.issue_id));
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (allSelected) {
-        visibleRows.forEach((r) => next.delete(r.issue_id));
+      if (allIn) {
+        items.forEach((i) => next.delete(i.issue_id));
       } else {
-        visibleRows.forEach((r) => next.add(r.issue_id));
+        items.forEach((i) => next.add(i.issue_id));
       }
       return next;
     });
   };
 
-  // Abertura do modal de triagem
-  const handleTriageAction = (st: TriageActionStatus) => {
-    setTargetTriageStatus(st);
-    setTriageModalOpen(true);
-  };
-
-  // Execução do PATCH /api/findings/batch-triage
   const handleBatchTriageSubmit = async (reason: string, expiresAt?: string) => {
     const findingIds = Array.from(selectedIds);
     const body: Record<string, unknown> = {
@@ -239,252 +316,433 @@ export function IssuesPage({
     let updatedCount = findingIds.length;
     try {
       const data = await res.json();
-      if (typeof data?.updated_count === "number") {
-        updatedCount = data.updated_count;
-      }
+      if (typeof data?.updated_count === "number") updatedCount = data.updated_count;
     } catch {
       // fallback
     }
 
-    const label = STATUS_LABELS[targetTriageStatus] || targetTriageStatus;
-    setBatchSuccessMsg(`${updatedCount} achado(s) atualizado(s) para ${label}.`);
+    setBatchSuccessMsg(`${updatedCount} achado(s) atualizado(s) com sucesso.`);
     setTriageModalOpen(false);
     setSelectedIds(new Set());
     onMutated?.();
   };
 
-  const openIssue = (issue: IssueRow) => {
-    setSelected(issue);
-    setAssigneeInput(issue.assignee ?? "");
-    setCommentInput("");
-    setActionMsg(null);
-    setActionErr(null);
-    setFlow([]);
-    fetch(`/api/v1/issues/${issue.issue_id}/flow`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setFlow(d?.flow_steps ?? []))
-      .catch(() => setFlow([]));
-  };
-
-  const runAction = async (url: string, body: Record<string, unknown>, successText: string) => {
+  const handleSingleTriage = async (st: TriageActionStatus) => {
     if (!selected) return;
     setActionBusy(true);
     setActionErr(null);
     setActionMsg(null);
     try {
-      const res = await fetch(url, {
+      const res = await fetch(`/api/v1/issues/${selected.issue_id}/transition`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ status: st }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setActionMsg(successText);
+      setActionMsg(`Estado atualizado para ${st}`);
       onMutated?.();
     } catch (err) {
-      setActionErr(err instanceof Error ? err.message : "Erro ao executar ação");
+      setActionErr(err instanceof Error ? err.message : "Erro ao alterar estado");
     } finally {
       setActionBusy(false);
     }
   };
 
-  return (
-    <div>
-      <h1 style={{ margin: "0 0 12px", fontSize: 24, fontWeight: 600 }}>Findings Workbench</h1>
-      <Tabs
-        active={tab}
-        onChange={(id) => handleTabChange(id as CategoryTab)}
-        tabs={[
-          { id: "all", label: `Todas (${counts.all})` },
-          { id: "vuln", label: `Vulnerabilidades (${counts.vuln})` },
-          { id: "bug", label: `Bugs (${counts.bug})` },
-          { id: "smell", label: `Code Smells (${counts.smell})` },
-        ]}
-      />
+  const clearAllFilters = () => {
+    setCategoryFilter("all");
+    setSearch("");
+    setProjectFilter("");
+    setSeverityFilter("");
+    setStatusFilter("");
+    setFileFilter("");
+    setConfidenceFilter("");
+    setPage(1);
+    setSelectedIds(new Set());
+    window.location.hash = "#/issues";
+  };
 
-      <Card>
-        {/* Banner inline de sucesso de triagem */}
-        {batchSuccessMsg && (
-          <div
-            style={{
-              background: "var(--color-success-bg)",
-              color: "var(--color-success)",
-              padding: "10px 12px",
-              borderRadius: "var(--radius-md)",
-              fontSize: 13,
-              marginBottom: 12,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span>{batchSuccessMsg}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setBatchSuccessMsg(null)}
-              style={{ color: "var(--color-success)", padding: "2px 6px" }}
-            >
-              Fechar
+  return (
+    <div style={{ display: "flex", width: "100%", height: "calc(100vh - 64px)", background: "var(--bg-app)", overflow: "hidden" }}>
+      {/* 1. Rail Lateral de Filtros (220px) — Sem Abas */}
+      <aside
+        style={{
+          width: 220,
+          flexShrink: 0,
+          background: "var(--bg-sidebar)",
+          borderRight: "1px solid var(--border-subtle)",
+          padding: "16px 14px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          overflowY: "auto",
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>
+            Categoria
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {[
+              { id: "all", label: `Todas (${counts.all})` },
+              { id: "vuln", label: `Vulnerabilidades (${counts.vuln})` },
+              { id: "bug", label: `Bugs (${counts.bug})` },
+              { id: "smell", label: `Code Smells (${counts.smell})` },
+            ].map((c) => (
+              <button
+                key={c.id}
+                onClick={() => { setCategoryFilter(c.id); setPage(1); }}
+                style={{
+                  textAlign: "left",
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-md)",
+                  border: "none",
+                  background: categoryFilter === c.id ? "var(--accent-iris-soft)" : "transparent",
+                  color: categoryFilter === c.id ? "var(--text-primary)" : "var(--text-secondary)",
+                  fontSize: 12,
+                  fontWeight: categoryFilter === c.id ? 600 : 400,
+                  cursor: "pointer",
+                  transition: "background 0.12s ease",
+                }}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>
+            Severidade
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {["", "BLOCKER", "CRITICAL", "MAJOR", "MINOR", "INFO"].map((s) => (
+              <button
+                key={s}
+                onClick={() => { setSeverityFilter(s); setPage(1); }}
+                style={{
+                  textAlign: "left",
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-md)",
+                  border: "none",
+                  background: severityFilter === s ? "var(--accent-iris-soft)" : "transparent",
+                  color: severityFilter === s ? "var(--text-primary)" : "var(--text-secondary)",
+                  fontSize: 12,
+                  fontWeight: severityFilter === s ? 600 : 400,
+                  cursor: "pointer",
+                  transition: "background 0.12s ease",
+                }}
+              >
+                {s || "Todas as severidades"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>
+            Estado
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {["", "OPEN", "ACCEPTED_RISK", "FALSE_POSITIVE", "FIXED"].map((st) => (
+              <button
+                key={st}
+                onClick={() => { setStatusFilter(st); setPage(1); }}
+                style={{
+                  textAlign: "left",
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-md)",
+                  border: "none",
+                  background: statusFilter === st ? "var(--accent-iris-soft)" : "transparent",
+                  color: statusFilter === st ? "var(--text-primary)" : "var(--text-secondary)",
+                  fontSize: 12,
+                  fontWeight: statusFilter === st ? 600 : 400,
+                  cursor: "pointer",
+                  transition: "background 0.12s ease",
+                }}
+              >
+                {st || "Todos os estados"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {fileFilter && (
+          <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", marginBottom: 4 }}>Arquivo Ativo</div>
+            <div style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--accent-cyan)", wordBreak: "break-all" }}>
+              {fileFilter}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setFileFilter("")} style={{ padding: "2px 0", fontSize: 11 }}>
+              Remover filtro
             </Button>
           </div>
         )}
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
+        <Button variant="ghost" size="sm" onClick={clearAllFilters} style={{ marginTop: "auto", border: "1px solid var(--border-subtle)" }}>
+          Limpar filtros
+        </Button>
+      </aside>
+
+      {/* 2. Área Central: Lista Minimalista de 4 Sinais + Controles de Topo */}
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderRight: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
+        {/* Controles no Topo da Lista */}
+        <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <Input
-            placeholder="Buscar regra, arquivo ou mensagem..."
+            placeholder="Buscar por regra, arquivo ou descrição..."
             value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            style={{ width: 260 }}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            style={{ width: 280 }}
           />
-          <Select value={projectFilter} onChange={(e) => handleProjectFilterChange(e.target.value)}>
-            <option value="">Todos projetos</option>
-            {projects.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </Select>
-          <Select value={severity} onChange={(e) => handleSeverityChange(e.target.value)}>
-            <option value="">Todas severidades</option>
-            <option value="BLOCKER">BLOCKER</option>
-            <option value="CRITICAL">CRITICAL</option>
-            <option value="MAJOR">MAJOR</option>
-            <option value="MINOR">MINOR</option>
-            <option value="INFO">INFO</option>
-          </Select>
-          <Select value={statusFilter} onChange={(e) => handleStatusFilterChange(e.target.value)}>
-            <option value="">Todos os estados</option>
-            <option value="OPEN">Aberto (OPEN)</option>
-            <option value="ACCEPTED_RISK">Risco Aceito (ACCEPTED_RISK)</option>
-            <option value="FALSE_POSITIVE">Falso Positivo (FALSE_POSITIVE)</option>
-            <option value="FIXED">Corrigido (FIXED)</option>
-          </Select>
-          <Select value={confidenceFilter} onChange={(e) => handleConfidenceFilterChange(e.target.value)}>
-            <option value="">Todas confianças</option>
-            <option value="HIGH">HIGH</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="LOW">LOW</option>
-          </Select>
-          <Select value={groupBy} onChange={(e) => { setGroupBy(e.target.value as GroupBy); setPage(1); setSelectedIds(new Set()); }}>
-            <option value="none">Sem agrupamento</option>
-            <option value="rule_id">Agrupar por Regra</option>
-            <option value="severity">Agrupar por Severidade</option>
-            <option value="project_key">Agrupar por Projeto</option>
-          </Select>
-          <Button variant="secondary" size="sm" onClick={clearFilters}>Limpar filtros</Button>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, cursor: "pointer", color: "var(--text-secondary)", userSelect: "none" }}>
+              <PolarisCheckbox checked={isGrouped} onChange={(e) => setIsGrouped(e.target.checked)} />
+              <span>Agrupar ocorrências (×N)</span>
+            </label>
+            <span style={{ fontSize: 12, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
+              {filtered.length} findings
+            </span>
+          </div>
         </div>
 
-        {grouped.map(([groupName, rows]) => {
-          const visibleRows = groupBy === "none" ? rows.slice((page - 1) * pageSize, page * pageSize) : rows;
-          const allVisibleSelected = visibleRows.length > 0 && visibleRows.every((r) => selectedIds.has(r.issue_id));
-          const someVisibleSelected = visibleRows.some((r) => selectedIds.has(r.issue_id));
-          const isIndeterminate = someVisibleSelected && !allVisibleSelected;
+        {/* Lista Minimalista (Attio-like) */}
+        <div style={{ flex: 1, overflowY: "auto", padding: 0 }}>
+          {pagedGroups.length === 0 ? (
+            <div style={{ padding: 32, textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+              Nenhum finding encontrado com os filtros aplicados.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {pagedGroups.map((group) => {
+                const rep = group.representative;
+                const isSelected = selected?.issue_id === rep.issue_id || group.items.some((i) => i.issue_id === selected?.issue_id);
+                const isChecked = group.items.every((i) => selectedIds.has(i.issue_id));
 
-          return (
-            <div key={groupName} style={{ marginBottom: 16 }}>
-              {groupBy !== "none" && (
-                <div style={{ fontSize: 13, fontWeight: 600, padding: "6px 0", color: "var(--text-secondary)" }}>
-                  {groupName} ({rows.length})
-                </div>
-              )}
-              <DataTable
-                rowSelection={(r) => selectedIds.has(r.issue_id)}
-                rowOpacity={(r) => {
-                  const s = r.status?.toUpperCase?.();
-                  if (s === "FALSE_POSITIVE" || s === "FIXED") return 0.78;
-                  return undefined;
-                }}
-                columns={[
-                  {
-                    key: "selection",
-                    header: (
-                      <div style={{ textAlign: "center", width: 40, padding: "2px 0" }}>
-                        <IndeterminateCheckbox
-                          checked={allVisibleSelected}
-                          indeterminate={isIndeterminate}
-                          aria-label="Selecionar todos os achados visíveis nesta página"
-                          onChange={() => toggleSelectAllVisible(visibleRows)}
-                        />
+                return (
+                  <div
+                    key={group.key}
+                    onClick={() => openIssue(rep)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 16px",
+                      borderBottom: "1px solid var(--border-subtle)",
+                      background: isSelected ? "var(--accent-iris-soft)" : "transparent",
+                      borderLeft: isSelected ? "2px solid var(--accent-iris)" : "2px solid transparent",
+                      cursor: "pointer",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
+                      <div onClick={(e) => { e.stopPropagation(); toggleSelectGroup(group.items); }}>
+                        <PolarisCheckbox checked={isChecked} onChange={() => {}} />
                       </div>
-                    ),
-                    width: "40px",
-                    render: (i) => (
-                      <div
-                        style={{ textAlign: "center", width: 40, padding: "2px 0" }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <IndeterminateCheckbox
-                          checked={selectedIds.has(i.issue_id)}
-                          aria-label={`Selecionar achado ${i.rule_id} em ${i.file_path}`}
-                          onChange={() => toggleSelectRow(i.issue_id)}
-                        />
+                      <TechnicalBadge severity={rep.severity} />
+                      <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <code style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{rep.rule_id}</code>
+                          {group.count > 1 && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                fontFamily: "var(--font-mono)",
+                                fontVariantNumeric: "tabular-nums",
+                                background: "var(--bg-muted)",
+                                color: "var(--text-secondary)",
+                                padding: "1px 6px",
+                                borderRadius: 4,
+                                border: "1px solid var(--border-subtle)",
+                              }}
+                            >
+                              ×{group.count}
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          title={`${rep.file_path}:${rep.start_line ?? 1}`}
+                          style={{
+                            fontSize: 11,
+                            fontFamily: "var(--font-mono)",
+                            color: "var(--text-muted)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {rep.file_path}:{rep.start_line ?? 1}
+                        </div>
                       </div>
-                    ),
-                  },
-                  {
-                    key: "sev",
-                    header: "Severidade",
-                    render: (i) => (
-                      <Badge tone={i.severity === "CRITICAL" || i.severity === "BLOCKER" ? "error" : "warning"}>
-                        {i.severity}
-                      </Badge>
-                    ),
-                  },
-                  { key: "rule", header: "Regra", render: (i) => <code>{i.rule_id}</code> },
-                  {
-                    key: "proj",
-                    header: "Projeto",
-                    render: (i) =>
-                      i.project_key ? (
-                        <a href={`#/projects/${encodeURIComponent(i.project_key)}`} onClick={(e) => e.stopPropagation()}>
-                          {i.project_key}
-                        </a>
-                      ) : (
-                        "-"
-                      ),
-                  },
-                  {
-                    key: "status",
-                    header: "Estado",
-                    render: (i) => (
-                      <TriageStatusBadge
-                        status={i.status}
-                        expiresAt={i.triage_expires_at ?? i.expires_at}
-                      />
-                    ),
-                  },
-                  {
-                    key: "file",
-                    header: "Arquivo",
-                    render: (i) => <code>{i.file_path}{i.start_line ? `:${i.start_line}` : ""}</code>,
-                  },
-                  { key: "msg", header: "Descrição", render: (i) => i.message },
-                ]}
-                rows={visibleRows}
-                onRowClick={openIssue}
-                emptyText="Nenhum finding encontrado com os filtros atuais."
+                    </div>
+
+                    <div style={{ flexShrink: 0 }}>
+                      <TriageStatusBadge status={rep.status} expiresAt={rep.triage_expires_at ?? rep.expires_at} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Paginação */}
+        <div style={{ padding: "8px 16px", borderTop: "1px solid var(--border-subtle)" }}>
+          <Pagination
+            page={page}
+            totalPages={Math.max(1, Math.ceil(groupedData.length / pageSize))}
+            onPageChange={setPage}
+          />
+        </div>
+      </div>
+
+      {/* 3. Painel de Inspeção com Divulgação Progressiva (480–560px) */}
+      <aside
+        style={{
+          width: 520,
+          flexShrink: 0,
+          background: "var(--bg-surface)",
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto",
+        }}
+      >
+        {selected ? (
+          <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
+            {actionErr && <ErrorState message={actionErr} />}
+            {actionMsg && (
+              <div style={{ padding: 10, borderRadius: "var(--radius-md)", background: "var(--color-success-bg)", color: "var(--color-success)", fontSize: 13 }}>
+                {actionMsg}
+              </div>
+            )}
+
+            {/* Cabeçalho do Painel: Regra, Severidade e Navegação */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <TechnicalBadge severity={selected.severity} />
+                <TriageStatusBadge status={selected.status} expiresAt={selected.triage_expires_at ?? selected.expires_at} />
+              </div>
+
+              <div style={{ display: "flex", gap: 4 }}>
+                <Button variant="secondary" size="sm" disabled={selectedIndex <= 0} onClick={() => navigateItem(-1)}>
+                  ← Anterior
+                </Button>
+                <Button variant="secondary" size="sm" disabled={selectedIndex < 0 || selectedIndex >= filtered.length - 1} onClick={() => navigateItem(1)}>
+                  Próximo →
+                </Button>
+              </div>
+            </div>
+
+            {/* Ações Rápidas de Triagem Direta */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderTop: "1px solid var(--border-subtle)", borderBottom: "1px solid var(--border-subtle)", padding: "10px 0" }}>
+              <Button size="sm" variant="secondary" disabled={actionBusy} onClick={() => handleSingleTriage("ACCEPTED_RISK")}>
+                Aceitar Risco
+              </Button>
+              <Button size="sm" variant="secondary" disabled={actionBusy} onClick={() => handleSingleTriage("FALSE_POSITIVE")}>
+                Falso Positivo
+              </Button>
+              <Button size="sm" variant="secondary" disabled={actionBusy} onClick={() => handleSingleTriage("FIXED")}>
+                Corrigido
+              </Button>
+              <Button size="sm" variant="secondary" disabled={actionBusy} onClick={() => handleSingleTriage("OPEN")}>
+                Reabrir
+              </Button>
+            </div>
+
+            {/* Descrição Concisa */}
+            <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.4 }}>
+              {selected.message}
+            </div>
+
+            {/* Protagonismo do Código: CodeEvidenceBlock */}
+            <div>
+              <CodeEvidenceBlock
+                filePath={selected.file_path}
+                startLine={selected.start_line}
+                activeLine={activeCodeLine}
+                snippet={selected.snippet}
+                language={selected.language}
               />
-              {groupBy === "none" && (
-                <Pagination
-                  page={page}
-                  totalPages={Math.max(1, Math.ceil(rows.length / pageSize))}
-                  onPageChange={(p) => {
-                    setPage(p);
-                    setSelectedIds(new Set());
+            </div>
+
+            {/* TaintTrail (SOURCE → SINK) */}
+            {flow.length > 0 && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 8 }}>
+                  Fluxo Semântico ({flow.length} passos)
+                </div>
+                <TaintTrail
+                  steps={flow}
+                  onSelectStep={(idx) => {
+                    const step = flow[idx];
+                    if (step && step.file === selected.file_path) {
+                      setActiveCodeLine(step.line);
+                    }
                   }}
                 />
-              )}
-            </div>
-          );
-        })}
-      </Card>
+              </div>
+            )}
 
-      {/* Barra de ação flutuante de triagem em lote */}
+            {/* Divulgação Progressiva: Detalhes, Auditoria e Atribuição */}
+            <details style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 10, cursor: "pointer" }}>
+              <summary style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 10 }}>
+                ▸ Metadados &amp; Auditoria
+              </summary>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingLeft: 4 }}>
+                <div style={{ fontSize: 12 }}>
+                  <span style={{ color: "var(--text-muted)" }}>ID:</span> <code>{selected.issue_id}</code>
+                </div>
+                {selected.cwe && (
+                  <div style={{ fontSize: 12 }}>
+                    <span style={{ color: "var(--text-muted)" }}>CWE:</span> <code>{selected.cwe}</code>
+                  </div>
+                )}
+                <div style={{ fontSize: 12 }}>
+                  <span style={{ color: "var(--text-muted)" }}>Confiança:</span> <code>{selected.confidence ?? "HIGH"}</code>
+                </div>
+                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                  <Input placeholder="Atribuir usuário..." value={assigneeInput} onChange={(e) => setAssigneeInput(e.target.value)} style={{ flex: 1 }} />
+                  <Button size="sm" variant="secondary" onClick={() => {}}>Atribuir</Button>
+                </div>
+              </div>
+            </details>
+
+            {/* Divulgação Progressiva: IA Editorial sob demanda */}
+            <details style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 10, cursor: "pointer" }}>
+              <summary style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 10 }}>
+                ▸ Análise de IA Sob Demanda
+              </summary>
+              <IssueAiAssistant issue={selected} />
+            </details>
+
+            {/* Dicas de Teclado no Rodapé */}
+            <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 8, marginTop: "auto", display: "flex", gap: 8, fontSize: 11, color: "var(--text-muted)", flexWrap: "wrap" }}>
+              <span><kbd>J</kbd>/<kbd>K</kbd> navegar</span>
+              <span>·</span>
+              <span><kbd>F</kbd> falso positivo</span>
+              <span>·</span>
+              <span><kbd>A</kbd> aceitar</span>
+              <span>·</span>
+              <span><kbd>R</kbd> reabrir</span>
+              <span>·</span>
+              <span><kbd>Esc</kbd> fechar</span>
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: 32, textAlign: "center", color: "var(--text-muted)", fontSize: 13, margin: "auto" }}>
+            Nenhum achado selecionado.
+          </div>
+        )}
+      </aside>
+
+      {/* Barra de Ação Flutuante */}
       <BatchTriageBar
         selectedCount={selectedIds.size}
         onClear={() => setSelectedIds(new Set())}
-        onAction={handleTriageAction}
+        onAction={(st) => { setTargetTriageStatus(st); setTriageModalOpen(true); }}
       />
 
-      {/* Modal de justificativa de triagem em lote */}
+      {/* Modal de Justificativa de Lote */}
       <BatchTriageModal
         open={triageModalOpen}
         targetStatus={targetTriageStatus}
@@ -492,95 +750,6 @@ export function IssuesPage({
         onClose={() => setTriageModalOpen(false)}
         onSubmit={handleBatchTriageSubmit}
       />
-
-      <Drawer open={Boolean(selected)} title={`Investigação — ${selected?.rule_id ?? ""}`} onClose={() => setSelected(null)}>
-        {selected && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {actionErr && <ErrorState message={actionErr} />}
-            {actionMsg && (
-              <div style={{ padding: 10, borderRadius: "var(--radius-md)", background: "var(--color-success-bg)", color: "var(--color-success)", fontSize: 13 }}>
-                {actionMsg}
-              </div>
-            )}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <Badge tone={selected.severity === "CRITICAL" || selected.severity === "BLOCKER" ? "error" : "warning"}>{selected.severity}</Badge>
-              <TriageStatusBadge status={selected.status} expiresAt={selected.triage_expires_at ?? selected.expires_at} />
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, padding: "2px 6px", borderRadius: 4, border: "1px solid var(--border-subtle)" }}>
-                CONF:{selected.confidence ?? "HIGH"}
-              </span>
-              {selected.cwe && <Badge tone="primary">{selected.cwe}</Badge>}
-            </div>
-            <div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Localização</div>
-              <code>{selected.file_path}{selected.start_line ? `:${selected.start_line}` : ""}</code>
-            </div>
-            <div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Descrição</div>
-              <div>{selected.message}</div>
-            </div>
-
-            <IssueAiAssistant issue={selected} />
-
-            {flow.length > 0 && (
-              <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Fluxo Semântico ({flow.length} passos)</div>
-                <ol style={{ margin: 0, paddingLeft: 18 }}>
-                  {flow.map((s, idx) => (
-                    <li key={idx} style={{ marginBottom: 4 }}>
-                      <Badge tone="primary">{s.kind}</Badge> <code>{s.file}:{s.line}</code> — {s.detail}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Alterar Estado</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {(["CONFIRMED", "RESOLVED", "FALSE_POSITIVE", "WONT_FIX"] as const).map((st) => (
-                  <Button
-                    key={st}
-                    size="sm"
-                    variant="secondary"
-                    disabled={actionBusy}
-                    onClick={() => runAction(`/api/v1/issues/${selected.issue_id}/transition`, { status: st }, `Estado atualizado para ${st}`)}
-                  >
-                    {st}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Atribuir Responsável</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <Input placeholder="Usuário..." value={assigneeInput} onChange={(e) => setAssigneeInput(e.target.value)} style={{ flex: 1 }} />
-                <Button
-                  size="sm"
-                  disabled={actionBusy || !assigneeInput.trim()}
-                  onClick={() => runAction(`/api/v1/issues/${selected.issue_id}/assign`, { assignee: assigneeInput.trim() }, "Responsável atribuído")}
-                >
-                  Atribuir
-                </Button>
-              </div>
-            </div>
-
-            <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Adicionar Comentário</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <Input placeholder="Comentário..." value={commentInput} onChange={(e) => setCommentInput(e.target.value)} style={{ flex: 1 }} />
-                <Button
-                  size="sm"
-                  disabled={actionBusy || !commentInput.trim()}
-                  onClick={() => runAction(`/api/v1/issues/${selected.issue_id}/comments`, { comment: commentInput.trim() }, "Comentário registrado")}
-                >
-                  Comentar
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </Drawer>
     </div>
   );
 }

@@ -16,28 +16,32 @@ import { AdminPage } from "./pages/AdminPage";
 import { CockpitPage } from "./pages/CockpitPage";
 import { PullRequestsPage } from "./pages/PullRequestsPage";
 
-type Route = "home" | "status" | "admin" | "projects" | "project-detail" | "issues" | "pull-requests" | "rules" | "profiles" | "gates" | "not-found";
+export type Route = "home" | "status" | "admin" | "projects" | "project-detail" | "issues" | "pull-requests" | "cockpit" | "rules" | "profiles" | "gates" | "not-found";
 
-function parseRoute(hash: string): { route: Route; projectKey: string | null } {
+export function parseRoute(hash: string): { route: Route; projectKey: string | null; query: URLSearchParams } {
   const clean = hash.replace(/^#/, "") || "/";
-  if (clean === "/") return { route: "home", projectKey: null };
-  if (clean === "/status") return { route: "status", projectKey: null };
-  if (clean === "/admin") return { route: "admin", projectKey: null };
-  if (clean === "/projects") return { route: "projects", projectKey: null };
-  if (clean.startsWith("/projects/")) {
-    const key = decodeURIComponent(clean.slice("/projects/".length));
-    if (key) return { route: "project-detail", projectKey: key };
+  const [pathPart, queryPart] = clean.split("?");
+  const query = new URLSearchParams(queryPart || "");
+
+  if (pathPart === "/") return { route: "home", projectKey: null, query };
+  if (pathPart === "/status") return { route: "status", projectKey: null, query };
+  if (pathPart === "/admin") return { route: "admin", projectKey: null, query };
+  if (pathPart === "/projects") return { route: "projects", projectKey: null, query };
+  if (pathPart.startsWith("/projects/")) {
+    const key = decodeURIComponent(pathPart.slice("/projects/".length));
+    if (key) return { route: "project-detail", projectKey: key, query };
   }
-  if (clean === "/issues") return { route: "issues", projectKey: null };
-  if (clean === "/pull-requests") return { route: "pull-requests", projectKey: null };
-  if (clean === "/rules") return { route: "rules", projectKey: null };
-  if (clean === "/profiles") return { route: "profiles", projectKey: null };
-  if (clean === "/gates") return { route: "gates", projectKey: null };
-  return { route: "not-found", projectKey: null };
+  if (pathPart === "/issues") return { route: "issues", projectKey: null, query };
+  if (pathPart === "/pull-requests") return { route: "pull-requests", projectKey: null, query };
+  if (pathPart === "/cockpit") return { route: "cockpit", projectKey: null, query };
+  if (pathPart === "/rules") return { route: "rules", projectKey: null, query };
+  if (pathPart === "/profiles") return { route: "profiles", projectKey: null, query };
+  if (pathPart === "/gates") return { route: "gates", projectKey: null, query };
+  return { route: "not-found", projectKey: null, query };
 }
 
 export function App() {
-  const [nav, setNav] = useState<{ route: Route; projectKey: string | null }>(() => parseRoute(window.location.hash));
+  const [nav, setNav] = useState<{ route: Route; projectKey: string | null; query: URLSearchParams }>(() => parseRoute(window.location.hash));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [live, setLive] = useState<HealthStatus | null>(null);
@@ -88,33 +92,90 @@ export function App() {
     void loadData();
   }, []);
 
+  const handleTriageCockpit = async (issueId: string, status: string) => {
+    try {
+      await fetch(`/api/v1/issues/${issueId}/transition`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await loadData();
+    } catch {
+      // ignore
+    }
+  };
+
+  // Cálculo de Grade e Gate Status contextual para sincronização da Topbar
+  const hasBlockerOrCritical = issues.some(
+    (i) => (i.severity === "BLOCKER" || i.severity === "CRITICAL") && i.status !== "FIXED" && i.status !== "FALSE_POSITIVE"
+  );
+  const openCount = issues.filter((i) => i.status !== "FIXED" && i.status !== "FALSE_POSITIVE").length;
+  
+  let contextualGrade: "A" | "B" | "C" | "D" | "E" | "F" = "A";
+  if (hasBlockerOrCritical) {
+    contextualGrade = "F";
+  } else if (openCount > 20) {
+    contextualGrade = "D";
+  } else if (openCount > 10) {
+    contextualGrade = "C";
+  } else if (openCount > 0) {
+    contextualGrade = "B";
+  }
+
+  const contextualGateStatus: "PASSED" | "FAILED" = hasBlockerOrCritical ? "FAILED" : "PASSED";
+
+  const contextInfo = {
+    grade: contextualGrade,
+    gateStatus: contextualGateStatus,
+    workspaceName: nav.projectKey ?? (nav.route === "pull-requests" ? (nav.query.get("pr") || "Pull Request") : "Workspace Geral"),
+    branch: nav.route === "pull-requests" ? "pr/review" : "main",
+  };
+
   return (
     <AuthProvider>
-    <AppLayout activeRoute={nav.route} version={version?.version} readyStatus={ready?.status === "READY" ? undefined : ready?.status}>
-      {error && <ErrorState message={error} onRetry={loadData} />}
-      {loading ? (
-        <div>
-          <Skeleton height={32} />
-          <Skeleton height={120} />
-        </div>
-      ) : (
-        <>
-          {nav.route === "home" && (
-            <DashboardPage projects={projects} issues={issues} rulesCount={rules.length} gatesCount={gates.length} />
-          )}
-          {nav.route === "projects" && <ProjectsPage projects={projects} onCreated={loadData} />}
-          {nav.route === "project-detail" && nav.projectKey && <ProjectOverviewPage projectKey={nav.projectKey} />}
-          {nav.route === "issues" && <IssuesPage issues={issues} onMutated={loadData} />}
-          {nav.route === "pull-requests" && <PullRequestsPage issues={issues} />}
-          {nav.route === "rules" && <RulesPage rules={rules} />}
-          {nav.route === "profiles" && <QualityProfilesPage profiles={profiles} onMutated={loadData} />}
-          {nav.route === "gates" && <QualityGatesPage gates={gates} onMutated={loadData} />}
-          {nav.route === "admin" && <AdminPage />}
-          {nav.route === "status" && <StatusPage live={live} ready={ready} version={version} />}
-          {nav.route === "not-found" && <p>404 — Página não encontrada.</p>}
-        </>
-      )}
-    </AppLayout>
+      <AppLayout
+        activeRoute={nav.route}
+        version={version?.version}
+        readyStatus={ready?.status === "READY" ? undefined : ready?.status}
+        contextInfo={contextInfo}
+      >
+        {error && <ErrorState message={error} onRetry={loadData} />}
+        {loading ? (
+          <div style={{ padding: 16 }}>
+            <Skeleton height={32} />
+            <Skeleton height={120} />
+          </div>
+        ) : (
+          <>
+            {nav.route === "home" && (
+              <DashboardPage projects={projects} issues={issues} rulesCount={rules.length} gatesCount={gates.length} />
+            )}
+            {nav.route === "projects" && <ProjectsPage projects={projects} issues={issues} onCreated={loadData} />}
+            {nav.route === "project-detail" && nav.projectKey && <ProjectOverviewPage projectKey={nav.projectKey} />}
+            {nav.route === "issues" && <IssuesPage issues={issues} onMutated={loadData} />}
+            {nav.route === "pull-requests" && <PullRequestsPage issues={issues} onMutated={loadData} />}
+            {nav.route === "cockpit" && (
+              <CockpitPage
+                repos={projects.map((p) => ({
+                  project_key: p.projectKey,
+                  name: p.name,
+                  default_branch: "main",
+                  languages: ["Python", "TypeScript"],
+                  gate_status: "PASSED",
+                }))}
+                issues={issues}
+                onTriage={handleTriageCockpit}
+              />
+            )}
+            {nav.route === "rules" && <RulesPage rules={rules} />}
+            {nav.route === "profiles" && <QualityProfilesPage profiles={profiles} onMutated={loadData} />}
+            {nav.route === "gates" && <QualityGatesPage gates={gates} onMutated={loadData} />}
+            {nav.route === "admin" && <AdminPage />}
+            {nav.route === "status" && <StatusPage live={live} ready={ready} version={version} />}
+            {nav.route === "not-found" && <p style={{ padding: 16 }}>404 — Página não encontrada.</p>}
+          </>
+        )}
+      </AppLayout>
     </AuthProvider>
   );
 }

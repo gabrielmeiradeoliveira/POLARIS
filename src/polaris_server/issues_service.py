@@ -34,8 +34,45 @@ class IssueRecord:
 
 import json
 import re
+from pathlib import Path
 from polaris_server.db import get_connection
 from polaris_server.triage import compute_finding_fingerprint
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def extract_code_snippet(file_path: str, start_line: int, context_lines: int = 3) -> str | None:
+    """Extract real code snippet surrounding start_line from repository files if available."""
+    if not file_path:
+        return None
+    cleaned = file_path.strip().replace("\\", "/")
+    cleaned = re.sub(r":\d+(?::\d+)?$", "", cleaned).strip()
+
+    candidate_paths = [
+        _REPO_ROOT / cleaned,
+        _REPO_ROOT / "src" / cleaned,
+        _REPO_ROOT / "analyzers" / cleaned,
+    ]
+    target_file: Path | None = None
+    for cp in candidate_paths:
+        if cp.exists() and cp.is_file():
+            target_file = cp
+            break
+
+    if not target_file:
+        return None
+
+    try:
+        content = target_file.read_text(encoding="utf-8", errors="replace")
+        all_lines = content.splitlines()
+        if not all_lines:
+            return None
+        line_idx = max(0, start_line - 1)
+        start_idx = max(0, line_idx - context_lines)
+        end_idx = min(len(all_lines), line_idx + context_lines + 1)
+        return "\n".join(all_lines[start_idx:end_idx])
+    except Exception:
+        return None
 
 
 def _parse_iso_utc(ts_str: str | None) -> datetime | None:
@@ -473,6 +510,8 @@ def list_issues(
                 effective_status = "OPEN"
                 is_expired = True
 
+        code_snip = extract_code_snippet(fpath, int(sline or 1))
+
         items.append({
             "issue_id": iss_id,
             "project_key": proj_k,
@@ -482,6 +521,8 @@ def list_issues(
             "file_path": fpath,
             "line": sline,
             "message": msg,
+            "snippet": code_snip,
+            "code_snippet": code_snip,
             "status": effective_status,
             "assignee": assignee,
             "cwe": cwe,
@@ -549,11 +590,11 @@ def get_issue_flow(issue_id: str) -> dict[str, Any]:
     with get_connection() as conn:
         with conn.cursor() as cur:
             if issue_id.isdigit():
-                cur.execute("SELECT id, rule_id, cwe, flow_steps FROM issues WHERE id = %s;", (int(issue_id),))
+                cur.execute("SELECT id, rule_id, cwe, flow_steps, file_path, start_line FROM issues WHERE id = %s;", (int(issue_id),))
             elif ":" in issue_id:
                 proj_key, _ = issue_id.split(":", 1)
                 cur.execute(
-                    "SELECT id, rule_id, cwe, flow_steps FROM issues WHERE project_key = %s ORDER BY id DESC LIMIT 1;",
+                    "SELECT id, rule_id, cwe, flow_steps, file_path, start_line FROM issues WHERE project_key = %s ORDER BY id DESC LIMIT 1;",
                     (proj_key,),
                 )
             else:
@@ -561,7 +602,21 @@ def get_issue_flow(issue_id: str) -> dict[str, Any]:
             row = cur.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Issue not found")
-    return {"issue_id": str(row[0]), "rule_id": row[1], "cwe": row[2], "flow_steps": row[3] or []}
+
+    file_path = str(row[4] or "")
+    start_line = int(row[5] or 1)
+    code_snip = extract_code_snippet(file_path, start_line)
+
+    return {
+        "issue_id": str(row[0]),
+        "rule_id": row[1],
+        "cwe": row[2],
+        "flow_steps": row[3] or [],
+        "file_path": file_path,
+        "start_line": start_line,
+        "snippet": code_snip,
+        "code_snippet": code_snip,
+    }
 
 
 @router.post("/hotspots/{issue_id}/review")

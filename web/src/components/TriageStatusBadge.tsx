@@ -26,7 +26,7 @@ export function TriageStatusBadge({ status, expiresAt }: TriageStatusBadgeProps)
     }
   }
 
-  // Estilos conforme Seção 5.2 do Blueprint v3.6.0
+  // Estilos conforme Seção 5.2 do Blueprint v3.6.0 e v3.7.0
   let label = norm;
   let bg = "var(--bg-muted)";
   let color = "var(--text-secondary)";
@@ -36,10 +36,10 @@ export function TriageStatusBadge({ status, expiresAt }: TriageStatusBadgeProps)
   switch (norm) {
     case "OPEN":
       label = "Aberto";
-      bg = "rgba(88, 166, 255, 0.14)";
+      bg = "var(--color-info-bg)";
       color = "var(--color-low)";
       dotColor = "var(--color-low)";
-      border = "1px solid rgba(88, 166, 255, 0.28)";
+      border = "1px solid var(--color-info-border)";
       break;
     case "ACCEPTED_RISK":
       label = "Risco Aceito";
@@ -65,10 +65,10 @@ export function TriageStatusBadge({ status, expiresAt }: TriageStatusBadgeProps)
     // Fallbacks para estados legados
     case "CONFIRMED":
       label = "Confirmado";
-      bg = "rgba(88, 166, 255, 0.14)";
+      bg = "var(--color-info-bg)";
       color = "var(--color-low)";
       dotColor = "var(--color-low)";
-      border = "1px solid rgba(88, 166, 255, 0.28)";
+      border = "1px solid var(--color-info-border)";
       break;
     case "RESOLVED":
       label = "Resolvido";
@@ -117,7 +117,7 @@ export function TriageStatusBadge({ status, expiresAt }: TriageStatusBadgeProps)
       />
       <span>{label}</span>
       {norm === "ACCEPTED_RISK" && formattedDate && (
-        <span style={{ fontWeight: 500, opacity: 0.85, marginLeft: 2 }}>
+        <span style={{ fontWeight: 500, opacity: 0.85, marginLeft: 2, fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
           · até {formattedDate}
         </span>
       )}

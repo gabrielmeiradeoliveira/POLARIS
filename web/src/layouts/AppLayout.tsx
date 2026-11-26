@@ -11,6 +11,7 @@ const NAV_GROUPS = [
       { href: "#/projects", label: "Projetos", key: "projects", icon: "folder" as const },
       { href: "#/issues", label: "Findings", key: "issues", icon: "shield" as const },
       { href: "#/pull-requests", label: "Pull Requests", key: "pull-requests", icon: "shield" as const },
+      { href: "#/cockpit", label: "Cockpit", key: "cockpit", icon: "activity" as const },
     ],
   },
   {
@@ -104,17 +105,25 @@ export function AppLayout({
   activeRoute,
   version,
   readyStatus,
+  contextInfo,
   children,
 }: {
   activeRoute: string;
   version?: string;
   readyStatus?: string;
+  contextInfo?: {
+    grade?: "A" | "B" | "C" | "D" | "E" | "F";
+    gateStatus?: "PASSED" | "FAILED" | "WARN";
+    workspaceName?: string;
+    branch?: string;
+  };
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     const saved = localStorage.getItem("polaris-theme");
-    return saved === "light" ? "light" : "dark";
+    // Decisão 2: Light Mode como padrão na primeira visita
+    return saved === "dark" ? "dark" : "light";
   });
 
   useEffect(() => {
@@ -122,9 +131,16 @@ export function AppLayout({
     localStorage.setItem("polaris-theme", theme);
   }, [theme]);
 
+  const currentGrade = contextInfo?.grade ?? "A";
+  const currentGate = contextInfo?.gateStatus ?? "PASSED";
+  const isGatePassed = currentGate === "PASSED";
+  const gateTone = isGatePassed
+    ? { bg: "var(--color-success-bg)", color: "var(--color-success)", dot: "var(--color-success)" }
+    : { bg: "var(--color-error-bg)", color: "var(--color-critical)", dot: "var(--color-critical)" };
+
   return (
     <div className="polaris-shell">
-      <aside className="polaris-sidebar" style={{ width: collapsed ? 64 : 232 }}>
+      <aside className="polaris-sidebar" style={{ width: collapsed ? 64 : 240 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "space-between", padding: "8px 6px 16px", borderBottom: "1px solid var(--border-subtle)", marginBottom: 14 }}>
           {!collapsed && (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -161,12 +177,13 @@ export function AppLayout({
                         alignItems: "center",
                         justifyContent: collapsed ? "center" : "flex-start",
                         gap: 10,
-                        padding: "8px 10px",
-                        borderRadius: "var(--radius-md)",
+                        padding: "7px 10px",
+                        borderLeft: active ? "2px solid #06B6D4" : "2px solid transparent",
+                        borderRadius: 0,
                         fontSize: 13,
                         fontWeight: active ? 600 : 500,
-                        background: active ? "var(--color-primary-subtle)" : "transparent",
-                        color: active ? "var(--color-primary)" : "var(--text-secondary)",
+                        background: active ? "var(--accent-iris-soft)" : "transparent",
+                        color: active ? "var(--text-primary)" : "var(--text-secondary)",
                         textDecoration: "none",
                       }}
                     >
@@ -179,17 +196,53 @@ export function AppLayout({
             </div>
           ))}
         </nav>
-      </aside>
-      <div className="polaris-main">
-        <Header>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>
-            Static Analysis &amp; AppSec Workbench
+
+        {!collapsed && (
+          <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 10, fontSize: 11, color: "var(--text-muted)" }}>
+            PostgreSQL Conectado
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        )}
+      </aside>
+
+      <div className="polaris-main">
+        {/* Topbar Editorial 64px */}
+        <Header style={{ height: 64, padding: "0 24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text-primary)" }}>
+              POLARIS
+            </span>
+            <span style={{ color: "var(--text-muted)" }}>/</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-secondary)" }}>
+              {contextInfo?.workspaceName ?? "Workspace Geral"}
+            </span>
+            <span style={{ color: "var(--text-muted)" }}>/</span>
+            <code style={{ fontSize: 11, color: "var(--text-muted)", background: "var(--bg-elevated)", padding: "1px 6px", borderRadius: 4 }}>
+              {contextInfo?.branch ?? "main"}
+            </code>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 999,
+                background: gateTone.bg,
+                color: gateTone.color,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+              title="PSG (Polaris Security Grade) derivado dos achados do contexto atual"
+            >
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: gateTone.dot }} />
+              Grade {currentGrade} · Gate {currentGate}
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {readyStatus && (
               <StatusIndicator
                 status={readyStatus === "READY" ? "ok" : "error"}
-                label={readyStatus === "READY" ? "PostgreSQL Conectado" : readyStatus}
+                label={readyStatus === "READY" ? "Runtime OK" : readyStatus}
               />
             )}
             <ThemeToggle theme={theme} onToggle={() => setTheme(theme === "dark" ? "light" : "dark")} />

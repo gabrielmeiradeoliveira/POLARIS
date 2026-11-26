@@ -25,7 +25,7 @@ export function BatchTriageBar({ selectedCount, onClear, onAction }: BatchTriage
         background: "var(--bg-surface)",
         border: "1px solid var(--border-subtle)",
         borderRadius: "var(--radius-lg)",
-        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.45)",
+        boxShadow: "var(--shadow-floating)",
         padding: "10px 14px",
         display: "flex",
         alignItems: "center",

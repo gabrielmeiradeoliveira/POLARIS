@@ -78,7 +78,7 @@ export function QualityGatesPage({
   };
 
   return (
-    <div>
+    <div style={{ padding: "24px 32px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Quality Gates ({gates.length})</h1>
         <Button onClick={() => setOpen(true)}>Novo Quality Gate</Button>
