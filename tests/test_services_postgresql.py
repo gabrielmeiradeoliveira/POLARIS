@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import unittest
 
+from polaris_server.ai.summary_cache import load_pr_summary, save_pr_summary
 from polaris_server.db import get_connection, run_migrations
 from polaris_server.gates_service import GateCreateRequest, create_gate, list_gates
 from polaris_server.git_branch_service import list_branches, list_pull_requests, register_branch, register_pull_request
@@ -58,6 +59,35 @@ class TestServicesPostgreSQL(unittest.TestCase):
         self.assertGreaterEqual(list_pull_requests(self.project_key)["total"], 1)
         wh = create_webhook(WebhookCreateRequest(name="ci", url="https://example.com/hook", project_key=self.project_key))
         self.assertTrue(any(x["webhook_id"] == wh["webhook_id"] for x in list_webhooks()["items"]))
+
+    def test_05_pr_ai_summary_cache_roundtrip(self) -> None:
+        pr_key = f"pr_pg_{os.getpid()}"
+        model = "qwen2.5-coder:3b"
+        snippet_hash = "deadbeef" * 8
+        payload = {
+            "status": "ok",
+            "estimated_tokens": 900,
+            "actual_input_tokens": 400,
+            "actual_output_tokens": 100,
+            "actual_total_tokens": 500,
+            "saved_tokens": 400,
+            "summary": "cache persistido",
+        }
+        self.assertTrue(save_pr_summary(pr_key, model, snippet_hash, payload))
+        loaded = load_pr_summary(pr_key, model, snippet_hash)
+        self.assertIsNotNone(loaded)
+        assert loaded is not None
+        self.assertEqual(loaded["estimated_tokens"], 900)
+        self.assertEqual(loaded["actual_total_tokens"], 500)
+        self.assertEqual(loaded["saved_tokens"], 400)
+        self.assertEqual(loaded["summary"], "cache persistido")
+
+        payload["actual_total_tokens"] = 450
+        payload["saved_tokens"] = 450
+        self.assertTrue(save_pr_summary(pr_key, model, snippet_hash, payload))
+        again = load_pr_summary(pr_key, model, snippet_hash)
+        assert again is not None
+        self.assertEqual(again["actual_total_tokens"], 450)
 
 
 if __name__ == "__main__":

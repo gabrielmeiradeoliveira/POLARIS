@@ -30,6 +30,76 @@ const NAV_GROUPS = [
   },
 ];
 
+function SunIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ color: active ? "var(--text-primary)" : "var(--text-muted)" }}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  );
+}
+
+function MoonIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: active ? "var(--text-primary)" : "var(--text-muted)" }}>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+function ThemeToggle({ theme, onToggle }: { theme: "dark" | "light"; onToggle: () => void }) {
+  const isDark = theme === "dark";
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={isDark}
+      aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
+      title={isDark ? "Tema claro" : "Tema escuro"}
+      onClick={onToggle}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        background: "transparent",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: 999,
+        padding: "3px 7px",
+        cursor: "pointer",
+        lineHeight: 0,
+      }}
+    >
+      <SunIcon active={!isDark} />
+      <span
+        aria-hidden="true"
+        style={{
+          position: "relative",
+          display: "inline-block",
+          width: 30,
+          height: 16,
+          borderRadius: 999,
+          background: "var(--bg-muted)",
+          border: "1px solid var(--border-subtle)",
+        }}
+      >
+        <span
+          style={{
+            position: "absolute",
+            top: 2,
+            left: isDark ? 16 : 2,
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "var(--text-primary)",
+            transition: "left 150ms ease",
+          }}
+        />
+      </span>
+      <MoonIcon active={isDark} />
+    </button>
+  );
+}
+
 export function AppLayout({
   activeRoute,
   version,
@@ -109,23 +179,21 @@ export function AppLayout({
             </div>
           ))}
         </nav>
-
-        <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12, display: "flex", justifyContent: collapsed ? "center" : "space-between", alignItems: "center" }}>
-          {!collapsed && <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Tema</span>}
-          <Button variant="secondary" size="sm" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? "Claro" : "Escuro"}
-          </Button>
-        </div>
       </aside>
       <div className="polaris-main">
         <Header>
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>
             Static Analysis &amp; AppSec Workbench
           </div>
-          <StatusIndicator
-            status={readyStatus === "READY" ? "ok" : readyStatus ? "error" : "warn"}
-            label={readyStatus === "READY" ? "PostgreSQL Conectado" : readyStatus ?? "Verificando..."}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {readyStatus && (
+              <StatusIndicator
+                status={readyStatus === "READY" ? "ok" : "error"}
+                label={readyStatus === "READY" ? "PostgreSQL Conectado" : readyStatus}
+              />
+            )}
+            <ThemeToggle theme={theme} onToggle={() => setTheme(theme === "dark" ? "light" : "dark")} />
+          </div>
         </Header>
         <main className="polaris-content">{children}</main>
       </div>

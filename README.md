@@ -17,7 +17,7 @@ docker compose --profile ai up -d --build
 Acesse a UI em `http://localhost:8000` (Pull Requests em `http://localhost:8000/#/pull-requests`).
 
 ## Histórico de Versões
-- **v3.5.1:** Corrigido `HTTP 500` (`NameError: os`) em `POST /api/prs/{pr_key}/ai-summary` e montado `<PolarisLogo />` (12 pontas) na sidebar.
+- **v3.5.1:** Correção do `/ai-summary` (`NameError: os`), cache persistente de resumos em PostgreSQL (`ai_pr_summaries`), telemetria completa com 5 métricas de tokens (`estimated_tokens`, `actual_input_tokens`, `actual_output_tokens`, `actual_total_tokens`, `saved_tokens`) e limpeza visual com alternador Sol-Lua refinado em `AppLayout.tsx`.
 - **v3.5.0:** Logo SVG autoral de 12 pontas (`PolarisLogo.tsx`), paleta grafite ardósia sóbria (`#111317` / `#171A20` / `#4F6BED`) e limpeza da topbar.
 - **v3.4.1:** Badge `ALIVE` verde em `StatusPage` e indicador `PostgreSQL Conectado` centralizado na página de Status.
 - **v3.4.0:** Previsão determinística de tokens (`GET /api/ai/estimate`), telemetria `Previsto vs. Real`, contraste global de botões no modo escuro e painel estruturado de resumo em `PullRequestsPage`.

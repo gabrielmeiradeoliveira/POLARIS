@@ -411,12 +411,34 @@ def ai_analyze_issue(issue_id: str, body: dict | None = None):
 
 @app.post("/api/prs/{pr_key}/ai-summary")
 def ai_pr_summary(pr_key: str, body: dict | None = None):
+    import hashlib
     import os
-    from polaris_server.ai.service import compact_pr_context
+    from polaris_server.ai.service import (
+        build_token_metrics,
+        compact_pr_context,
+        ensure_token_metrics,
+        estimate_tokens,
+    )
+    from polaris_server.ai.summary_cache import load_pr_summary, save_pr_summary
+
     payload = body or {}
-    issues = payload.get("issues") or []
+    raw_issues = payload.get("issues")
+    issues = raw_issues if isinstance(raw_issues, (list, tuple, set)) else []
     max_chars = int(os.environ.get("POLARIS_AI_PR_MAX_INPUT_CHARS", "3500"))
     ctx, meta = compact_pr_context(pr_key, issues, max_chars=max_chars)
+    model = _ai_service.model_name()
+    snippet_hash = hashlib.sha256(ctx.encode("utf-8")).hexdigest()
+
+    cached = load_pr_summary(pr_key, model, snippet_hash)
+    if cached:
+        estimated = int(cached.get("estimated_tokens") or 0)
+        return {
+            **cached,
+            **meta,
+            "cached": True,
+            **build_token_metrics(estimated_tokens=estimated, actual_input_tokens=0, actual_total_tokens=0),
+        }
+
     res = _ai_service.analyze_issue(
         fingerprint=f"pr:{pr_key}",
         rule_id="pr:SUMMARY",
@@ -425,7 +447,13 @@ def ai_pr_summary(pr_key: str, body: dict | None = None):
         snippet=ctx,
         cwe="PR-REVIEW",
     )
-    return {**res, **meta}
+    out = ensure_token_metrics(
+        {**res, **meta},
+        estimated_fallback=estimate_tokens(ctx) + 500,
+    )
+    if out.get("status") == "ok":
+        save_pr_summary(pr_key, model, snippet_hash, out)
+    return out
 
 
 @app.post("/api/demo/seed")

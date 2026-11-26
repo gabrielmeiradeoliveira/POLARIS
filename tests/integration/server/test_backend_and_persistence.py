@@ -111,7 +111,34 @@ class TestBackendAndPersistence(unittest.TestCase):
         except ConnectionAbortedError:
             pass
 
+    def test_05_pr_ai_summary_http_200_and_token_fields(self):
+        body = json.dumps(
+            {
+                "issues": [
+                    {"ruleId": "PY-SEC-001", "severity": "CRITICAL", "file_path": "a.py", "start_line": 10, "message": "cmd injection"}
+                ]
+            }
+        ).encode("utf-8")
+        req = urllib.request.Request(
+            f"{self.base_url}/api/prs/PR-HTTP-1/ai-summary",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            self.assertEqual(r.status, 200)
+            payload = json.loads(r.read().decode("utf-8"))
+        for field in (
+            "estimated_tokens",
+            "actual_input_tokens",
+            "actual_output_tokens",
+            "actual_total_tokens",
+            "saved_tokens",
+        ):
+            self.assertIn(field, payload)
+
     def test_04_migrations_idempotent_and_transactions_rollback(self):
+        run_migrations(ServerConfig())
         applied_again = run_migrations(ServerConfig())
         self.assertEqual(applied_again, [])
 

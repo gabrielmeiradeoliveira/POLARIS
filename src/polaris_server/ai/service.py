@@ -19,18 +19,69 @@ def estimate_tokens(text: str) -> int:
 _SEV_RANK = {"BLOCKER": 5, "CRITICAL": 4, "MAJOR": 3, "MINOR": 2, "INFO": 1}
 _CONF_RANK = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
+TOKEN_FIELDS = (
+    "estimated_tokens",
+    "actual_input_tokens",
+    "actual_output_tokens",
+    "actual_total_tokens",
+    "saved_tokens",
+)
 
-def compact_pr_context(pr_key: str, issues: list[dict[str, Any]], max_chars: int = 3500) -> tuple[str, dict[str, Any]]:
-    """Build O(1)-bounded PR summary context (<= max_chars) with Top-5 priority findings."""
+
+def build_token_metrics(
+    *,
+    estimated_tokens: int,
+    actual_input_tokens: int,
+    actual_output_tokens: int = 0,
+    actual_total_tokens: int | None = None,
+    saved_tokens: int | None = None,
+) -> dict[str, int]:
+    """Single source of truth for the 5 token fields returned by the AI endpoints."""
+    est = max(0, int(estimated_tokens))
+    actual_in = max(0, int(actual_input_tokens))
+    actual_out = max(0, int(actual_output_tokens))
+    actual_total = max(0, int(actual_in + actual_out if actual_total_tokens is None else actual_total_tokens))
+    saved = max(0, est - actual_total) if saved_tokens is None else max(0, int(saved_tokens))
+    return {
+        "estimated_tokens": est,
+        "actual_input_tokens": actual_in,
+        "actual_output_tokens": actual_out,
+        "actual_total_tokens": actual_total,
+        "saved_tokens": saved,
+    }
+
+
+def ensure_token_metrics(result: dict[str, Any], *, estimated_fallback: int = 0) -> dict[str, Any]:
+    """Guarantee the 5 token fields exist even on error, disabled or budget paths."""
+    estimated = result.get("estimated_tokens", estimated_fallback)
+    metrics = build_token_metrics(
+        estimated_tokens=int(estimated or 0),
+        actual_input_tokens=int(result.get("actual_input_tokens") or 0),
+        actual_output_tokens=int(result.get("actual_output_tokens") or 0),
+        actual_total_tokens=int(result.get("actual_total_tokens") or result.get("tokens_used") or 0),
+        saved_tokens=int(result.get("saved_tokens") or 0),
+    )
+    return {**result, **metrics}
+
+
+def compact_pr_context(pr_key: str, issues: Any, max_chars: int = 3500) -> tuple[str, dict[str, Any]]:
+    """Build O(1)-bounded PR summary context (<= max_chars) with Top-5 priority findings.
+
+    Defensively filters non-iterable issues and invalid/null issue entries.
+    """
+    valid_issues: list[dict[str, Any]] = []
+    if isinstance(issues, (list, tuple, set)):
+        valid_issues = [i for i in issues if isinstance(i, dict)]
+
     sev_counts: dict[str, int] = {}
-    for i in issues:
-        s = str(i.get("severity", "MAJOR")).upper()
+    for i in valid_issues:
+        s = str(i.get("severity") or "MAJOR").upper()
         sev_counts[s] = sev_counts.get(s, 0) + 1
     ranked = sorted(
-        issues,
+        valid_issues,
         key=lambda i: (
-            _SEV_RANK.get(str(i.get("severity", "MAJOR")).upper(), 0),
-            _CONF_RANK.get(str(i.get("confidence", "HIGH")).upper(), 0),
+            _SEV_RANK.get(str(i.get("severity") or "MAJOR").upper(), 0),
+            _CONF_RANK.get(str(i.get("confidence") or "HIGH").upper(), 0),
         ),
         reverse=True,
     )
@@ -43,8 +94,8 @@ def compact_pr_context(pr_key: str, issues: list[dict[str, Any]], max_chars: int
         }
         for i in ranked[:5]
     ]
-    omitted = max(0, len(issues) - len(top5))
-    text = json.dumps({"pr": pr_key, "total": len(issues), "severities": sev_counts, "top5": top5}, ensure_ascii=False)[:max_chars]
+    omitted = max(0, len(valid_issues) - len(top5))
+    text = json.dumps({"pr": pr_key, "total": len(valid_issues), "severities": sev_counts, "top5": top5}, ensure_ascii=False)[:max_chars]
     return text, {"context_compacted": True, "total_findings_omitted": omitted}
 
 
@@ -115,6 +166,9 @@ class AiTriageService:
             "daily_budget": int(os.environ.get("POLARIS_AI_DAILY_TOKEN_BUDGET", "50000")),
         }
 
+    def model_name(self) -> str:
+        return os.environ.get("POLARIS_AI_MODEL", "qwen2.5-coder:3b").strip()
+
     def analyze_issue(
         self,
         *,
@@ -126,26 +180,38 @@ class AiTriageService:
         cwe: str | None = None,
         flow_steps: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        model = os.environ.get("POLARIS_AI_MODEL", "qwen2.5-coder:3b").strip()
+        model = self.model_name()
         snippet_hash = hashlib.sha256(snippet.encode("utf-8")).hexdigest()
         cache_key = (fingerprint, snippet_hash, model)
         if cache_key in self._cache:
             cached_out = self._cache[cache_key]
-            est = cached_out.get("estimated_tokens", 500)
+            est = int(cached_out.get("estimated_tokens", 500) or 500)
             return {
                 **cached_out,
                 "cached": True,
-                "actual_input_tokens": 0,
-                "actual_output_tokens": 0,
-                "actual_total_tokens": 0,
-                "saved_tokens": est,
+                **build_token_metrics(
+                    estimated_tokens=est,
+                    actual_input_tokens=0,
+                    actual_total_tokens=0,
+                    saved_tokens=est,
+                ),
             }
+
+        max_tokens = compute_adaptive_max_tokens(language=language, snippet=snippet, flow_steps=flow_steps)
+        est_in = estimate_tokens(snippet)
+        est_total = est_in + max_tokens
 
         budget = int(os.environ.get("POLARIS_AI_DAILY_TOKEN_BUDGET", "50000"))
         if self.tokens_used_today() >= budget:
-            return {"status": "budget_exceeded", "cached": False, "tokens_used": 0}
+            return {
+                "status": "budget_exceeded",
+                "cached": False,
+                "tokens_used": 0,
+                **build_token_metrics(
+                    estimated_tokens=est_total, actual_input_tokens=0, actual_total_tokens=0, saved_tokens=0
+                ),
+            }
 
-        max_tokens = compute_adaptive_max_tokens(language=language, snippet=snippet, flow_steps=flow_steps)
         prompt = (
             f"Regra: {rule_id} ({severity}, {cwe or 'N/A'}) em {language}.\n"
             f"Flow: {json.dumps(flow_steps or [], ensure_ascii=False)}\n"
@@ -162,7 +228,14 @@ class AiTriageService:
             model=model,
         )
         if res["status"] != "ok":
-            return {**res, "cached": False, "max_tokens_applied": max_tokens}
+            return {
+                **res,
+                "cached": False,
+                "max_tokens_applied": max_tokens,
+                **build_token_metrics(
+                    estimated_tokens=est_total, actual_input_tokens=0, actual_total_tokens=0, saved_tokens=0
+                ),
+            }
 
         today = self._today_key()
         used = res.get("tokens_used", 0)
@@ -176,11 +249,12 @@ class AiTriageService:
             "model": model,
             "max_tokens_applied": max_tokens,
             "tokens_used": used,
-            "estimated_tokens": est_total,
-            "actual_input_tokens": est_in,
-            "actual_output_tokens": max(0, used - est_in),
-            "actual_total_tokens": used,
-            "saved_tokens": max(0, est_total - used),
+            **build_token_metrics(
+                estimated_tokens=est_total,
+                actual_input_tokens=est_in,
+                actual_output_tokens=max(0, used - est_in),
+                actual_total_tokens=used,
+            ),
             **structured,
             "raw_response": res["content"],
         }
