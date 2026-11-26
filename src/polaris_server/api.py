@@ -25,7 +25,7 @@ app = FastAPI(title="POLARIS 2.0 Server", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:5173", "http://localhost:5173", "http://127.0.0.1:3000"],
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -152,15 +152,17 @@ def ingest_analysis(body: AnalysisInput):
                 (body.analysisId, body.projectKey, body.branch, body.status, body.totalFiles),
             )
             cur.execute("DELETE FROM issues WHERE analysis_id = %s;", (body.analysisId,))
+            from polaris_server.triage import compute_finding_fingerprint
             for iss in body.issues:
+                fp = compute_finding_fingerprint(iss.ruleId, iss.location.file)
                 cur.execute(
                     """
-                    INSERT INTO issues (analysis_id, project_key, rule_id, language, severity, file_path, start_line, message)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                    INSERT INTO issues (analysis_id, project_key, rule_id, language, severity, file_path, start_line, message, fingerprint)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """,
                     (
                         body.analysisId, body.projectKey, iss.ruleId, iss.language,
-                        iss.severity, iss.location.file, iss.location.startLine, iss.message,
+                        iss.severity, iss.location.file, iss.location.startLine, iss.message, fp,
                     ),
                 )
             bugs = sum(1 for i in body.issues if "-REL-" in i.ruleId or i.severity in ("BLOCKER", "CRITICAL"))
@@ -409,10 +411,28 @@ def ai_analyze_issue(issue_id: str, body: dict | None = None):
     )
 
 
+from polaris_server.issues_service import (
+    BatchTriageRequest,
+    apply_batch_triage,
+    get_finding_audit,
+)
+
+
+@app.patch("/api/findings/batch-triage")
+def batch_triage_root(body: BatchTriageRequest):
+    return apply_batch_triage(body)
+
+
+@app.get("/api/findings/{fingerprint}/audit")
+def finding_audit_root(fingerprint: str):
+    return get_finding_audit(fingerprint)
+
+
 @app.post("/api/prs/{pr_key}/ai-summary")
 def ai_pr_summary(pr_key: str, body: dict | None = None):
     import hashlib
     import os
+    from datetime import datetime, timezone
     from polaris_server.ai.service import (
         build_token_metrics,
         compact_pr_context,
@@ -420,12 +440,78 @@ def ai_pr_summary(pr_key: str, body: dict | None = None):
         estimate_tokens,
     )
     from polaris_server.ai.summary_cache import load_pr_summary, save_pr_summary
+    from polaris_server.triage import compute_finding_fingerprint
 
     payload = body or {}
     raw_issues = payload.get("issues")
     issues = raw_issues if isinstance(raw_issues, (list, tuple, set)) else []
+
+    # Filtragem FinOps: remove achados com triagem vigente FALSE_POSITIVE ou ACCEPTED_RISK (não expirado)
+    active_issues: list[dict] = []
+    if issues:
+        # Extrai ou calcula fingerprints dos itens para checagem em lote
+        items_with_fp: list[tuple[dict, str]] = []
+        fps_to_check: set[str] = set()
+        for i in issues:
+            if not isinstance(i, dict):
+                continue
+            rule_id = str(i.get("ruleId") or i.get("rule_id") or "")
+            file_path = str(i.get("file_path") or (i.get("location") or {}).get("file") or "")
+            flow_steps = i.get("flowSteps") or i.get("flow_steps")
+            fp = str(i.get("fingerprint") or "").strip()
+            if not fp:
+                fp = compute_finding_fingerprint(rule_id, file_path, flow_steps)
+            items_with_fp.append((i, fp))
+            fps_to_check.add(fp)
+
+        triaged_suppressed: set[str] = set()
+        if fps_to_check:
+            now_utc = datetime.now(timezone.utc)
+            try:
+                with get_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "SELECT fingerprint, status, expires_at FROM finding_triages WHERE fingerprint = ANY(%s);",
+                            (list(fps_to_check),),
+                        )
+                        for r in cur.fetchall():
+                            t_fp, t_status, t_expires = r
+                            if t_status == "FALSE_POSITIVE":
+                                triaged_suppressed.add(t_fp)
+                            elif t_status == "ACCEPTED_RISK":
+                                if not t_expires:
+                                    triaged_suppressed.add(t_fp)
+                                else:
+                                    exp_dt = t_expires if t_expires.tzinfo else t_expires.replace(tzinfo=timezone.utc)
+                                    if exp_dt > now_utc:
+                                        triaged_suppressed.add(t_fp)
+            except Exception:
+                pass  # DB error fallback: assume none suppressed
+
+        active_issues = [it for it, fp in items_with_fp if fp not in triaged_suppressed]
+
+    # Short-circuit econômico: se len(active_issues) == 0, retorne imediatamente com 0 chamadas LLM
+    if len(active_issues) == 0:
+        return {
+            "status": "ok",
+            "verdict": "LIKELY_FALSE_POSITIVE",
+            "summary": "Nenhum achado ativo pendente de revisão para este PR.",
+            "suggested_snippet": "",
+            "needs_broader_refactor": False,
+            "cached": False,
+            "context_compacted": False,
+            "total_findings_omitted": 0,
+            **build_token_metrics(
+                estimated_tokens=0,
+                actual_input_tokens=0,
+                actual_output_tokens=0,
+                actual_total_tokens=0,
+                saved_tokens=0,
+            ),
+        }
+
     max_chars = int(os.environ.get("POLARIS_AI_PR_MAX_INPUT_CHARS", "3500"))
-    ctx, meta = compact_pr_context(pr_key, issues, max_chars=max_chars)
+    ctx, meta = compact_pr_context(pr_key, active_issues, max_chars=max_chars)
     model = _ai_service.model_name()
     snippet_hash = hashlib.sha256(ctx.encode("utf-8")).hexdigest()
 

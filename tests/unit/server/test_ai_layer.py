@@ -105,7 +105,7 @@ class TestAiLayer(unittest.TestCase):
             "saved_tokens": 400,
         }
         with patch.object(summary_cache, "load_pr_summary", return_value=stored):
-            out = api_mod.ai_pr_summary("PR-1", {"issues": []})
+            out = api_mod.ai_pr_summary("PR-1", {"issues": [{"severity": "CRITICAL"}]})
 
         for field in TOKEN_FIELDS:
             self.assertIn(field, out)

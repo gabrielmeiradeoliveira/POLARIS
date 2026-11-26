@@ -33,7 +33,205 @@ class IssueRecord:
 
 
 import json
+import re
 from polaris_server.db import get_connection
+from polaris_server.triage import compute_finding_fingerprint
+
+
+def _parse_iso_utc(ts_str: str | None) -> datetime | None:
+    if not ts_str:
+        return None
+    cleaned = ts_str.strip()
+    if cleaned.endswith("Z"):
+        cleaned = cleaned[:-1] + "+00:00"
+    dt = datetime.fromisoformat(cleaned)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+    return dt
+
+
+class BatchTriageRequest(BaseModel):
+    fingerprints: list[str] = Field(default_factory=list)
+    issue_ids: list[str | int] = Field(default_factory=list)
+    status: str
+    justification: str
+    actor: str = "local-user"
+    expires_at: str | None = None
+
+
+def apply_batch_triage(body: BatchTriageRequest) -> dict[str, Any]:
+    norm_status = body.status.strip().upper()
+    valid_statuses = {"OPEN", "ACCEPTED_RISK", "FALSE_POSITIVE", "FIXED"}
+    if norm_status not in valid_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Status inválido: {body.status}. Valores permitidos: {sorted(valid_statuses)}",
+        )
+
+    clean_just = body.justification.strip() if body.justification else ""
+    if len(clean_just) < 3:
+        raise HTTPException(
+            status_code=400,
+            detail="A justificativa é obrigatória e deve conter no mínimo 3 caracteres.",
+        )
+
+    actor = body.actor.strip() if body.actor else "local-user"
+    if not actor:
+        actor = "local-user"
+
+    expires_at_dt: datetime | None = None
+    if body.expires_at is not None and body.expires_at != "":
+        if norm_status != "ACCEPTED_RISK":
+            raise HTTPException(
+                status_code=400,
+                detail="expires_at é permitido apenas quando status == 'ACCEPTED_RISK'.",
+            )
+        try:
+            expires_at_dt = _parse_iso_utc(body.expires_at)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=f"expires_at deve ser uma data ISO-8601 UTC válida: {exc}",
+            )
+        now_utc = datetime.now(timezone.utc)
+        if expires_at_dt <= now_utc:
+            raise HTTPException(
+                status_code=400,
+                detail="expires_at deve ser uma data no futuro.",
+            )
+
+    combined_fps: set[str] = {str(fp).strip() for fp in body.fingerprints if str(fp).strip()}
+    parsed_issue_ids: list[int] = []
+    for raw_id in body.issue_ids:
+        s = str(raw_id).strip()
+        if s.isdigit():
+            parsed_issue_ids.append(int(s))
+
+    if not combined_fps and not parsed_issue_ids:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe ao menos 1 item em fingerprints ou issue_ids (limite: 500).",
+        )
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            if parsed_issue_ids:
+                cur.execute(
+                    "SELECT id, rule_id, file_path, flow_steps, fingerprint FROM issues WHERE id = ANY(%s);",
+                    (parsed_issue_ids,),
+                )
+                for r in cur.fetchall():
+                    fp = r[4]
+                    if not fp:
+                        fp = compute_finding_fingerprint(r[1], r[2], r[3])
+                        cur.execute("UPDATE issues SET fingerprint = %s WHERE id = %s;", (fp, r[0]))
+                    combined_fps.add(fp)
+
+            if not combined_fps:
+                raise HTTPException(status_code=404, detail="Nenhum achado correspondente encontrado.")
+
+            if len(combined_fps) > 500:
+                raise HTTPException(status_code=400, detail="Limite máximo de 500 itens por lote excedido.")
+
+            # Descobre se há pr_key ou project_key associados para invalidação de cache
+            cur.execute(
+                """
+                SELECT DISTINCT pr.pr_key
+                FROM issues i
+                JOIN project_pull_requests pr ON pr.project_key = i.project_key
+                WHERE i.fingerprint = ANY(%s);
+                """,
+                (list(combined_fps),),
+            )
+            affected_pr_keys = [r[0] for r in cur.fetchall()]
+
+            updated_items: list[dict[str, Any]] = []
+            for fp in combined_fps:
+                cur.execute(
+                    """
+                    INSERT INTO finding_triages (fingerprint, status, justification, actor, expires_at, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+                    ON CONFLICT (fingerprint) DO UPDATE SET
+                        status = EXCLUDED.status,
+                        justification = EXCLUDED.justification,
+                        actor = EXCLUDED.actor,
+                        expires_at = EXCLUDED.expires_at,
+                        updated_at = NOW()
+                    RETURNING fingerprint, status, justification, actor, expires_at, updated_at;
+                    """,
+                    (fp, norm_status, clean_just, actor, expires_at_dt),
+                )
+                row = cur.fetchone()
+                cur.execute(
+                    "UPDATE issues SET status = %s WHERE fingerprint = %s;",
+                    (norm_status, fp),
+                )
+                cur.execute(
+                    """
+                    INSERT INTO finding_triage_audit (fingerprint, status, justification, actor, expires_at, recorded_at)
+                    VALUES (%s, %s, %s, %s, %s, NOW());
+                    """,
+                    (fp, norm_status, clean_just, actor, expires_at_dt),
+                )
+                if row:
+                    updated_items.append({
+                        "fingerprint": row[0],
+                        "status": row[1],
+                        "justification": row[2],
+                        "actor": row[3],
+                        "expires_at": row[4].isoformat() if row[4] else None,
+                        "updated_at": row[5].isoformat() if row[5] else None,
+                    })
+
+        conn.commit()
+
+    # Invalidação FinOps de summaries cacheados para os PRs afetados
+    if affected_pr_keys:
+        from polaris_server.ai.summary_cache import invalidate_pr_summary_cache
+        for pr_k in affected_pr_keys:
+            invalidate_pr_summary_cache(pr_k)
+
+    return {"updated_count": len(updated_items), "items": updated_items}
+
+
+@router.patch("/findings/batch-triage")
+def batch_triage_v1(body: BatchTriageRequest) -> dict[str, Any]:
+    return apply_batch_triage(body)
+
+
+@router.get("/findings/{fingerprint}/audit")
+def get_finding_audit(fingerprint: str) -> dict[str, Any]:
+    clean_fp = fingerprint.strip()
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, fingerprint, status, justification, actor, expires_at, recorded_at
+                FROM finding_triage_audit
+                WHERE fingerprint = %s
+                ORDER BY recorded_at DESC, id DESC;
+                """,
+                (clean_fp,),
+            )
+            rows = cur.fetchall()
+    return {
+        "fingerprint": clean_fp,
+        "total": len(rows),
+        "history": [
+            {
+                "id": r[0],
+                "fingerprint": r[1],
+                "status": r[2],
+                "justification": r[3],
+                "actor": r[4],
+                "expires_at": r[5].isoformat() if r[5] else None,
+                "recorded_at": r[6].isoformat() if r[6] else None,
+            }
+            for r in rows
+        ],
+    }
 
 
 def upsert_issue_occurrence(
@@ -69,10 +267,10 @@ def upsert_issue_occurrence(
             else:
                 cur.execute(
                     """
-                    INSERT INTO issues (analysis_id, project_key, rule_id, language, severity, file_path, start_line, message, cwe, flow_steps, status)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, 'OPEN');
+                    INSERT INTO issues (analysis_id, project_key, rule_id, language, severity, file_path, start_line, message, cwe, flow_steps, status, fingerprint)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, 'OPEN', %s);
                     """,
-                    (analysis_id, project_key, rule_id, issue_type, severity, file_path, line, message, cwe, json.dumps(flow_steps or [])),
+                    (analysis_id, project_key, rule_id, issue_type, severity, file_path, line, message, cwe, json.dumps(flow_steps or []), fingerprint),
                 )
         conn.commit()
     return IssueRecord(
@@ -220,9 +418,21 @@ def list_issues(
     where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
     count_sql = "SELECT COUNT(*) FROM issues" + where + ";"
     select_sql = (
-        "SELECT id, project_key, rule_id, severity, language, file_path, start_line, message, status, assignee, cwe, flow_steps FROM issues"
+        """
+        SELECT 
+            i.id, i.project_key, i.rule_id, i.severity, i.language, 
+            i.file_path, i.start_line, i.message, i.status, i.assignee, 
+            i.cwe, i.flow_steps, i.fingerprint,
+            ft.status AS triage_status,
+            ft.justification AS triage_justification,
+            ft.actor AS triage_actor,
+            ft.expires_at AS triage_expires_at,
+            ft.updated_at AS triage_updated_at
+        FROM issues i
+        LEFT JOIN finding_triages ft ON ft.fingerprint = i.fingerprint
+        """
         + where
-        + " ORDER BY id DESC LIMIT %s OFFSET %s;"
+        + " ORDER BY i.id DESC LIMIT %s OFFSET %s;"
     )
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -231,23 +441,58 @@ def list_issues(
             total = cnt_row[0] if cnt_row else 0
             cur.execute(select_sql, [*params, limit, offset])
             rows = cur.fetchall()
-    items = [
-        {
-            "issue_id": str(r[0]),
-            "project_key": r[1],
-            "rule_id": r[2],
-            "severity": r[3],
-            "issue_type": r[4],
-            "file_path": r[5],
-            "line": r[6],
-            "message": r[7],
-            "status": r[8],
-            "assignee": r[9],
-            "cwe": r[10],
-            "flow_steps": r[11] or [],
-        }
-        for r in rows
-    ]
+
+    now_utc = datetime.now(timezone.utc)
+    items = []
+    for r in rows:
+        iss_id = str(r[0])
+        proj_k = r[1]
+        rule_k = r[2]
+        sev = r[3]
+        lang = r[4]
+        fpath = r[5]
+        sline = r[6]
+        msg = r[7]
+        raw_status = r[8] or "OPEN"
+        assignee = r[9]
+        cwe = r[10]
+        flow_steps = r[11] or []
+        fp = r[12] or compute_finding_fingerprint(rule_k, fpath, flow_steps)
+
+        tr_status = r[13]
+        tr_just = r[14]
+        tr_actor = r[15]
+        tr_expires = r[16]
+        tr_updated = r[17]
+
+        effective_status = tr_status or raw_status
+        is_expired = False
+        if effective_status == "ACCEPTED_RISK" and tr_expires:
+            exp_dt = tr_expires if tr_expires.tzinfo else tr_expires.replace(tzinfo=timezone.utc)
+            if exp_dt <= now_utc:
+                effective_status = "OPEN"
+                is_expired = True
+
+        items.append({
+            "issue_id": iss_id,
+            "project_key": proj_k,
+            "rule_id": rule_k,
+            "severity": sev,
+            "issue_type": lang,
+            "file_path": fpath,
+            "line": sline,
+            "message": msg,
+            "status": effective_status,
+            "assignee": assignee,
+            "cwe": cwe,
+            "flow_steps": flow_steps,
+            "fingerprint": fp,
+            "justification": tr_just,
+            "triage_actor": tr_actor,
+            "expires_at": tr_expires.isoformat() if tr_expires else None,
+            "triage_updated_at": tr_updated.isoformat() if tr_updated else None,
+            "expired": is_expired,
+        })
     return {"total": total, "items": items}
 
 

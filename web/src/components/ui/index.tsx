@@ -161,7 +161,8 @@ export function MetricCard({
 
 export interface Column<T> {
   key: string;
-  header: string;
+  header: React.ReactNode;
+  width?: string | number;
   render: (row: T) => React.ReactNode;
 }
 
@@ -170,11 +171,15 @@ export function DataTable<T>({
   rows,
   emptyText = "Nenhum registro encontrado.",
   onRowClick,
+  rowSelection,
+  rowOpacity,
 }: {
   columns: Column<T>[];
   rows: T[];
   emptyText?: string;
   onRowClick?: (row: T) => void;
+  rowSelection?: (row: T) => boolean;
+  rowOpacity?: (row: T) => number | undefined;
 }) {
   if (rows.length === 0) return <EmptyState message={emptyText} />;
   return (
@@ -183,25 +188,32 @@ export function DataTable<T>({
         <thead>
           <tr style={{ borderBottom: "1px solid var(--border-subtle)", textAlign: "left", color: "var(--text-secondary)" }}>
             {columns.map((c) => (
-              <th key={c.key} style={{ padding: "8px 10px", fontWeight: 600, fontSize: 12 }}>{c.header}</th>
+              <th key={c.key} style={{ padding: "8px 10px", fontWeight: 600, fontSize: 12, width: c.width }}>{c.header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => (
-            <tr
-              key={idx}
-              onClick={onRowClick ? () => onRowClick(row) : undefined}
-              style={{
-                borderBottom: "1px solid var(--border-subtle)",
-                cursor: onRowClick ? "pointer" : "default",
-              }}
-            >
-              {columns.map((c) => (
-                <td key={c.key} style={{ padding: "10px" }}>{c.render(row)}</td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row, idx) => {
+            const isSelected = rowSelection ? rowSelection(row) : false;
+            const customOpacity = rowOpacity ? rowOpacity(row) : undefined;
+            const rowBg = isSelected ? "var(--bg-row-selected, rgba(79, 107, 237, 0.08))" : "transparent";
+            return (
+              <tr
+                key={idx}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                style={{
+                  borderBottom: "1px solid var(--border-subtle)",
+                  cursor: onRowClick ? "pointer" : "default",
+                  background: rowBg,
+                  opacity: isSelected ? 1 : customOpacity,
+                }}
+              >
+                {columns.map((c) => (
+                  <td key={c.key} style={{ padding: "10px", width: c.width }}>{c.render(row)}</td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

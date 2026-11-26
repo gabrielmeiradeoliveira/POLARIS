@@ -80,3 +80,16 @@ def save_pr_summary(pr_key: str, model: str, snippet_hash: str, payload: dict[st
     except Exception as exc:  # pragma: no cover - defensive path
         logger.warning("ai_pr_summaries cache write failed: %s", type(exc).__name__)
         return False
+
+
+def invalidate_pr_summary_cache(pr_key: str) -> bool:
+    """Invalidate all cached summaries for a PR key (e.g. after findings triage changes)."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM ai_pr_summaries WHERE pr_key = %s;", (pr_key,))
+            conn.commit()
+        return True
+    except Exception as exc:  # pragma: no cover - defensive path
+        logger.warning("ai_pr_summaries cache invalidation failed: %s", type(exc).__name__)
+        return False

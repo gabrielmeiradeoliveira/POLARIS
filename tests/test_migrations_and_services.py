@@ -12,7 +12,14 @@ class TestMigrationsAndServices(unittest.TestCase):
         files = sorted(p.name for p in MIGRATIONS_DIR.glob("*.sql"))
         self.assertEqual(
             files,
-            ["001_initial.sql", "002_flow_steps.sql", "003_auth_and_audit.sql", "004_services_persistence.sql"],
+            [
+                "001_initial.sql",
+                "002_flow_steps.sql",
+                "003_auth_and_audit.sql",
+                "004_services_persistence.sql",
+                "005_ai_pr_summaries.sql",
+                "006_finding_triages.sql",
+            ],
         )
 
     @unittest.skipUnless(os.environ.get("POLARIS_TEST_PG") == "1", "Requires PostgreSQL outside sandbox")

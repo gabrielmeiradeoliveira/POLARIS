@@ -1,4 +1,4 @@
-# POLARIS v3.5.1
+# POLARIS v3.6.0
 
 Plataforma híbrida de análise estática (SAST, Taint Tracking e Qualidade de Código) com motor 100% determinístico no pipeline e camada de IA sob demanda (Ollama local ou Cloud agnóstico `/v1/chat/completions`).
 
@@ -17,6 +17,7 @@ docker compose --profile ai up -d --build
 Acesse a UI em `http://localhost:8000` (Pull Requests em `http://localhost:8000/#/pull-requests`).
 
 ## Histórico de Versões
+- **v3.6.0:** Triagem em Lote e Supressão Auditável (`PATCH /api/findings/batch-triage`), fingerprint determinístico imune a deslocamento de linha, migration `006_finding_triages.sql`, filtragem/short-circuit FinOps no `/ai-summary` e UI de seleção em lote com barra flutuante grafite ardósia (`BatchTriageBar.tsx`).
 - **v3.5.1:** Correção do `/ai-summary` (`NameError: os`), cache persistente de resumos em PostgreSQL (`ai_pr_summaries`), telemetria completa com 5 métricas de tokens (`estimated_tokens`, `actual_input_tokens`, `actual_output_tokens`, `actual_total_tokens`, `saved_tokens`) e limpeza visual com alternador Sol-Lua refinado em `AppLayout.tsx`.
 - **v3.5.0:** Logo SVG autoral de 12 pontas (`PolarisLogo.tsx`), paleta grafite ardósia sóbria (`#111317` / `#171A20` / `#4F6BED`) e limpeza da topbar.
 - **v3.4.1:** Badge `ALIVE` verde em `StatusPage` e indicador `PostgreSQL Conectado` centralizado na página de Status.

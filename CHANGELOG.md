@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do projeto POLARIS serão documentadas neste arquivo.
 
+## [3.6.0] - 2026-11-26
+
+### Adicionado
+- Triagem em Lote e Supressão Auditável de Vulnerabilidades via endpoint `PATCH /api/findings/batch-triage`.
+- Fingerprint determinístico de findings imune a deslocamento de linha (`compute_finding_fingerprint` e migration `006_finding_triages.sql`).
+- Otimização FinOps com filtragem e short-circuit no `/ai-summary`: findings suprimidos (`FALSE_POSITIVE`, `WONT_FIX`, etc.) não consomem tokens de LLM.
+- UI completa de seleção múltipla em `IssuesPage` com `IndeterminateCheckbox`, modal de triagem e barra de ações flutuante grafite ardósia (`BatchTriageBar`).
+
 ## [3.5.1] - 2026-11-26
 
 ### Adicionado

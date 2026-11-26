@@ -31,3 +31,8 @@ def run_migrations(config: ServerConfig | None = None) -> list[str]:
 
 def init_schema(config: ServerConfig | None = None) -> None:
     run_migrations(config)
+    try:
+        from polaris_server.triage import backfill_missing_fingerprints
+        backfill_missing_fingerprints()
+    except Exception:
+        pass
